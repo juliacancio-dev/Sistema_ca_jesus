@@ -1,7 +1,6 @@
 
 # Sistema de Gestão de Estoque CA Jesus
 
-[![Licença](https://img.shields.io/badge/Licen%C3%A7a-MIT-green.svg)](LICENSE)
 [![PHP Version](https://img.shields.io/badge/PHP-%3E%3D7.4-777BB4.svg)](https://php.net)
 
 ## 📋 Sobre o Projeto
