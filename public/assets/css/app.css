@@ -1,0 +1,54 @@
+/* CSS personalizado extraído do HTML */
+.sidebar-transition { 
+    transition: transform 0.3s ease-in-out; 
+}
+
+.fade-in { 
+    animation: fadeIn 0.5s ease-in; 
+}
+
+@keyframes fadeIn { 
+    from { opacity: 0; } 
+    to { opacity: 1; } 
+}
+
+.chart-container { 
+    height: 400px; 
+}
+
+.print-section { 
+    page-break-inside: avoid; 
+}
+
+.no-print { 
+    display: none !important; 
+}
+
+@media print {
+    .no-print { 
+        display: none !important; 
+    }
+    .print-section { 
+        page-break-inside: avoid; 
+    }
+}
+
+/* Classes adicionais para melhorar a UX */
+.nav-item.active {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    .sidebar-mobile {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar-mobile.open {
+        transform: translateX(0);
+    }
+}

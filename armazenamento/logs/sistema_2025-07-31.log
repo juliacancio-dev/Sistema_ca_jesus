@@ -1,0 +1,32 @@
+[2025-07-31 02:55:15] [error] [Teste de Sistema] View não encontrada: dashboard/index | Detalhes: C:\xampp\htdocs\sistema_ca_jesus\app\core\Controller.php:40 | Trace: #0 C:\xampp\htdocs\sistema_ca_jesus\app\controllers\DashboardController.php(35): Controller->renderView('dashboard/index', Array)
+#1 C:\xampp\htdocs\sistema_ca_jesus\app\core\Router.php(82): DashboardController->index()
+#2 C:\xampp\htdocs\sistema_ca_jesus\public\index.php(129): Router->resolve()
+#3 {main}
+[2025-07-31 03:00:56] [error] [Teste de Sistema] View não encontrada: dashboard/index | Detalhes: C:\xampp\htdocs\sistema_ca_jesus\app\core\Controller.php:40 | Trace: #0 C:\xampp\htdocs\sistema_ca_jesus\app\controllers\DashboardController.php(35): Controller->renderView('dashboard/index', Array)
+#1 C:\xampp\htdocs\sistema_ca_jesus\app\core\Router.php(82): DashboardController->index()
+#2 C:\xampp\htdocs\sistema_ca_jesus\public\index.php(129): Router->resolve()
+#3 {main}
+[2025-07-31 03:33:45] [error] [Teste de Sistema] View não encontrada: produto/index | Detalhes: C:\xampp\htdocs\sistema_ca_jesus\app\core\Controller.php:40 | Trace: #0 C:\xampp\htdocs\sistema_ca_jesus\app\controllers\ProdutoController.php(19): Controller->renderView('produto/index', Array)
+#1 C:\xampp\htdocs\sistema_ca_jesus\app\core\Router.php(82): ProdutoController->index()
+#2 C:\xampp\htdocs\sistema_ca_jesus\public\index.php(129): Router->resolve()
+#3 {main}
+[2025-07-31 03:34:43] [error] [Teste de Sistema] View não encontrada: produto/index | Detalhes: C:\xampp\htdocs\sistema_ca_jesus\app\core\Controller.php:40 | Trace: #0 C:\xampp\htdocs\sistema_ca_jesus\app\controllers\ProdutoController.php(19): Controller->renderView('produto/index', Array)
+#1 C:\xampp\htdocs\sistema_ca_jesus\app\core\Router.php(82): ProdutoController->index()
+#2 C:\xampp\htdocs\sistema_ca_jesus\public\index.php(129): Router->resolve()
+#3 {main}
+[2025-07-31 03:35:18] [error] [Teste de Sistema] View não encontrada: movimentacao/index | Detalhes: C:\xampp\htdocs\sistema_ca_jesus\app\core\Controller.php:40 | Trace: #0 C:\xampp\htdocs\sistema_ca_jesus\app\controllers\MovimentacaoController.php(14): Controller->renderView('movimentacao/in...', Array)
+#1 C:\xampp\htdocs\sistema_ca_jesus\app\core\Router.php(82): MovimentacaoController->index()
+#2 C:\xampp\htdocs\sistema_ca_jesus\public\index.php(129): Router->resolve()
+#3 {main}
+[2025-07-31 03:36:26] [error] [Teste de Sistema] View não encontrada: relatorio/index | Detalhes: C:\xampp\htdocs\sistema_ca_jesus\app\core\Controller.php:40 | Trace: #0 C:\xampp\htdocs\sistema_ca_jesus\app\controllers\RelatorioController.php(9): Controller->renderView('relatorio/index', Array)
+#1 C:\xampp\htdocs\sistema_ca_jesus\app\core\Router.php(82): RelatorioController->index()
+#2 C:\xampp\htdocs\sistema_ca_jesus\public\index.php(129): Router->resolve()
+#3 {main}
+[2025-07-31 03:37:46] [error] [Teste de Sistema] View não encontrada: usuario/index | Detalhes: C:\xampp\htdocs\sistema_ca_jesus\app\core\Controller.php:40 | Trace: #0 C:\xampp\htdocs\sistema_ca_jesus\app\controllers\UsuarioController.php(16): Controller->renderView('usuario/index', Array)
+#1 C:\xampp\htdocs\sistema_ca_jesus\app\core\Router.php(82): UsuarioController->index()
+#2 C:\xampp\htdocs\sistema_ca_jesus\public\index.php(129): Router->resolve()
+#3 {main}
+[2025-07-31 03:39:01] [error] [Teste de Sistema] View não encontrada: fornecedor/index | Detalhes: C:\xampp\htdocs\sistema_ca_jesus\app\core\Controller.php:40 | Trace: #0 C:\xampp\htdocs\sistema_ca_jesus\app\controllers\FornecedorController.php(16): Controller->renderView('fornecedor/inde...', Array)
+#1 C:\xampp\htdocs\sistema_ca_jesus\app\core\Router.php(82): FornecedorController->index()
+#2 C:\xampp\htdocs\sistema_ca_jesus\public\index.php(129): Router->resolve()
+#3 {main}

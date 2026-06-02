@@ -1,0 +1,18 @@
+=== DIAGNÓSTICO DE PERMISSÕES ===
+Data/Hora: 2025-08-11 17:21:22
+
+Resultado: SUCESSO
+Detalhes:
+Diretório tem permissão de escrita.
+Arquivo de teste criado com sucesso.
+Arquivo pode ser lido.
+Arquivo de teste removido com sucesso.
+
+Informações do Sistema:
+PHP Version: 8.1.0
+OS: WINNT
+Server Software: N/A
+Current User: LABINFO
+Script Owner: 0
+Log Directory Owner: 0
+Log Directory Permissions: 0777

@@ -1,0 +1,53 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /sistema_ca_jesus/public/
+    
+    # Permitir acesso direto aos assets
+    RewriteCond %{REQUEST_URI} \.(css|js|png|jpg|gif|ico|woff|woff2|ttf|eot|svg)$ [NC]
+    RewriteRule ^(.*)$ - [L]
+    
+    # Se o arquivo ou diretório não existir, redirecionar para index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# Permitir acesso aos arquivos estáticos
+<FilesMatch "\.(css|js|png|jpg|gif|ico|woff|woff2|ttf|eot|svg)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Prevenir acesso direto a arquivos .php exceto index.php
+<Files ~ "\.php$">
+    Order allow,deny
+    Deny from all
+</Files>
+<Files index.php>
+    Order allow,deny
+    Allow from all
+</Files>
+
+# Headers de cache para arquivos estáticos
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+</IfModule>
+
+# Compressão GZIP para melhor performance
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/javascript
+</IfModule>
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg)$">
+    <IfModule mod_expires.c>
+        ExpiresActive On
+        ExpiresDefault "access plus 1 month"
+    </IfModule>
+</FilesMatch>

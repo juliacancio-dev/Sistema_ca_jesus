@@ -1,0 +1,204 @@
+=== DIAGNÓSTICO DO DASHBOARD ===
+Data/Hora: 2025-08-11 17:21:56
+
+PAGINA:
+-------
+Dashboard
+
+TEMPO_EXECUCAO:
+---------------
+1.377
+
+MEMORIA_USADA:
+--------------
+0.53
+
+AMBIENTE:
+---------
+Array
+(
+    [php_version] => 8.1.0
+    [server_software] => N/A
+    [sistema_operacional] => WINNT
+    [memoria_limite] => 128M
+    [post_max_size] => 8M
+    [max_execution_time] => 0
+)
+
+
+VARIAVEIS_DISPONIVEIS:
+----------------------
+Array
+(
+    [stats] => Array
+        (
+            [disponivel] => 1
+            [tipo] => array
+            [vazio] => 
+        )
+
+    [dadosGraficos] => Array
+        (
+            [disponivel] => 1
+            [tipo] => array
+            [vazio] => 
+        )
+
+    [atividades] => Array
+        (
+            [disponivel] => 1
+            [tipo] => array
+            [vazio] => 
+        )
+
+)
+
+
+DADOS_GRAFICOS:
+---------------
+Array
+(
+    [status] => verificado
+    [detalhes] => Array
+        (
+            [movimentacoes] => Array
+                (
+                    [labels_count] => 5
+                    [entradas_count] => 5
+                    [saidas_count] => 5
+                    [dados_consistentes] => 1
+                )
+
+            [estoque] => Array
+                (
+                    [total_marcas] => 3
+                    [marcas_vazias] => 0
+                    [estoque_zero] => 1
+                )
+
+        )
+
+)
+
+
+ESTATISTICAS:
+-------------
+Array
+(
+    [status] => verificado
+    [detalhes] => Array
+        (
+            [campos_esperados] => Array
+                (
+                    [total_produtos] => 1
+                    [estoque_total] => 1
+                    [movimentacoes_hoje] => 1
+                    [lucro_estimado] => 1
+                )
+
+            [valores] => Array
+                (
+                    [total_produtos] => 100
+                    [estoque_total] => 500
+                    [movimentacoes_hoje] => 10
+                    [lucro_estimado] => 5000
+                )
+
+        )
+
+)
+
+
+ATIVIDADES:
+-----------
+Array
+(
+    [status] => verificado
+    [detalhes] => Array
+        (
+            [total] => 2
+            [tipos] => Array
+                (
+                    [entrada] => 1
+                    [saida] => 1
+                )
+
+            [campos_invalidos] => 0
+        )
+
+)
+
+
+RECURSOS_JS:
+------------
+Array
+(
+    [status] => verificado
+    [detalhes] => Array
+        (
+            [chart.js] => Array
+                (
+                    [url] => https://cdn.jsdelivr.net/npm/chart.js
+                    [status] => 200
+                    [disponivel] => 1
+                )
+
+            [font-awesome] => Array
+                (
+                    [url] => https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css
+                    [status] => 200
+                    [disponivel] => 1
+                )
+
+            [app.js] => Array
+                (
+                    [url] => http://localhost/sistema_ca_jesus/public/assets/js/app.js
+                    [status] => 200
+                    [disponivel] => 1
+                )
+
+            [charts.js] => Array
+                (
+                    [url] => http://localhost/sistema_ca_jesus/public/assets/js/charts.js
+                    [status] => 200
+                    [disponivel] => 1
+                )
+
+        )
+
+)
+
+
+RECURSOS_CSS:
+-------------
+Array
+(
+    [status] => não verificado
+    [detalhes] => Array
+        (
+        )
+
+)
+
+
+ERROS_ENCONTRADOS:
+------------------
+Array
+(
+)
+
+
+AVISOS:
+-------
+Array
+(
+)
+
+
+RECOMENDACOES:
+--------------
+Array
+(
+)
+
+

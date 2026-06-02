@@ -1,0 +1,101 @@
+sistema_ca_jesus/
+├── .htaccess
+├── .qodo/
+├── app/
+│   ├── .htaccess
+│   ├── controllers/
+│   │   ├── .htaccess
+│   │   ├── AuthController.php
+│   │   ├── DashboardController.php
+│   │   ├── FornecedorController.php
+│   │   ├── MovimentacaoController.php
+│   │   ├── RelatorioController.php
+│   │   └── UsuarioController.php
+│   ├── core/
+│   │   ├── .htaccess
+│   │   ├── Controller.php
+│   │   ├── Database.php 
+│   │   ├── Router.php
+│   │   └── config.php
+│   ├── database/
+│   │   ├── migrations/
+│   │   │   ├── 0005_create_views.sql
+│   │   └── migrate.php
+│   ├── helpers/
+│   │   ├── AuthHelper.php
+│   │   ├── DiagnosticoHelper.php
+│   │   ├── ErrorHelper.php
+│   │   ├── LogHelper.php
+│   │   ├── TesteDiagnostico.php
+│   │   └── TestePermissoesLog.php
+│   ├── middleware/
+│   ├── models/
+│   │   ├── MovimentacaoModel.php
+│   │   ├── RelatorioModel.php
+│   │   └── FornecedorModel.php
+│   └── views/
+│       ├── layouts/
+│       │   ├── auth/
+│       │   │   └── login.php
+│       │   ├── dashboard/
+│       │   │   └── index.php
+│       │   ├── fornecedor/
+│       │   │   ├── form.php
+│       │   │   └── index.php
+│       │   ├── movimentacao/
+│       │   │   ├── form.php
+│       │   │   └── index.php
+│       │   ├── produto/
+│       │   │   ├── form.php
+│       │   │   └── index.php
+│       │   └── relatorio/
+│       │   │   ├── form.php
+│       │   │   └── index.php
+│       │   ├── usuario/
+│       │   │   ├── form.php
+│       │   │   └── index.php
+│       └── partials/
+│           ├── sidebar.php
+│           └── toast.php
+├── armazenamento/
+│   ├── backups/
+│   │   ├── README.txt
+│   │   └── index.html
+│   ├── logs/
+│   │   ├── README.txt
+│   │   ├── diagnostico_dashboard_2025-08-11_17-21-57.log
+│   │   ├── diagnostico_permissoes_2025-08-11_17-21-22.log
+│   │   ├── index.html
+│   │   ├── sistema_2025-07-31.log
+│   │   ├── sistema_2025-08-02.log
+│   │   ├── sistema_2025-08-11.log
+│   │   └── sistema_2025-08-13.log
+│   ├── temp/
+│   │   ├── README.txt
+│   │   └── index.html
+│   └── uploads/
+│       ├── README.txt
+│       └── index.html
+├── composer.json
+├── config/
+│   ├── config.php
+│   └── database.php
+├── populate_db.php
+├── public/
+│   ├── .htaccess
+│   ├── assets/
+│   │   └── js/
+│   │       ├── app.js
+│   │       └── charts.js
+│   └── index.php
+├── sistema_ca_jesus.html
+├── test_cli.php
+└── tests/
+    ├── bootstrap.php
+    ├── index.html
+    ├── integration/
+    │   └── index.html 
+    ├── README.txt
+    ├── test_dashboard.php
+    └── unit/
+        └── index.html

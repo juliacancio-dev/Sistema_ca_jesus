@@ -1,0 +1,17 @@
+{
+    "name": "sistema-ca-jesus/estoque",
+    "description": "Sistema de Gestão de Estoque",
+    "type": "project",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    }
+}
+
+
+
+

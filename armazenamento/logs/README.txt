@@ -1,0 +1,1 @@
+Esta pasta é destinada ao armazenamento de logs do sistema, como logs de erros, acessos e operações importantes. Os arquivos aqui ajudam na auditoria e manutenção do sistema.
