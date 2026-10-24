@@ -96,9 +96,6 @@ class MovimentacaoController extends Controller
     public function estoqueAtualJson()
     {
         $produtoModel = new ProdutoModel();
-        header('Content-Type: application/json');
-        $estoqueAtual = $produtoModel->listarTodos();
-        echo json_encode($estoqueAtual);
-        exit;
+        $this->json(true, dados: $produtoModel->listarTodos());
     }
 }

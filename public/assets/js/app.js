@@ -64,6 +64,28 @@ window.escapeHtml = function(valor) {
         .replace(/'/g, '&#039;');
 };
 
+// Chama uma rota que responde no contrato JSON (docs/arquitetura.md).
+// Sempre resolve com { sucesso, mensagem, dados, requer_confirmacao }; nunca rejeita.
+// Sessão expirada (401) leva ao login.
+window.requisicaoJson = async function(url, opcoes = {}) {
+    const headers = Object.assign({ 'Accept': 'application/json' }, opcoes.headers || {});
+    try {
+        const res = await fetch(url, Object.assign({}, opcoes, { headers }));
+        if (res.status === 401) {
+            window.location.href = (window.APP_BASE_URL || '') + '/login';
+        }
+        return await res.json();
+    } catch (e) {
+        console.error('Falha na requisição', url, e);
+        return {
+            sucesso: false,
+            mensagem: 'Não foi possível falar com o servidor. Verifique a conexão e tente novamente.',
+            dados: null,
+            requer_confirmacao: false
+        };
+    }
+};
+
 window.openModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {

@@ -15,8 +15,6 @@ class RelatorioController extends Controller
 
     public function getDados()
     {
-        header('Content-Type: application/json');
-
         $tipo = $_GET['tipo'] ?? 'financeiro';
         $periodo = $_GET['periodo'] ?? 'mensal';
         $dataInicio = $_GET['data_inicio'] ?? null;
@@ -30,20 +28,15 @@ class RelatorioController extends Controller
         $movimentacoes = $movimentacaoModel->buscarPorPeriodo($inicio, $fim);
 
         if ($tipo === 'financeiro') {
-            $dados = $this->montarDadosFinanceiros($movimentacoes, $periodo, $inicio, $fim);
-            echo json_encode(['dados' => $dados]);
-            exit;
+            $this->json(true, dados: $this->montarDadosFinanceiros($movimentacoes, $periodo, $inicio, $fim));
         }
 
         if ($tipo === 'estoque') {
             $produtos = $produtoModel->listarTodos();
-            $dados = $this->montarDadosEstoque($movimentacoes, $produtos, $periodo, $inicio, $fim);
-            echo json_encode(['dados' => $dados]);
-            exit;
+            $this->json(true, dados: $this->montarDadosEstoque($movimentacoes, $produtos, $periodo, $inicio, $fim));
         }
 
-        echo json_encode(['erro' => 'Tipo de relatório inválido']);
-        exit;
+        $this->json(false, 'Tipo de relatório inválido.', status: 422);
     }
 
     private function determinarIntervaloDatas(string $periodo, ?string $dataInicio, ?string $dataFim): array

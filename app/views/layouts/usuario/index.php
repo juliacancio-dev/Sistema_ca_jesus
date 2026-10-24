@@ -925,41 +925,31 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
             }
 
             function viewUsuario(id) {
-                fetch(`<?= BASE_URL ?>/usuarios/buscar/${id}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showUsuarioDetails(data.usuario);
+                requisicaoJson(`<?= BASE_URL ?>/usuarios/buscar/${id}`)
+                    .then(resposta => {
+                        if (resposta.sucesso) {
+                            showUsuarioDetails(resposta.dados);
                         } else {
-                            alert('Erro ao carregar dados do usuário: ' + data.message);
+                            alert(resposta.mensagem);
                         }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao carregar usuário:', error);
-                        alert('Erro ao carregar dados do usuário');
                     });
             }
 
             function editUsuario(id) {
-                fetch(`<?= BASE_URL ?>/usuarios/buscar/${id}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.openUsuarioModal(data.usuario);
+                requisicaoJson(`<?= BASE_URL ?>/usuarios/buscar/${id}`)
+                    .then(resposta => {
+                        if (resposta.sucesso) {
+                            window.openUsuarioModal(resposta.dados);
                         } else {
-                            alert('Erro ao carregar dados do usuário: ' + data.message);
+                            alert(resposta.mensagem);
                         }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao carregar usuário:', error);
-                        alert('Erro ao carregar dados do usuário');
                     });
             }
 
             function toggleUsuarioStatus(id, novoStatus) {
                 const acao = novoStatus ? 'ativar' : 'desativar';
                 if (confirm(`Deseja ${acao} este usuário?`)) {
-                    fetch(`<?= BASE_URL ?>/usuarios/toggle-status/${id}`, {
+                    requisicaoJson(`<?= BASE_URL ?>/usuarios/toggle-status/${id}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -968,42 +958,27 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
                                 status: novoStatus
                             })
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Recarregar a 
+                        .then(resposta => {
+                            if (resposta.sucesso) {
                                 window.location.reload();
                             } else {
-                                alert('Erro ao alterar status: ' + data.message);
+                                alert(resposta.mensagem);
                             }
-                        })
-                        .catch(error => {
-                            console.error('Erro ao alterar status:', error);
-                            alert('Erro ao alterar status do usuário');
                         });
                 }
             }
 
             function deleteUsuario(id, nome) {
                 if (confirm(`Tem certeza que deseja excluir o usuário "${nome}"?\n\nEsta ação não pode ser desfeita.`)) {
-                    fetch(`<?= BASE_URL ?>/usuarios/excluir/${id}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            }
+                    requisicaoJson(`<?= BASE_URL ?>/usuarios/excluir/${id}`, {
+                            method: 'POST'
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Recarregar a 
+                        .then(resposta => {
+                            if (resposta.sucesso) {
                                 window.location.reload();
                             } else {
-                                alert('Erro ao excluir usuário: ' + data.message);
+                                alert(resposta.mensagem);
                             }
-                        })
-                        .catch(error => {
-                            console.error('Erro ao excluir usuário:', error);
-                            alert('Erro ao excluir usuário');
                         });
                 }
             }

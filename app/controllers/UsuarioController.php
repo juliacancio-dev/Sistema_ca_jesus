@@ -101,39 +101,28 @@ class UsuarioController extends Controller
             $this->verificarAutenticacao();
             $this->verificarPermissao(['admin']);
 
-            header('Content-Type: application/json; charset=utf-8');
             $id = $this->validarId($id);
 
             if ($_SESSION['user']['id'] == $id) {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => 'Você não pode excluir seu próprio usuário']);
-                exit;
+                $this->json(false, 'Você não pode excluir seu próprio usuário.', status: 422);
             }
             $usuario = $this->usuarioModel->buscarPorId($id);
 
             if (!$usuario) {
-                http_response_code(404);
-                echo json_encode(['success' => false, 'message' => 'Usuário não encontrado']);
-                exit;
+                $this->json(false, 'Usuário não encontrado.', status: 404);
             }
 
             $resultado = $this->usuarioModel->deletar($id);
-
-            if ($resultado) {
-                $this->logarAcao('usuario_excluido', ['id' => $id, 'email' => $usuario['email']]);
-                $this->setFlashMessage('success', 'Usuário excluído com sucesso.');
-                echo json_encode(['success' => true, 'message' => 'Usuário excluído com sucesso']);
-            } else {
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Erro ao excluir usuário']);
-            }
-            exit;
         } catch (Exception $e) {
-            header('Content-Type: application/json; charset=utf-8');
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erro interno do servidor']);
-            exit;
+            $this->logarErro($e);
+            $this->json(false, 'Erro ao excluir usuário.', status: 500);
         }
+        if (!$resultado) {
+            $this->json(false, 'Erro ao excluir usuário.', status: 500);
+        }
+        $this->logarAcao('usuario_excluido', ['id' => $id, 'email' => $usuario['email']]);
+        $this->setFlashMessage('success', 'Usuário excluído com sucesso.');
+        $this->json(true, 'Usuário excluído com sucesso.');
     }
     public function buscar($id)
     {
@@ -141,26 +130,17 @@ class UsuarioController extends Controller
             $this->verificarAutenticacao();
             $this->verificarPermissao(['admin']);
 
-            header('Content-Type: application/json; charset=utf-8');
-
             $id = $this->validarId($id);
             $usuario = $this->usuarioModel->buscarPorId($id);
-
-            if (!$usuario) {
-                http_response_code(404);
-                echo json_encode(['success' => false, 'message' => 'Usuário não encontrado']);
-                exit;
-            }
-            unset($usuario['senha']);
-
-            echo json_encode(['success' => true, 'usuario' => $usuario]);
-            exit;
         } catch (Exception $e) {
-            header('Content-Type: application/json; charset=utf-8');
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erro interno do servidor']);
-            exit;
+            $this->logarErro($e);
+            $this->json(false, 'Erro ao carregar os dados do usuário.', status: 500);
         }
+        if (!$usuario) {
+            $this->json(false, 'Usuário não encontrado.', status: 404);
+        }
+        unset($usuario['senha']);
+        $this->json(true, dados: $usuario);
     }
     public function toggleStatus($id)
     {
@@ -169,41 +149,30 @@ class UsuarioController extends Controller
             $this->verificarPermissao(['admin']);
             $this->verificarMetodoPost();
 
-            header('Content-Type: application/json; charset=utf-8');
-
             $id = $this->validarId($id);
             $dados = json_decode(file_get_contents('php://input'), true);
             $novoStatus = isset($dados['status']) ? (int)$dados['status'] : 0;
 
             if ($_SESSION['user']['id'] == $id) {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => 'Você não pode alterar o status do seu próprio usuário']);
-                exit;
+                $this->json(false, 'Você não pode alterar o status do seu próprio usuário.', status: 422);
             }
             $usuario = $this->usuarioModel->buscarPorId($id);
             if (!$usuario) {
-                http_response_code(404);
-                echo json_encode(['success' => false, 'message' => 'Usuário não encontrado']);
-                exit;
+                $this->json(false, 'Usuário não encontrado.', status: 404);
             }
 
-            if ($this->usuarioModel->alternarStatus($id, $novoStatus)) {
-                $mensagem = $novoStatus ? 'Usuário ativado com sucesso' : 'Usuário desativado com sucesso';
-                $this->setFlashMessage('success', $mensagem);
-                $this->logarAcao('usuario_status_alterado', ['id' => $id, 'status' => $novoStatus]);
-
-                echo json_encode(['success' => true, 'message' => $mensagem]);
-            } else {
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Erro ao alterar status do usuário']);
-            }
-            exit;
+            $ok = $this->usuarioModel->alternarStatus($id, $novoStatus);
         } catch (Exception $e) {
-            header('Content-Type: application/json; charset=utf-8');
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erro interno do servidor']);
-            exit;
+            $this->logarErro($e);
+            $this->json(false, 'Erro ao alterar status do usuário.', status: 500);
         }
+        if (!$ok) {
+            $this->json(false, 'Erro ao alterar status do usuário.', status: 500);
+        }
+        $mensagem = $novoStatus ? 'Usuário ativado com sucesso' : 'Usuário desativado com sucesso';
+        $this->setFlashMessage('success', $mensagem);
+        $this->logarAcao('usuario_status_alterado', ['id' => $id, 'status' => $novoStatus]);
+        $this->json(true, $mensagem);
     }
     public function perfil()
     {
