@@ -335,40 +335,6 @@
         }
     }
 
-    function showToast(message, type = 'info', duration = 3000) {
-        const container = document.getElementById('toast-container');
-        if (!container) {
-            console.warn('Toast container not found');
-            return;
-        }
-        const toast = document.createElement('div');
-        toast.className = `px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 transform translate-x-full`;
-        const colors = {
-            success: 'bg-green-600',
-            error: 'bg-red-600',
-            warning: 'bg-yellow-600',
-            info: 'bg-blue-600'
-        };
-        toast.classList.add(colors[type] || colors.info);
-        toast.textContent = message;
-        container.appendChild(toast);
-        setTimeout(() => {
-            toast.classList.remove('translate-x-full');
-        }, 50);
-        if (duration > 0) {
-            setTimeout(() => {
-                toast.classList.add('translate-x-full');
-                setTimeout(() => toast.remove(), 300);
-            }, duration);
-        }
-        return {
-            remove: () => {
-                toast.classList.add('translate-x-full');
-                setTimeout(() => toast.remove(), 300);
-            }
-        };
-    }
-
     function filtrosAtuais() {
         const periodo = document.getElementById('select-periodo').value;
         const dataInicio = document.getElementById('data-inicio').value;
@@ -463,7 +429,7 @@
         (entradas_detalhadas || []).forEach(e => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td class="px-2 py-2">${formatDateTime(e.data)}</td>
-                        <td class="px-2 py-2">${e.descricao}</td>
+                        <td class="px-2 py-2">${escapeHtml(e.descricao)}</td>
                         <td class="px-2 py-2 text-right">${moeda(e.valor)}</td>`;
             entTbody.appendChild(tr);
         });
@@ -473,7 +439,7 @@
         (saidas_detalhadas || []).forEach(e => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td class="px-2 py-2">${formatDateTime(e.data)}</td>
-                        <td class="px-2 py-2">${e.descricao}</td>
+                        <td class="px-2 py-2">${escapeHtml(e.descricao)}</td>
                         <td class="px-2 py-2 text-right">${moeda(e.valor)}</td>`;
             saiTbody.appendChild(tr);
         });
@@ -554,8 +520,8 @@
         prodTbody.innerHTML = '';
         (produtos || []).slice().sort((a, b) => Number(a.codigo) - Number(b.codigo)).forEach(p => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="px-2 py-2">${p.codigo}</td>
-                        <td class="px-2 py-2">${p.nome}</td>
+            tr.innerHTML = `<td class="px-2 py-2">${escapeHtml(p.codigo)}</td>
+                        <td class="px-2 py-2">${escapeHtml(p.nome)}</td>
                         <td class="px-2 py-2 text-right">${p.estoque_atual ?? ''}</td>`;
             prodTbody.appendChild(tr);
         });
@@ -565,7 +531,7 @@
         (entradas_estoque || []).forEach(e => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td class="px-2 py-2">${formatDateTime(e.data)}</td>
-                        <td class="px-2 py-2">${e.produto}</td>
+                        <td class="px-2 py-2">${escapeHtml(e.produto)}</td>
                         <td class="px-2 py-2 text-right">${e.quantidade}</td>`;
             entTbody.appendChild(tr);
         });
@@ -575,7 +541,7 @@
         (saidas_estoque || []).forEach(e => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td class="px-2 py-2">${formatDateTime(e.data)}</td>
-                        <td class="px-2 py-2">${e.produto}</td>
+                        <td class="px-2 py-2">${escapeHtml(e.produto)}</td>
                         <td class="px-2 py-2 text-right">${e.quantidade}</td>`;
             saiTbody.appendChild(tr);
         });
@@ -585,10 +551,10 @@
         (historico_movimentacoes || []).forEach(h => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td class="px-2 py-2">${formatDateTime(h.data)}</td>
-                        <td class="px-2 py-2">${h.produto}</td>
-                        <td class="px-2 py-2">${h.tipo}</td>
+                        <td class="px-2 py-2">${escapeHtml(h.produto)}</td>
+                        <td class="px-2 py-2">${escapeHtml(h.tipo)}</td>
                         <td class="px-2 py-2 text-right">${h.quantidade}</td>
-                        <td class="px-2 py-2">${h.observacao || ''}</td>`;
+                        <td class="px-2 py-2">${escapeHtml(h.observacao)}</td>`;
             histTbody.appendChild(tr);
         });
 
@@ -596,7 +562,7 @@
         topTbody.innerHTML = '';
         (produtos_mais_vendidos || []).forEach(t => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="px-2 py-2">${t.produto}</td>
+            tr.innerHTML = `<td class="px-2 py-2">${escapeHtml(t.produto)}</td>
                         <td class="px-2 py-2 text-right">${t.quantidade}</td>`;
             topTbody.appendChild(tr);
         });

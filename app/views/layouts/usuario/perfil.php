@@ -31,7 +31,7 @@
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                     <div class="text-center mb-6">
                         <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white text-2xl font-bold mb-4">
-                            <?= strtoupper(substr($usuario['nome'], 0, 1)) ?>
+                            <?= htmlspecialchars(mb_strtoupper(mb_substr($usuario['nome'], 0, 1))) ?>
                         </div>
                         <h3 class="text-xl font-semibold text-gray-900"><?= htmlspecialchars($usuario['nome']) ?></h3>
                         <p class="text-gray-600"><?= htmlspecialchars($usuario['email']) ?></p>

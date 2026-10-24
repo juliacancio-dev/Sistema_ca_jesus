@@ -181,9 +181,9 @@
 
     <script>
 
+        // Validação rápida no navegador; a regra de verdade é verificada no servidor,
+        // que responde com redirect + mensagem (flash) exibida pelo layout.
         function handleFormSubmit(event) {
-            event.preventDefault();
-
             const form = event.target;
 
             const produto = form.querySelector('[name="produto"]').value.trim();
@@ -193,10 +193,12 @@
             const venda = parseFloat(form.querySelector('[name="preco_venda"]').value || '0');
 
             if (!produto || !tipo || quantidade <= 0 || custo < 0 || venda < 0) {
+                event.preventDefault();
                 alert('Preencha todos os campos obrigatórios corretamente.');
                 return false;
             }
             if (custo > venda) {
+                event.preventDefault();
                 alert('Preço de custo não pode ser maior que o preço de venda.');
                 return false;
             }
@@ -206,35 +208,21 @@
                 const opt = select.options[select.selectedIndex];
                 const estoque = parseInt(opt.getAttribute('data-estoque') || '0', 10);
                 if (estoque <= 0) {
+                    event.preventDefault();
                     alert('Estoque do produto está zerado. Não é possível registrar saída.');
                     return false;
                 }
                 if (quantidade > estoque) {
+                    event.preventDefault();
                     alert('Quantidade de saída maior que o estoque disponível (' + estoque + ').');
                     return false;
                 }
             }
 
-            const formData = new FormData(form);
-
             const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Registrando...';
             submitBtn.disabled = true;
-
-            fetch(form.action, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(() => window.location.reload())
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro ao registrar movimentação. Tente novamente.');
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                });
-
-            return false;
+            return true;
         }
 
         document.getElementById("produto-select").addEventListener("change", function() {

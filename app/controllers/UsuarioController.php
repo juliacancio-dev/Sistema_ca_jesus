@@ -52,7 +52,7 @@ class UsuarioController extends Controller
             $erros = $this->validarDados($dados);
 
             if (!empty($erros)) {
-                $this->setFlashMessage('error', implode('<br>', $erros));
+                $this->setFlashMessage('error', implode("\n", $erros));
                 $this->redirect('/usuarios');
             }
             if ($this->usuarioModel->verificarEmailExistente($dados['email'], $dados['id'])) {
@@ -85,8 +85,11 @@ class UsuarioController extends Controller
             } else {
                 $this->setFlashMessage('error', 'Erro ao salvar usuário.');
             }
+        } catch (SecurityException $e) {
+            $this->setFlashMessage('error', 'O formulário expirou. Recarregue a página e tente novamente.');
+            $this->logarErro($e);
         } catch (Exception $e) {
-            $this->setFlashMessage('error', 'Erro interno: ' . $e->getMessage());
+            $this->setFlashMessage('error', 'Erro ao salvar usuário.');
             $this->logarErro($e);
         }
 
@@ -118,6 +121,7 @@ class UsuarioController extends Controller
 
             if ($resultado) {
                 $this->logarAcao('usuario_excluido', ['id' => $id, 'email' => $usuario['email']]);
+                $this->setFlashMessage('success', 'Usuário excluído com sucesso.');
                 echo json_encode(['success' => true, 'message' => 'Usuário excluído com sucesso']);
             } else {
                 http_response_code(500);
@@ -246,7 +250,7 @@ class UsuarioController extends Controller
             $erros = $this->validarDadosPerfil($dados);
 
             if (!empty($erros)) {
-                $this->setFlashMessage('error', implode('<br>', $erros));
+                $this->setFlashMessage('error', implode("\n", $erros));
                 $this->redirect('/usuarios/perfil');
             }
 
@@ -479,10 +483,7 @@ class UsuarioController extends Controller
     }
     private function setFlashMessage(string $tipo, string $mensagem): void
     {
-        $_SESSION['flash'] = [
-            'type' => $tipo,
-            'message' => $mensagem
-        ];
+        Session::flash($tipo, $mensagem);
     }
     private function tratarErro(Exception $e, string $mensagemUsuario): void
     {

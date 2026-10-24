@@ -5,7 +5,6 @@ if (!defined('ROOT_DIR')) {
 }
 
 require_once __DIR__ . '/../../helpers/AuthHelper.php';
-require_once __DIR__ . '/../../helpers/ErrorHelper.php';
 @date_default_timezone_set('America/Sao_Paulo');
 
 if (!AuthHelper::isLoggedIn()) {
@@ -153,7 +152,13 @@ if (isActive('/dashboard', $currentUri)) {
 <body class="bg-gray-50 min-h-screen">
 
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
-    <?php ErrorHelper::displayToast(); ?>
+    <?php $flash = Session::pullFlash(); if ($flash): ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                showToast(<?= json_encode($flash['message']) ?>, <?= json_encode($flash['type']) ?>, 6000);
+            });
+        </script>
+    <?php endif; ?>
 
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 sidebar-transition">
 
@@ -424,7 +429,7 @@ if (isActive('/dashboard', $currentUri)) {
                                 const estq = p.estoque || p.estoque_produto || 0;
                                 const row = document.createElement('div');
                                 row.className = 'px-4 py-2 text-sm flex items-center justify-between hover:bg-gray-50';
-                                row.innerHTML = `<div class=\"flex items-center\"><i class=\"fas fa-exclamation-triangle text-yellow-500 mr-2\"></i><span class=\"text-gray-800 truncate pr-2\">${nome}</span></div><span class=\"text-red-600 font-semibold\">${estq}</span>`;
+                                row.innerHTML = `<div class="flex items-center"><i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i><span class="text-gray-800 truncate pr-2">${escapeHtml(nome)}</span></div><span class="text-red-600 font-semibold">${escapeHtml(estq)}</span>`;
                                 bellList.appendChild(row);
                             });
                         }
@@ -460,14 +465,6 @@ if (isActive('/dashboard', $currentUri)) {
                 userMenu.classList.toggle('hidden');
             });
             document.addEventListener('click', () => userMenu.classList.add('hidden'));
-        }
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `px-4 py-2 rounded shadow text-white ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}`;
-            toast.textContent = message;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
         }
     </script>
 </body>

@@ -27,10 +27,7 @@ class FornecedorController extends Controller
             $erros = $this->validarDados($dados);
 
             if (!empty($erros)) {
-                $_SESSION['flash'] = [
-                    'type' => 'error',
-                    'message' => implode('<br>', $erros)
-                ];
+                Session::flash('error', implode("\n", $erros));
                 header('Location: ' . BASE_URL . '/fornecedores');
                 exit;
             }
@@ -40,19 +37,16 @@ class FornecedorController extends Controller
 
             if ($resultado) {
                 ErrorHelper::logSuccess('Fornecedor salvo com sucesso', 'Teste de Sistema', json_encode($dados));
-                $_SESSION['flash'] = [
-                    'type' => 'success',
-                    'message' => $dados['id'] ? 'Fornecedor atualizado com sucesso.' : 'Fornecedor criado com sucesso.'
-                ];
+                Session::flash('success', $dados['id'] ? 'Fornecedor atualizado com sucesso.' : 'Fornecedor criado com sucesso.');
             } else {
-                throw new Exception('Erro ao salvar fornecedor.');
+                Session::flash('error', 'Erro ao salvar fornecedor.');
             }
+        } catch (DomainException | DatabaseException $e) {
+            ErrorHelper::handle($e, 'Erro ao salvar fornecedor', 'Teste de Sistema');
+            Session::flash('error', $e->getMessage());
         } catch (Exception $e) {
             ErrorHelper::handle($e, 'Erro ao salvar fornecedor', 'Teste de Sistema');
-            $_SESSION['flash'] = [
-                'type' => 'error',
-                'message' => $e->getMessage()
-            ];
+            Session::flash('error', 'Erro ao salvar fornecedor.');
         }
         header('Location: ' . BASE_URL . '/fornecedores');
         exit;
@@ -64,25 +58,24 @@ class FornecedorController extends Controller
 
         header('Content-Type: application/json; charset=utf-8');
         try {
+            // O model converte erros de PDO em DatabaseException, então o vínculo é checado antes.
+            if ($model->contarProdutosVinculados((int)$id) > 0) {
+                http_response_code(409);
+                echo json_encode(['success' => false, 'message' => 'Não é possível excluir este fornecedor, pois existem produtos vinculados a ele.']);
+                exit;
+            }
             $ok = $model->deletar((int)$id);
             if ($ok) {
+                Session::flash('success', 'Fornecedor excluído com sucesso.');
                 echo json_encode(['success' => true, 'message' => 'Fornecedor excluído com sucesso.']);
             } else {
                 http_response_code(500);
                 echo json_encode(['success' => false, 'message' => 'Erro ao excluir fornecedor.']);
             }
-        } catch (PDOException $e) {
-            $msg = $e->getMessage();
-            if (strpos($msg, '1451') !== false || strpos($msg, '23000') !== false) {
-                http_response_code(409);
-                echo json_encode(['success' => false, 'message' => 'Não é possível excluir este fornecedor, pois existem registros relacionados (ex.: produtos).']);
-            } else {
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Erro no banco ao excluir fornecedor.']);
-            }
         } catch (Throwable $e) {
+            ErrorHelper::handle($e, 'Erro ao excluir fornecedor', 'Teste de Sistema');
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erro inesperado ao excluir fornecedor.']);
+            echo json_encode(['success' => false, 'message' => 'Erro ao excluir fornecedor.']);
         }
         exit;
     }
@@ -129,6 +122,7 @@ class FornecedorController extends Controller
             $ok = $model->alternarStatus((int)$id, $novoStatus);
             if ($ok) {
                 $mensagem = $novoStatus ? 'Fornecedor ativado com sucesso' : 'Fornecedor desativado com sucesso';
+                Session::flash('success', $mensagem);
                 echo json_encode(['success' => true, 'message' => $mensagem]);
             } else {
                 http_response_code(500);
@@ -156,8 +150,7 @@ class FornecedorController extends Controller
             'complemento' => htmlspecialchars(trim($_POST['complemento'] ?? ''), ENT_QUOTES, 'UTF-8'),
             'bairro' => htmlspecialchars(trim($_POST['bairro'] ?? ''), ENT_QUOTES, 'UTF-8'),
             'cidade' => htmlspecialchars(trim($_POST['cidade'] ?? ''), ENT_QUOTES, 'UTF-8'),
-            'estado' => strtoupper(htmlspecialchars(trim($_POST['estado'] ?? ''), ENT_QUOTES, 'UTF-8')),
-            'ativo' => isset($_POST['ativo']) ? 1 : 0
+            'estado' => strtoupper(htmlspecialchars(trim($_POST['estado'] ?? ''), ENT_QUOTES, 'UTF-8'))
         ];
     }
     private function validarDados(array $dados): array

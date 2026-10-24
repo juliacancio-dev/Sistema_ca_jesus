@@ -137,7 +137,6 @@
             </div>
         </div>
 
-        <?php include __DIR__ . '/../../partials/toast.php'; ?>
     </div>
 </div>
 

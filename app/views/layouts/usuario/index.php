@@ -105,7 +105,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
                                             <div class="flex items-center space-x-3">
                                                 <div class="flex-shrink-0">
                                                     <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                                                        <?= strtoupper(substr($usuario["nome"], 0, 1)) ?>
+                                                        <?= htmlspecialchars(mb_strtoupper(mb_substr($usuario["nome"], 0, 1))) ?>
                                                     </div>
                                                 </div>
                                                 <div>

@@ -13,18 +13,14 @@ class MovimentacaoModel {
 
             $produto = $this->buscarProdutoPorMarca($dados["marca_produto"]);
             if (!$produto) {
-                throw new Exception("Produto não encontrado");
+                throw new DomainException("Produto não encontrado.");
             }
 
             if ($dados["acao"] === "saida" && $produto["estoque_produto"] < $dados["quantidade"]) {
-                throw new Exception("Estoque insuficiente para esta operação");
+                throw new DomainException("Estoque insuficiente para esta operação.");
             }
 
-            $lucro = 0;
-            if ($dados["acao"] === "saida") {
-                $lucro = ($dados["preco_venda"] - $dados["preco_custo"]) * $dados["quantidade"];
-            }
-
+            // lucro_movimentacao é coluna calculada pelo banco (VIRTUAL); não é enviada.
             $stmt = $this->db->prepare("
                 INSERT INTO tbmovimentacoes (
                     marca_produto,
@@ -32,10 +28,9 @@ class MovimentacaoModel {
                     quantidade_movimentacao,
                     preco_custo_movimentacao,
                     preco_venda_movimentacao,
-                    lucro_movimentacao,
                     observacao_movimentacao,
                     usuario_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
             ");
             
             $ok = $stmt->execute([
@@ -44,7 +39,6 @@ class MovimentacaoModel {
                 $dados["quantidade"],
                 $dados["preco_custo"],
                 $dados["preco_venda"],
-                $lucro,
                 $dados["observacao"],
                 $dados["usuario_id"]
             ]);
