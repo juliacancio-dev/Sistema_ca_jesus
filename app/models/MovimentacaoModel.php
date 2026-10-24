@@ -67,15 +67,6 @@ class MovimentacaoModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    private function atualizarEstoqueProduto($id, $estoque) {
-        $stmt = $this->db->prepare("
-            UPDATE tbprodutos 
-            SET estoque_produto = ? 
-            WHERE id_produto = ?
-        ");
-        return $stmt->execute([$estoque, $id]);
-    }
-
     public function listarTodas() {
         $stmt = $this->db->prepare("
             SELECT 
@@ -122,26 +113,6 @@ class MovimentacaoModel {
     public function getMovimentacoesHoje() {
         $hoje = date("Y-m-d");
         return $this->buscarPorPeriodo($hoje, $hoje);
-    }
-
-    public function getTotalEntradas() {
-        $stmt = $this->db->prepare("
-            SELECT SUM(quantidade_movimentacao) as total 
-            FROM tbmovimentacoes 
-            WHERE acao_movimentacao = \"entrada\"
-        ");
-        $stmt->execute();
-        return $stmt->fetchColumn() ?? 0;
-    }
-
-    public function getTotalSaidas() {
-        $stmt = $this->db->prepare("
-            SELECT SUM(quantidade_movimentacao) as total 
-            FROM tbmovimentacoes 
-            WHERE acao_movimentacao = \"saida\"
-        ");
-        $stmt->execute();
-        return $stmt->fetchColumn() ?? 0;
     }
 
     public function getLucroTotal() {

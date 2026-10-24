@@ -63,26 +63,6 @@ class Database {
         return $this->connection->lastInsertId();
     }
 
-    public function query($sql) {
-        return $this->connection->query($sql);
-    }
-    
-    public function exec($sql) {
-        return $this->connection->exec($sql);
-    }
-
-    public function executeTransaction(callable $callback) {
-        $this->beginTransaction();
-        try {
-            $result = $callback();
-            $this->commit();
-            return $result;
-        } catch (Exception $e) {
-            $this->rollBack();
-            throw $e;
-        }
-    }
-
     private function __clone() {}
     
     public function __wakeup() {

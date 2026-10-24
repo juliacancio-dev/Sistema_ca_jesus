@@ -155,39 +155,21 @@ class ProdutoController extends Controller
         exit;
     }
 
-    public function listar()
-    {
-        header("Content-Type: application/json");
-        $produtos = $this->produtoModel->listarTodos();
-        echo json_encode($produtos);
-    }
-
     public function buscar()
     {
         header("Content-Type: application/json");
-        if (isset($_GET["id"])) {
-            $id = intval($_GET["id"]);
-            try {
-                $produto = $this->produtoModel->buscarPorId($id);
-                if ($produto) {
-                    echo json_encode($produto);
-                } else {
-                    http_response_code(404);
-                    echo json_encode(["error" => "Produto não encontrado."]);
-                }
-            } catch (Exception $e) {
-                http_response_code(500);
-                echo json_encode(["error" => "Erro ao buscar produto: " . $e->getMessage()]);
+        $id = intval($_GET["id"] ?? 0);
+        try {
+            $produto = $this->produtoModel->buscarPorId($id);
+            if ($produto) {
+                echo json_encode($produto);
+            } else {
+                http_response_code(404);
+                echo json_encode(["error" => "Produto não encontrado."]);
             }
-        } else {
-            $termo = $_GET["q"] ?? "";
-            try {
-                $produtos = $this->produtoModel->buscar($termo);
-                echo json_encode($produtos);
-            } catch (Exception $e) {
-                http_response_code(500);
-                echo json_encode(["error" => "Erro ao buscar produtos: " . $e->getMessage()]);
-            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => "Erro ao buscar produto: " . $e->getMessage()]);
         }
     }
 

@@ -98,18 +98,4 @@ class DashboardController extends Controller
         return $this->produtoModel->listarTodos();
     }
 
-    public function getEstatisticas()
-    {
-        header("Content-Type: application/json");
-
-        $stats = [
-            "total_produtos" => $this->produtoModel->contarTotal(),
-            "estoque_total" => $this->getEstoqueTotal(),
-            "movimentacoes_hoje" => $this->getMovimentacoesHoje(),
-            "lucro_estimado" => $this->getLucroEstimado(),
-            "saldo_financeiro" => $this->getSaldoFinanceiro()
-        ];
-
-        echo json_encode($stats);
-    }
 }

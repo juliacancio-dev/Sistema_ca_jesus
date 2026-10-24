@@ -13,20 +13,6 @@ class RelatorioController extends Controller
         ]);
     }
 
-    public function gerar()
-    {
-        try {
-            ErrorHelper::logSuccess('Relatório gerado com sucesso', 'Geração de Relatório');
-            header('Content-Type: application/json');
-            echo json_encode(['status' => 'ok', 'mensagem' => 'Relatório gerado com sucesso!']);
-        } catch (Exception $e) {
-            ErrorHelper::handle($e, 'Erro ao gerar relatório', 'Geração de Relatório');
-            header('Content-Type: application/json');
-            echo json_encode(['status' => 'erro', 'mensagem' => $e->getMessage()]);
-        }
-        exit;
-    }
-
     public function getDados()
     {
         header('Content-Type: application/json');

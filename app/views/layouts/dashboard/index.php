@@ -68,40 +68,9 @@
             <?php endif; ?>
         </div>
 
-        <?php
-        require_once __DIR__ . '/../../../helpers/LogHelper.php';
-        require_once __DIR__ . '/../../../helpers/DiagnosticoHelper.php';
-
-        DiagnosticoHelper::iniciarDiagnostico();
-
-        LogHelper::registrar('info', 'Acesso ao Dashboard', 'Sistema', null, [
-            'stats' => [
-                'total_produtos' => $stats['total_produtos'] ?? 0,
-                'estoque_total' => $stats['estoque_total'] ?? 0,
-                'movimentacoes_hoje' => $stats['movimentacoes_hoje'] ?? 0
-            ]
-        ]);
-
-        DiagnosticoHelper::verificarVariaveis([
-            'stats' => $stats ?? null,
-            'atividades' => $atividades ?? null,
-            'dadosGraficos' => $dadosGraficos ?? null
-        ]);
-        DiagnosticoHelper::verificarEstatisticas($stats ?? null);
-        DiagnosticoHelper::verificarDadosGraficos($dadosGraficos ?? null);
-        DiagnosticoHelper::verificarAtividades($atividades ?? null);
-        DiagnosticoHelper::verificarRecursosJS();
-
-        if (!isset($atividades) || !isset($dadosGraficos)) {
-            $erro = 'ERRO: Os dados $atividades ou $dadosGraficos não estão definidos. O controller pode não estar passando os dados corretamente para a view.';
-            echo '<div class="bg-red-50 text-red-700 p-4 rounded-lg border border-red-200">' . $erro . '</div>';
-            LogHelper::logError($erro, null);
-        } elseif (empty($atividades) && empty($dadosGraficos)) {
-            $aviso = 'AVISO: Os dados estão vazios. Verifique se há registros no banco de dados.';
-            echo '<div class="bg-yellow-50 text-yellow-800 p-4 rounded-lg border border-yellow-200">' . $aviso . '</div>';
-            LogHelper::registrar('warn', $aviso, 'Sistema', 'Dashboard sem dados para exibir');
-        }
-        ?>
+        <?php if (empty($atividades) && empty($dadosGraficos)): ?>
+            <div class="bg-yellow-50 text-yellow-800 p-4 rounded-lg border border-yellow-200">AVISO: Os dados estão vazios. Verifique se há registros no banco de dados.</div>
+        <?php endif; ?>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div class="bg-white rounded-xl shadow p-5">
@@ -128,13 +97,7 @@
                 <span class="text-xs text-gray-400">Últimas 24h</span>
             </div>
             <div id="recent-activities" class="space-y-3">
-                <?php
-                LogHelper::registrar('info', 'Lista de atividades recentes carregada', 'Sistema', null, [
-                    'total_atividades' => count($atividades ?? []),
-                    'periodo' => 'últimas 24 horas'
-                ]);
-
-                if (empty($atividades)) { ?>
+                <?php if (empty($atividades)) { ?>
                     <div class="border border-dashed border-gray-200 rounded-lg p-6 text-center">
                         <i class="fas fa-clock text-gray-300 text-2xl mb-2"></i>
                         <p class="text-gray-500">Nenhuma atividade recente</p>
@@ -180,15 +143,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        <?php
-        LogHelper::registrar('info', 'Renderização dos gráficos do Dashboard', 'Sistema', null, [
-            'dados_graficos' => [
-                'total_movimentacoes' => count($dadosGraficos['movimentacoes']['labels'] ?? []),
-                'total_marcas' => count($dadosGraficos['estoque'] ?? [])
-            ]
-        ]);
-        ?>
-
         const dadosGraficos = <?= json_encode($dadosGraficos) ?>;
 
         if (dadosGraficos && typeof window.chartManager !== 'undefined') {
@@ -309,7 +263,5 @@
                 }
             }
         }
-
-        <?php DiagnosticoHelper::finalizarDiagnostico(); ?>
     });
 </script>
