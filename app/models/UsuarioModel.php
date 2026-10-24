@@ -7,29 +7,6 @@ class UsuarioModel
     private $db;
     private $tableName = 'tbusuarios';
     
-    private const COLUMN_MAP = [
-        'id' => 'id_usuario',
-        'tipo' => 'tipo_usuario', 
-        'nome' => 'nome_usuario',
-        'email' => 'email_usuario',
-        'senha' => 'senha_usuario',
-        'cpf' => 'cpf_usuario',
-        'rg' => 'rg_usuario',
-        'telefone' => 'telefone_usuario',
-        'sexo' => 'sexo_usuario',
-        'cep' => 'cep_usuario',
-        'endereco' => 'endereco_usuario',
-        'cidade' => 'cidade_usuario',
-        'estado' => 'estado_usuario',
-        'numero' => 'numero_usuario',
-        'complemento' => 'complemento_usuario',
-        'bairro' => 'bairro_usuario',
-        'ativo' => 'ativo_usuario',
-        'data_criacao' => 'data_criacao',
-        'data_atualizacao' => 'data_atualizacao',
-        'ultimo_login' => 'ultimo_login'
-    ];
-
     public function __construct() 
     {
         try {
@@ -38,42 +15,6 @@ class UsuarioModel
         } catch (Exception $e) {
             error_log("[UsuarioModel] Erro ao criar instância do banco: " . $e->getMessage());
             throw $e;
-        }
-    }
-
-    public function listarTodos(): array 
-    {
-        try {
-            $stmt = $this->db->prepare("
-                SELECT 
-                    id_usuario AS id,
-                    tipo_usuario AS tipo,
-                    nome_usuario AS nome,
-                    email_usuario AS email,
-                    cpf_usuario AS cpf,
-                    rg_usuario AS rg,
-                    telefone_usuario AS telefone,
-                    sexo_usuario AS sexo,
-                    cep_usuario AS cep,
-                    endereco_usuario AS endereco,
-                    cidade_usuario AS cidade,
-                    estado_usuario AS estado,
-                    numero_usuario AS numero,
-                    complemento_usuario AS complemento,
-                    bairro_usuario AS bairro,
-                    COALESCE(ativo_usuario, 1) AS ativo,
-                    data_criacao,
-                    data_atualizacao,
-                    ultimo_login
-                FROM {$this->tableName}
-                WHERE deletado_em IS NULL
-                ORDER BY nome_usuario ASC
-            ");
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Erro ao listar usuários: " . $e->getMessage());
-            throw new DatabaseException("Erro ao carregar lista de usuários");
         }
     }
 
@@ -132,49 +73,6 @@ class UsuarioModel
         } catch (PDOException $e) {
             error_log("Erro ao listar usuários com paginação: " . $e->getMessage());
             throw new DatabaseException("Erro ao carregar usuários");
-        }
-    }
-
-    public function buscar(string $termo): array 
-    {
-        try {
-            $stmt = $this->db->prepare("
-                SELECT 
-                    id_usuario AS id,
-                    tipo_usuario AS tipo,
-                    nome_usuario AS nome,
-                    email_usuario AS email,
-                    cpf_usuario AS cpf,
-                    rg_usuario AS rg,
-                    telefone_usuario AS telefone,
-                    sexo_usuario AS sexo,
-                    cep_usuario AS cep,
-                    endereco_usuario AS endereco,
-                    cidade_usuario AS cidade,
-                    estado_usuario AS estado,
-                    numero_usuario AS numero,
-                    complemento_usuario AS complemento,
-                    bairro_usuario AS bairro,
-                    COALESCE(ativo_usuario, 1) AS ativo,
-                    data_criacao,
-                    data_atualizacao,
-                    ultimo_login
-                FROM {$this->tableName} 
-                WHERE deletado_em IS NULL
-                AND (
-                    nome_usuario LIKE ? OR 
-                    email_usuario LIKE ? OR 
-                    cpf_usuario LIKE ? OR
-                    telefone_usuario LIKE ?
-                )
-                ORDER BY nome_usuario ASC
-            ");
-            $termoLike = '%' . $termo . '%';
-            $stmt->execute([$termoLike, $termoLike, $termoLike, $termoLike]);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Erro ao buscar usuários: " . $e->getMessage());
-            throw new DatabaseException("Erro na busca de usuários");
         }
     }
 
@@ -515,56 +413,6 @@ class UsuarioModel
         }
     }
 
-    public function contarTotal(): int 
-    {
-        try {
-            $stmt = $this->db->prepare("
-                SELECT COUNT(*) FROM {$this->tableName} 
-                WHERE deletado_em IS NULL
-            ");
-            $stmt->execute();
-            return (int)$stmt->fetchColumn();
-        } catch (PDOException $e) {
-            error_log("Erro ao contar usuários: " . $e->getMessage());
-            return 0;
-        }
-    }
-
-    public function contarPorTipo(int $tipo): int 
-    {
-        try {
-            $stmt = $this->db->prepare("
-                SELECT COUNT(*) FROM {$this->tableName} 
-                WHERE tipo_usuario = ? AND deletado_em IS NULL
-            ");
-            $stmt->execute([$tipo]);
-            return (int)$stmt->fetchColumn();
-        } catch (PDOException $e) {
-            error_log("Erro ao contar usuários por tipo: " . $e->getMessage());
-            return 0;
-        }
-    }
-
-    public function contarAtivos(): int 
-    {
-        try {
-            $stmt = $this->db->prepare("
-                SELECT COUNT(*) FROM {$this->tableName} 
-                WHERE COALESCE(ativo_usuario, 1) = 1 AND deletado_em IS NULL
-            ");
-            $stmt->execute();
-            return (int)$stmt->fetchColumn();
-        } catch (PDOException $e) {
-            error_log("Erro ao contar usuários ativos: " . $e->getMessage());
-            return 0;
-        }
-    }
-
-    public function verificarEmail(string $email, ?int $id = null): bool 
-    {
-        return $this->verificarEmailExistente($email, $id);
-    }
-
     public function verificarEmailExistente(string $email, ?int $id = null): bool 
     {
         try {
@@ -668,95 +516,4 @@ class UsuarioModel
         }
     }
 
-    public function buscarRecentes(int $limite = 5): array 
-    {
-        try {
-            $stmt = $this->db->prepare("
-                SELECT 
-                    id_usuario AS id,
-                    nome_usuario AS nome,
-                    email_usuario AS email,
-                    tipo_usuario AS tipo,
-                    data_criacao
-                FROM {$this->tableName} 
-                WHERE deletado_em IS NULL
-                ORDER BY data_criacao DESC 
-                LIMIT ?
-            ");
-            $stmt->execute([$limite]);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Erro ao buscar usuários recentes: " . $e->getMessage());
-            return [];
-        }
-    }
-
-    public function obterEstatisticas(): array 
-    {
-        try {
-            $stmt = $this->db->prepare("
-                SELECT 
-                    COUNT(*) as total,
-                    SUM(CASE WHEN COALESCE(ativo_usuario, 1) = 1 THEN 1 ELSE 0 END) as ativos,
-                    SUM(CASE WHEN tipo_usuario = 1 THEN 1 ELSE 0 END) as administradores,
-                    SUM(CASE WHEN tipo_usuario = 2 THEN 1 ELSE 0 END) as funcionarios,
-                    SUM(CASE WHEN DATE(data_criacao) = CURDATE() THEN 1 ELSE 0 END) as criados_hoje,
-                    SUM(CASE WHEN ultimo_login >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as ativos_30_dias
-                FROM {$this->tableName} 
-                WHERE deletado_em IS NULL
-            ");
-            $stmt->execute();
-            return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
-        } catch (PDOException $e) {
-            error_log("Erro ao obter estatísticas: " . $e->getMessage());
-            return [
-                'total' => 0,
-                'ativos' => 0,
-                'administradores' => 0,
-                'funcionarios' => 0,
-                'criados_hoje' => 0,
-                'ativos_30_dias' => 0
-            ];
-        }
-    }
-
-    public function limparUsuariosDeletados(int $diasRetencao = 30): int 
-    {
-        try {
-            $stmt = $this->db->prepare("
-                DELETE FROM {$this->tableName} 
-                WHERE deletado_em IS NOT NULL 
-                AND deletado_em <= DATE_SUB(NOW(), INTERVAL ? DAY)
-            ");
-            $stmt->execute([$diasRetencao]);
-            return $stmt->rowCount();
-        } catch (PDOException $e) {
-            error_log("Erro na limpeza de usuários: " . $e->getMessage());
-            return 0;
-        }
-    }
-
-    public function verificarEstrutura(): void 
-    {
-        try {
-            $colunas = [
-                'ativo_usuario' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `ativo_usuario` TINYINT(1) DEFAULT 1',
-                'data_criacao' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `data_criacao` TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-                'data_atualizacao' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `data_atualizacao` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
-                'ultimo_login' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `ultimo_login` TIMESTAMP NULL',
-                'deletado_em' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `deletado_em` TIMESTAMP NULL'
-            ];
-            
-            foreach ($colunas as $coluna => $sql) {
-                $stmt = $this->db->prepare("SHOW COLUMNS FROM `{$this->tableName}` LIKE ?");
-                $stmt->execute([$coluna]);
-                if (!$stmt->fetch()) {
-                    $this->db->exec($sql);
-                    error_log("Coluna $coluna adicionada à tabela {$this->tableName}");
-                }
-            }
-        } catch (PDOException $e) {
-            error_log("Erro na verificação da estrutura: " . $e->getMessage());
-        }
-    }
 }

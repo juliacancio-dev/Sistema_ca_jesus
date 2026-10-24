@@ -7,24 +7,6 @@ class FornecedorModel
     private $db;
     private $tableName = 'tbfornecedores';
 
-    private const COLUMN_MAP = [
-        'id' => 'id_fornecedor',
-        'nome' => 'nome_fornecedor',
-        'cnpj' => 'cnpj_fornecedor',
-        'email' => 'email_fornecedor',
-        'telefone' => 'telefone_fornecedor',
-        'endereco' => 'endereco_fornecedor',
-        'numero' => 'numero_fornecedor',
-        'complemento' => 'complemento_fornecedor',
-        'bairro' => 'bairro_fornecedor',
-        'cidade' => 'cidade_fornecedor',
-        'estado' => 'estado_fornecedor',
-        'cep' => 'cep_fornecedor',
-        'ativo' => 'ativo_fornecedor',
-        'data_criacao' => 'data_criacao',
-        'data_atualizacao' => 'data_atualizacao'
-    ];
-
     public function __construct()
     {
         try {
@@ -33,35 +15,6 @@ class FornecedorModel
         } catch (Exception $e) {
             error_log("[FornecedorModel] Erro ao criar instância do banco: " . $e->getMessage());
             throw $e;
-        }
-    }
-
-    public function verificarEstrutura(): void
-    {
-        try {
-            $colunas = [
-                'ativo_fornecedor' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `ativo_fornecedor` TINYINT(1) DEFAULT 1',
-                'data_criacao' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `data_criacao` TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-                'data_atualizacao' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `data_atualizacao` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
-                'endereco_fornecedor' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `endereco_fornecedor` VARCHAR(255) NULL',
-                'numero_fornecedor' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `numero_fornecedor` VARCHAR(10) NULL',
-                'complemento_fornecedor' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `complemento_fornecedor` VARCHAR(50) NULL',
-                'bairro_fornecedor' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `bairro_fornecedor` VARCHAR(100) NULL',
-                'cidade_fornecedor' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `cidade_fornecedor` VARCHAR(100) NULL',
-                'estado_fornecedor' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `estado_fornecedor` VARCHAR(2) NULL',
-                'cep_fornecedor' => 'ALTER TABLE `' . $this->tableName . '` ADD COLUMN `cep_fornecedor` VARCHAR(9) NULL'
-            ];
-
-            foreach ($colunas as $coluna => $sql) {
-                $stmt = $this->db->prepare("SHOW COLUMNS FROM `{$this->tableName}` LIKE ?");
-                $stmt->execute([$coluna]);
-                if (!$stmt->fetch()) {
-                    $this->db->exec($sql);
-                    error_log("Coluna $coluna adicionada à tabela {$this->tableName}");
-                }
-            }
-        } catch (PDOException $e) {
-            error_log("Erro na verificação da estrutura: " . $e->getMessage());
         }
     }
 
@@ -273,34 +226,6 @@ class FornecedorModel
         } catch (PDOException $e) {
             error_log("Erro ao buscar fornecedores: " . $e->getMessage());
             throw new DatabaseException("Erro na busca de fornecedores");
-        }
-    }
-
-    public function contarTotal(): int
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT COUNT(*) FROM {$this->tableName}");
-            $stmt->execute();
-            return (int)$stmt->fetchColumn();
-        } catch (PDOException $e) {
-            error_log("Erro ao contar fornecedores: " . $e->getMessage());
-            return 0;
-        }
-    }
-
-    public function listarParaSelect(): array
-    {
-        try {
-            $stmt = $this->db->prepare("
-                SELECT id_fornecedor AS id, nome_fornecedor AS nome
-                FROM {$this->tableName}
-                ORDER BY nome_fornecedor ASC
-            ");
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Erro ao listar fornecedores para select: " . $e->getMessage());
-            return [];
         }
     }
 

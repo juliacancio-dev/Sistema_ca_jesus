@@ -93,15 +93,6 @@ class MovimentacaoController extends Controller
         $this->redirect('/movimentacoes');
     }
 
-    public function movimentacoesJson()
-    {
-        $movimentacaoModel = new MovimentacaoModel();
-        header('Content-Type: application/json');
-        $movimentacoes = $movimentacaoModel->listarTodas();
-        echo json_encode($movimentacoes);
-        exit;
-    }
-
     public function estoqueAtualJson()
     {
         $produtoModel = new ProdutoModel();

@@ -56,55 +56,34 @@ $authMiddleware = ['AuthMiddleware'];
 $router->get('/dashboard', ['DashboardController', 'index'], $authMiddleware);
 
 $router->get('/produtos', ['ProdutoController', 'index'], $authMiddleware);
-$router->get('/produtos/novo', ['ProdutoController', 'novo'], $authMiddleware);
-$router->get('/produtos/editar/{id}', ['ProdutoController', 'editar'], $authMiddleware);
 $router->post('/produtos/salvar', ['ProdutoController', 'salvar'], $authMiddleware);
 $router->post('/produtos/atualizar/{id}', ['ProdutoController', 'atualizar'], $authMiddleware);
 $router->delete('/produtos/excluir/{id}', ['ProdutoController', 'excluir'], $authMiddleware);
-$router->post('/produtos/excluir/{id}', ['ProdutoController', 'excluir'], $authMiddleware);
-$router->get('/produtos/listar', ['ProdutoController', 'listar'], $authMiddleware);
 
 $router->get('/movimentacoes', ['MovimentacaoController', 'index'], $authMiddleware);
 $router->post('/movimentacoes/registrar', ['MovimentacaoController', 'registrar'], $authMiddleware);
 
 $router->get('/relatorios', ['RelatorioController', 'index'], $authMiddleware);
-$router->post('/relatorios/gerar', ['RelatorioController', 'gerar'], $authMiddleware);
 
 $adminMiddleware = ['AuthMiddleware', 'AdminMiddleware'];
 
 $router->get('/usuarios', ['UsuarioController', 'index'], $adminMiddleware);
-$router->get('/usuarios/novo', ['UsuarioController', 'novo'], $adminMiddleware);
-$router->get('/usuarios/editar/{id}', ['UsuarioController', 'editar'], $adminMiddleware);
 $router->get('/usuarios/buscar/{id}', ['UsuarioController', 'buscar'], $adminMiddleware);
 $router->post('/usuarios/salvar', ['UsuarioController', 'salvar'], $adminMiddleware);
-$router->post('/usuarios/store', ['UsuarioController', 'salvar'], $adminMiddleware);
-$router->post('/usuarios/update/{id}', ['UsuarioController', 'salvar'], $adminMiddleware);
-$router->post('/usuarios/atualizar/{id}', ['UsuarioController', 'salvar'], $adminMiddleware);
 $router->post('/usuarios/toggle-status/{id}', ['UsuarioController', 'toggleStatus'], $adminMiddleware);
 $router->post('/usuarios/excluir/{id}', ['UsuarioController', 'excluir'], $adminMiddleware);
-$router->delete('/usuarios/excluir/{id}', ['UsuarioController', 'excluir'], $adminMiddleware);
 
 $router->get('/usuarios/perfil', ['UsuarioController', 'perfil'], $authMiddleware);
 $router->post('/usuarios/atualizarPerfil', ['UsuarioController', 'atualizarPerfil'], $authMiddleware);
 $router->post('/usuarios/alterarSenha', ['UsuarioController', 'alterarSenha'], $authMiddleware);
 
 $router->get('/fornecedores', ['FornecedorController', 'index'], $adminMiddleware);
-$router->get('/fornecedores/novo', ['FornecedorController', 'novo'], $adminMiddleware);
-$router->get('/fornecedores/editar/{id}', ['FornecedorController', 'editar'], $adminMiddleware);
 $router->post('/fornecedores/salvar', ['FornecedorController', 'salvar'], $adminMiddleware);
-$router->post('/fornecedores/store', ['FornecedorController', 'salvar'], $adminMiddleware);
-$router->post('/fornecedores/update/{id}', ['FornecedorController', 'salvar'], $adminMiddleware);
-$router->post('/fornecedores/atualizar/{id}', ['FornecedorController', 'salvar'], $adminMiddleware);
 $router->post('/fornecedores/toggle-status/{id}', ['FornecedorController', 'toggleStatus'], $adminMiddleware);
 $router->post('/fornecedores/excluir/{id}', ['FornecedorController', 'excluir'], $adminMiddleware);
-$router->delete('/fornecedores/excluir/{id}', ['FornecedorController', 'excluir'], $adminMiddleware);
 
-$router->get('/api/dashboard/estatisticas', ['DashboardController', 'getEstatisticas'], $authMiddleware);
 $router->get('/api/produtos/buscar', ['ProdutoController', 'buscar'], $authMiddleware);
 $router->get('/api/relatorios/dados', ['RelatorioController', 'getDados'], $authMiddleware);
-$router->get('/api/fornecedores/listar', ['FornecedorController', 'listar'], $adminMiddleware);
-$router->get('/api/usuarios/listar', ['UsuarioController', 'usuariosJson'], $adminMiddleware);
-$router->get('/api/movimentacoes/listar', ['MovimentacaoController', 'movimentacoesJson'], $authMiddleware);
 $router->get('/api/estoque/atual', ['MovimentacaoController', 'estoqueAtualJson'], $authMiddleware);
 
 // Único ponto de tratamento de erros não capturados.

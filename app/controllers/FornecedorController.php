@@ -20,19 +20,6 @@ class FornecedorController extends Controller
         ]);
     }
 
-    public function novo()
-    {
-        $this->renderView('fornecedor/form', ['fornecedor' => null]);
-    }
-
-    public function editar($id)
-    {
-        $model = new FornecedorModel();
-        $fornecedor = $model->buscarPorId($id);
-
-        $this->renderView('fornecedor/form', ['fornecedor' => $fornecedor]);
-    }
-
     public function salvar()
     {
         try {
@@ -75,37 +62,28 @@ class FornecedorController extends Controller
     {
         $model = new FornecedorModel();
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            header('Content-Type: application/json; charset=utf-8');
-            try {
-                $ok = $model->deletar((int)$id);
-                if ($ok) {
-                    echo json_encode(['success' => true, 'message' => 'Fornecedor excluído com sucesso.']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['success' => false, 'message' => 'Erro ao excluir fornecedor.']);
-                }
-            } catch (PDOException $e) {
-                $msg = $e->getMessage();
-                if (strpos($msg, '1451') !== false || strpos($msg, '23000') !== false) {
-                    http_response_code(409);
-                    echo json_encode(['success' => false, 'message' => 'Não é possível excluir este fornecedor, pois existem registros relacionados (ex.: produtos).']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['success' => false, 'message' => 'Erro no banco ao excluir fornecedor.']);
-                }
-            } catch (Throwable $e) {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $ok = $model->deletar((int)$id);
+            if ($ok) {
+                echo json_encode(['success' => true, 'message' => 'Fornecedor excluído com sucesso.']);
+            } else {
                 http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Erro inesperado ao excluir fornecedor.']);
+                echo json_encode(['success' => false, 'message' => 'Erro ao excluir fornecedor.']);
             }
-            exit;
+        } catch (PDOException $e) {
+            $msg = $e->getMessage();
+            if (strpos($msg, '1451') !== false || strpos($msg, '23000') !== false) {
+                http_response_code(409);
+                echo json_encode(['success' => false, 'message' => 'Não é possível excluir este fornecedor, pois existem registros relacionados (ex.: produtos).']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Erro no banco ao excluir fornecedor.']);
+            }
+        } catch (Throwable $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Erro inesperado ao excluir fornecedor.']);
         }
-        $ok = $model->deletar((int)$id);
-        $_SESSION['flash'] = [
-            'type' => $ok ? 'success' : 'error',
-            'message' => $ok ? 'Fornecedor excluído com sucesso.' : 'Erro ao excluir fornecedor.'
-        ];
-        header('Location: ' . BASE_URL . '/fornecedores');
         exit;
     }
 
@@ -164,16 +142,6 @@ class FornecedorController extends Controller
         exit;
     }
 
-    public function listar()
-    {
-        require_once __DIR__ . '/../models/FornecedorModel.php';
-        $model = new FornecedorModel();
-        $fornecedores = $model->listarParaSelect();
-
-        header('Content-Type: application/json');
-        echo json_encode($fornecedores);
-        exit;
-    }
     private function processarDados(): array
     {
         return [

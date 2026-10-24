@@ -60,34 +60,6 @@ class AuthHelper
         return $user && isset($user['tipo']) && (int)$user['tipo'] === 1;
     }
 
-    public static function requireAuth()
-    {
-        if (!self::isLoggedIn()) {
-            $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-
-            $_SESSION['error'] = 'ATENÇÃO: Usuário logado não encontrado ou sessão expirada. Faça login novamente.';
-
-            error_log("[AuthHelper] Falha na autenticação: " . json_encode([
-                'request_uri' => $_SERVER['REQUEST_URI'],
-                'timestamp' => date('Y-m-d H:i:s')
-            ]));
-
-            header('Location: ' . BASE_URL . '/login');
-            exit;
-        }
-        $_SESSION['last_activity'] = time();
-    }
-
-    public static function requireAdmin()
-    {
-        self::requireAuth();
-        if (!self::isAdmin()) {
-            http_response_code(403);
-            echo "Acesso negado";
-            exit;
-        }
-    }
-
     public static function checkSessionTimeout()
     {
         if (self::isLoggedIn() && isset($_SESSION['last_activity'])) {

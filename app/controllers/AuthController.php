@@ -5,17 +5,10 @@ require_once __DIR__ . '/../core/Exceptions.php';
 class AuthController extends Controller
 {
     private $usuarioModel;
-    private $db;
 
     public function __construct()
     {
-        try {
-            $this->usuarioModel = new UsuarioModel();
-            $this->db = Database::getInstance();
-        } catch (Exception $e) {
-            error_log('[AuthController] Erro ao inicializar: ' . $e->getMessage());
-            throw $e;
-        }
+        $this->usuarioModel = new UsuarioModel();
     }
 
     public function loginForm()

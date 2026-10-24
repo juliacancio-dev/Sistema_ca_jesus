@@ -53,13 +53,6 @@ abstract class Controller {
         require $layoutFile;
     }
     
-    protected function renderJson($data, $statusCode = 200) {
-        http_response_code($statusCode);
-        header('Content-Type: application/json');
-        echo json_encode($data);
-        exit;
-    }
-    
     protected function redirect($url, $message = null, $isError = false) {
         if ($message) {
             if ($isError) {
@@ -78,21 +71,5 @@ abstract class Controller {
         
         header("Location: $url");
         exit;
-    }
-    protected function isAjax() {
-        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
-    }
-    protected function getRequestData() {
-        if (!empty($_POST)) {
-            return $_POST;
-        }
-        
-        $inputJSON = file_get_contents('php://input');
-        if ($inputJSON) {
-            return json_decode($inputJSON, true) ?? [];
-        }
-        
-        return [];
     }
 }

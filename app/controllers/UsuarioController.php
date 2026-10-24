@@ -40,50 +40,6 @@ class UsuarioController extends Controller
             $this->tratarErro($e, 'Erro ao listar usuários');
         }
     }
-    public function novo()
-    {
-        try {
-            $this->verificarAutenticacao();
-            $this->verificarPermissao(['admin']);
-
-            $this->gerarCsrfToken();
-
-            $this->renderView('layouts/usuario/form', [
-                'usuario' => null,
-                'tipos' => self::TIPOS_USUARIO,
-                'sexos' => self::SEXOS_VALIDOS,
-                'csrf_token' => $_SESSION['csrf_token']
-            ]);
-        } catch (Exception $e) {
-            $this->tratarErro($e, 'Erro ao carregar formulário');
-        }
-    }
-    public function editar($id)
-    {
-        try {
-            $this->verificarAutenticacao();
-            $this->verificarPermissao(['admin']);
-
-            $id = $this->validarId($id);
-            $usuario = $this->usuarioModel->buscarPorId($id);
-
-            if (!$usuario) {
-                $this->setFlashMessage('error', 'Usuário não encontrado.');
-                $this->redirect('/usuarios');
-            }
-
-            $this->gerarCsrfToken();
-
-            $this->renderView('layouts/usuario/form', [
-                'usuario' => $usuario,
-                'tipos' => self::TIPOS_USUARIO,
-                'sexos' => self::SEXOS_VALIDOS,
-                'csrf_token' => $_SESSION['csrf_token']
-            ]);
-        } catch (Exception $e) {
-            $this->tratarErro($e, 'Erro ao carregar usuário para edição');
-        }
-    }
     public function salvar()
     {
         try {
@@ -97,29 +53,25 @@ class UsuarioController extends Controller
 
             if (!empty($erros)) {
                 $this->setFlashMessage('error', implode('<br>', $erros));
-                $redirect = $dados['id'] ? "/usuarios/editar/{$dados['id']}" : '/usuarios/novo';
-                $this->redirect($redirect);
+                $this->redirect('/usuarios');
             }
             if ($this->usuarioModel->verificarEmailExistente($dados['email'], $dados['id'])) {
                 $this->setFlashMessage('error', 'Este email já está cadastrado.');
-                $redirect = $dados['id'] ? "/usuarios/editar/{$dados['id']}" : '/usuarios/novo';
-                $this->redirect($redirect);
+                $this->redirect('/usuarios');
             }
             if ($this->usuarioModel->verificarCpfExistente($dados['cpf'], $dados['id'])) {
                 $this->setFlashMessage('error', 'Este CPF já está cadastrado.');
-                $redirect = $dados['id'] ? "/usuarios/editar/{$dados['id']}" : '/usuarios/novo';
-                $this->redirect($redirect);
+                $this->redirect('/usuarios');
             }
             if (!empty($dados['senha'])) {
                 if (strlen($dados['senha']) < 8) {
                     $this->setFlashMessage('error', 'Senha deve ter no mínimo 8 caracteres.');
-                    $redirect = $dados['id'] ? "/usuarios/editar/{$dados['id']}" : '/usuarios/novo';
-                    $this->redirect($redirect);
+                    $this->redirect('/usuarios');
                 }
                 $dados['senha'] = $this->hashSenha($dados['senha']);
             } elseif (empty($dados['id'])) {
                 $this->setFlashMessage('error', 'Senha é obrigatória para novo usuário.');
-                $this->redirect('/usuarios/novo');
+                $this->redirect('/usuarios');
             } else {
                 unset($dados['senha']);
             }
@@ -146,168 +98,36 @@ class UsuarioController extends Controller
             $this->verificarAutenticacao();
             $this->verificarPermissao(['admin']);
 
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                header('Content-Type: application/json; charset=utf-8');
-                $id = $this->validarId($id);
-
-                if ($_SESSION['user']['id'] == $id) {
-                    http_response_code(400);
-                    echo json_encode(['success' => false, 'message' => 'Você não pode excluir seu próprio usuário']);
-                    exit;
-                }
-                $usuario = $this->usuarioModel->buscarPorId($id);
-
-                if (!$usuario) {
-                    http_response_code(404);
-                    echo json_encode(['success' => false, 'message' => 'Usuário não encontrado']);
-                    exit;
-                }
-
-                $resultado = $this->usuarioModel->deletar($id);
-
-                if ($resultado) {
-                    $this->logarAcao('usuario_excluido', ['id' => $id, 'email' => $usuario['email']]);
-                    echo json_encode(['success' => true, 'message' => 'Usuário excluído com sucesso']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['success' => false, 'message' => 'Erro ao excluir usuário']);
-                }
-                exit;
-            } else {
-                $id = $this->validarId($id);
-
-                if ($_SESSION['user']['id'] == $id) {
-                    $this->setFlashMessage('error', 'Você não pode excluir seu próprio usuário.');
-                    $this->redirect('/usuarios');
-                }
-                $usuario = $this->usuarioModel->buscarPorId($id);
-                if (!$usuario) {
-                    $this->setFlashMessage('error', 'Usuário não encontrado.');
-                    $this->redirect('/usuarios');
-                }
-
-                $resultado = $this->usuarioModel->deletar($id);
-
-                if ($resultado) {
-                    $this->setFlashMessage('success', 'Usuário excluído com sucesso.');
-                    $this->logarAcao('usuario_excluido', ['id' => $id, 'email' => $usuario['email']]);
-                } else {
-                    $this->setFlashMessage('error', 'Erro ao excluir usuário.');
-                }
-
-                $this->redirect('/usuarios');
-            }
-        } catch (Exception $e) {
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                header('Content-Type: application/json; charset=utf-8');
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Erro interno do servidor']);
-                exit;
-            } else {
-                $this->tratarErro($e, 'Erro ao excluir usuário');
-            }
-        }
-    }
-    public function login()
-    {
-        if ($this->estaLogado()) {
-            $this->redirect('/dashboard');
-        }
-
-        $this->gerarCsrfToken();
-        $this->renderView('layouts/auth/login', ['csrf_token' => $_SESSION['csrf_token']]);
-    }
-    public function autenticar()
-    {
-        try {
-            $this->verificarMetodoPost();
-            $this->verificarCsrfToken();
-
-            $email = $this->sanitizarInput($_POST['email'] ?? '');
-            $senha = $_POST['senha'] ?? '';
-
-            if (empty($email) || empty($senha)) {
-                $this->setFlashMessage('error', 'Email e senha são obrigatórios.');
-                $this->redirect('/login');
-            }
-
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $this->setFlashMessage('error', 'Email inválido.');
-                $this->redirect('/login');
-            }
-
-            $usuario = $this->usuarioModel->autenticar($email, $senha);
-
-            if ($usuario) {
-                session_regenerate_id(true);
-
-                $_SESSION['user'] = [
-                    'id' => $usuario['id'],
-                    'nome' => $usuario['nome'],
-                    'email' => $usuario['email'],
-                    'tipo' => $usuario['tipo'],
-                    'login_time' => time()
-                ];
-
-                $this->setFlashMessage('success', 'Login realizado com sucesso!');
-                $this->logarAcao('login', ['email' => $email]);
-
-                $redirect = $usuario['tipo'] == 1 ? '/dashboard/admin' : '/dashboard';
-                $this->redirect($redirect);
-            } else {
-                $this->logarTentativaLogin($email, false);
-                $this->setFlashMessage('error', 'Email ou senha inválidos.');
-                $this->redirect('/login');
-            }
-        } catch (Exception $e) {
-            $this->tratarErro($e, 'Erro no login');
-            $this->redirect('/login');
-        }
-    }
-    public function logout()
-    {
-        $this->verificarAutenticacao();
-        $this->logarAcao('logout', ['email' => $_SESSION['user']['email']]);
-
-        $_SESSION = [];
-
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params["path"],
-                $params["domain"],
-                $params["secure"],
-                $params["httponly"]
-            );
-        }
-        session_destroy();
-        $this->redirect('/login');
-    }
-    public function usuariosJson()
-    {
-        try {
-            $this->verificarAutenticacao();
-            $this->verificarPermissao(['admin']);
-
             header('Content-Type: application/json; charset=utf-8');
-            header('Cache-Control: no-cache, must-revalidate');
+            $id = $this->validarId($id);
 
-            $usuarios = $this->usuarioModel->listarTodos();
+            if ($_SESSION['user']['id'] == $id) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Você não pode excluir seu próprio usuário']);
+                exit;
+            }
+            $usuario = $this->usuarioModel->buscarPorId($id);
 
-            $usuariosLimpos = array_map(function ($usuario) {
-                unset($usuario['senha']);
-                return $usuario;
-            }, $usuarios);
+            if (!$usuario) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'Usuário não encontrado']);
+                exit;
+            }
 
-            echo json_encode($usuariosLimpos, JSON_UNESCAPED_UNICODE);
+            $resultado = $this->usuarioModel->deletar($id);
+
+            if ($resultado) {
+                $this->logarAcao('usuario_excluido', ['id' => $id, 'email' => $usuario['email']]);
+                echo json_encode(['success' => true, 'message' => 'Usuário excluído com sucesso']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Erro ao excluir usuário']);
+            }
             exit;
         } catch (Exception $e) {
             header('Content-Type: application/json; charset=utf-8');
             http_response_code(500);
-            echo json_encode(['erro' => 'Erro interno do servidor']);
+            echo json_encode(['success' => false, 'message' => 'Erro interno do servidor']);
             exit;
         }
     }
@@ -638,13 +458,6 @@ class UsuarioController extends Controller
         if (!$this->estaLogado()) {
             $this->redirect('/login');
         }
-        $tempoLimite = 2 * 60 * 60;
-        if (
-            isset($_SESSION['user']['login_time']) &&
-            (time() - $_SESSION['user']['login_time']) > $tempoLimite
-        ) {
-            $this->logout();
-        }
     }
     private function verificarPermissao(array $tiposPermitidos): void
     {
@@ -700,16 +513,5 @@ class UsuarioController extends Controller
         ];
 
         error_log("ERROR: " . json_encode($log));
-    }
-    private function logarTentativaLogin(string $email, bool $sucesso): void
-    {
-        $log = [
-            'email' => $email,
-            'sucesso' => $sucesso,
-            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
-            'timestamp' => date('Y-m-d H:i:s')
-        ];
-
-        error_log("LOGIN_ATTEMPT: " . json_encode($log));
     }
 }
