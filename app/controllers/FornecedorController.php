@@ -56,38 +56,25 @@ class FornecedorController extends Controller
     {
         $model = new FornecedorModel();
 
-        header('Content-Type: application/json; charset=utf-8');
         try {
             // O model converte erros de PDO em DatabaseException, então o vínculo é checado antes.
             if ($model->contarProdutosVinculados((int)$id) > 0) {
-                http_response_code(409);
-                echo json_encode(['success' => false, 'message' => 'Não é possível excluir este fornecedor, pois existem produtos vinculados a ele.']);
-                exit;
+                $this->json(false, 'Não é possível excluir este fornecedor, pois existem produtos vinculados a ele.', status: 409);
             }
             $ok = $model->deletar((int)$id);
-            if ($ok) {
-                Session::flash('success', 'Fornecedor excluído com sucesso.');
-                echo json_encode(['success' => true, 'message' => 'Fornecedor excluído com sucesso.']);
-            } else {
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Erro ao excluir fornecedor.']);
-            }
         } catch (Throwable $e) {
             ErrorHelper::handle($e, 'Erro ao excluir fornecedor', 'Teste de Sistema');
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erro ao excluir fornecedor.']);
+            $this->json(false, 'Erro ao excluir fornecedor.', status: 500);
         }
-        exit;
+        if (!$ok) {
+            $this->json(false, 'Erro ao excluir fornecedor.', status: 500);
+        }
+        Session::flash('success', 'Fornecedor excluído com sucesso.');
+        $this->json(true, 'Fornecedor excluído com sucesso.');
     }
 
     public function toggleStatus($id)
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            exit('Método não permitido');
-        }
-        header('Content-Type: application/json; charset=utf-8');
-
         try {
             $raw = file_get_contents('php://input');
             $dados = json_decode($raw, true);
@@ -106,34 +93,23 @@ class FornecedorController extends Controller
             $model = new FornecedorModel();
             $fornecedor = $model->buscarPorId((int)$id);
             if (!$fornecedor) {
-                http_response_code(404);
-                echo json_encode(['success' => false, 'message' => 'Fornecedor não encontrado']);
-                exit;
+                $this->json(false, 'Fornecedor não encontrado.', status: 404);
             }
-            if ($novoStatus === 0) {
-                $qtd = $model->contarProdutosVinculados((int)$id);
-                if ($qtd > 0) {
-                    http_response_code(409);
-                    echo json_encode(['success' => false, 'message' => 'Não é possível desativar: existem produtos vinculados a este fornecedor.']);
-                    exit;
-                }
+            if ($novoStatus === 0 && $model->contarProdutosVinculados((int)$id) > 0) {
+                $this->json(false, 'Não é possível desativar: existem produtos vinculados a este fornecedor.', status: 409);
             }
 
             $ok = $model->alternarStatus((int)$id, $novoStatus);
-            if ($ok) {
-                $mensagem = $novoStatus ? 'Fornecedor ativado com sucesso' : 'Fornecedor desativado com sucesso';
-                Session::flash('success', $mensagem);
-                echo json_encode(['success' => true, 'message' => $mensagem]);
-            } else {
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Erro ao alterar status do fornecedor']);
-            }
         } catch (Exception $e) {
             ErrorHelper::handle($e, 'Erro ao alterar status do fornecedor', 'Teste de Sistema');
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erro interno do servidor']);
+            $this->json(false, 'Erro ao alterar status do fornecedor.', status: 500);
         }
-        exit;
+        if (!$ok) {
+            $this->json(false, 'Erro ao alterar status do fornecedor.', status: 500);
+        }
+        $mensagem = $novoStatus ? 'Fornecedor ativado com sucesso' : 'Fornecedor desativado com sucesso';
+        Session::flash('success', $mensagem);
+        $this->json(true, $mensagem);
     }
 
     private function processarDados(): array

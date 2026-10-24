@@ -736,7 +736,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
             function toggleFornecedorStatus(id, novoStatus) {
                 const acao = novoStatus ? 'ativar' : 'desativar';
                 if (confirm(`Deseja ${acao} este fornecedor?`)) {
-                    fetch(`<?= BASE_URL ?>/fornecedores/toggle-status/${id}`, {
+                    requisicaoJson(`<?= BASE_URL ?>/fornecedores/toggle-status/${id}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -745,35 +745,28 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
                                 status: novoStatus
                             })
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
+                        .then(resposta => {
+                            if (resposta.sucesso) {
                                 window.location.reload();
                             } else {
-                                alert('Erro ao alterar status: ' + data.message);
+                                alert(resposta.mensagem);
                             }
-                        })
-                        .catch(error => {
-                            console.error('Erro ao alterar status:', error);
-                            alert('Erro ao alterar status do fornecedor');
                         });
                 }
             }
 
             function deleteFornecedor(id, nome) {
                 if (confirm(`Tem certeza que deseja excluir o fornecedor "${nome}"?`)) {
-                    fetch(`<?= BASE_URL ?>/fornecedores/excluir/${id}`, {
+                    requisicaoJson(`<?= BASE_URL ?>/fornecedores/excluir/${id}`, {
                             method: 'POST'
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
+                        .then(resposta => {
+                            if (resposta.sucesso) {
                                 window.location.reload();
                             } else {
-                                alert('Erro: ' + data.message);
+                                alert(resposta.mensagem);
                             }
-                        })
-                        .catch(error => console.error('Erro:', error));
+                        });
                 }
             }
 

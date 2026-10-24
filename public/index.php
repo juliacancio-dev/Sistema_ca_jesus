@@ -1,4 +1,7 @@
 <?php
+use App\Core\ErroDeNegocio;
+use App\Core\RespostaJson;
+
 require_once __DIR__ . '/../config/config.php';
 
 if (!defined('ENVIRONMENT')) {
@@ -96,25 +99,33 @@ $router->get('/api/estoque/atual', ['MovimentacaoController', 'estoqueAtualJson'
 // Único ponto de tratamento de erros não capturados.
 try {
     $router->resolve();
+} catch (ErroDeNegocio $e) {
+    // Recusa de regra de negócio: a mensagem é para o usuário e não vai para o log.
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+    if (RespostaJson::esperada()) {
+        RespostaJson::enviar(false, $e->getMessage(), status: $e->status());
+    }
+    Session::flash('error', $e->getMessage());
+    $voltar = $_SERVER['HTTP_REFERER'] ?? '';
+    $mesmoSite = parse_url($voltar, PHP_URL_HOST) === ($_SERVER['HTTP_HOST'] ?? null);
+    header('Location: ' . ($mesmoSite ? $voltar : BASE_URL . '/dashboard'));
+    exit;
 } catch (Throwable $e) {
     while (ob_get_level() > 0) {
         ob_end_clean();
     }
     error_log('[erro] ' . get_class($e) . ': ' . $e->getMessage() . ' em ' . $e->getFile() . ':' . $e->getLine() . "\n" . $e->getTraceAsString());
 
-    if (!headers_sent()) {
-        http_response_code(500);
+    $mensagem = 'Não foi possível processar sua solicitação. Tente novamente; se o erro continuar, avise o administrador do sistema.';
+
+    if (RespostaJson::esperada()) {
+        RespostaJson::enviar(false, $mensagem, status: 500);
     }
 
-    $mensagem = 'Não foi possível processar sua solicitação. Tente novamente; se o erro continuar, avise o administrador do sistema.';
-    $isApi = strpos(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), BASE_URL . '/api/') === 0;
-
-    if ($isApi) {
-        if (!headers_sent()) {
-            header('Content-Type: application/json; charset=utf-8');
-        }
-        echo json_encode(['success' => false, 'message' => $mensagem]);
-        exit;
+    if (!headers_sent()) {
+        http_response_code(500);
     }
 
     echo '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Erro</title></head>';

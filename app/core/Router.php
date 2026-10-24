@@ -1,5 +1,7 @@
 <?php
 
+use App\Core\RespostaJson;
+
 class Router {
     private $routes = [];
 
@@ -65,12 +67,10 @@ class Router {
     }
 
     private function naoEncontrado($requestPath) {
-        http_response_code(404);
-        if (strpos($requestPath, '/api/') === 0) {
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(['success' => false, 'message' => 'Rota não encontrada']);
-            return;
+        if (RespostaJson::esperada()) {
+            RespostaJson::enviar(false, 'Rota não encontrada.', status: 404);
         }
+        http_response_code(404);
         echo '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Página não encontrada</title></head>';
         echo '<body style="font-family:sans-serif;max-width:720px;margin:40px auto;padding:0 16px;">';
         echo '<h2>Página não encontrada</h2>';

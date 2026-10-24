@@ -209,9 +209,13 @@
     });
 
     function editProduto(id) {
-        fetch("<?= BASE_URL ?>/api/produtos/buscar?id=" + id)
-            .then(response => response.json())
-            .then(produto => {
+        requisicaoJson("<?= BASE_URL ?>/api/produtos/buscar?id=" + id)
+            .then(resposta => {
+                if (!resposta.sucesso) {
+                    alert(resposta.mensagem);
+                    return;
+                }
+                const produto = resposta.dados;
                 document.getElementById("produto-modal-title").textContent = "Editar Produto";
                 document.getElementById("produto-id").value = produto.id;
                 document.getElementById("produto-marca").value = produto.marca;
@@ -225,9 +229,13 @@
     }
 
     function viewProduto(id) {
-        fetch("<?= BASE_URL ?>/api/produtos/buscar?id=" + id)
-            .then(response => response.json())
-            .then(produto => {
+        requisicaoJson("<?= BASE_URL ?>/api/produtos/buscar?id=" + id)
+            .then(resposta => {
+                if (!resposta.sucesso) {
+                    alert(resposta.mensagem);
+                    return;
+                }
+                const produto = resposta.dados;
                 document.getElementById("produto-modal-title").textContent = "Visualizar Produto";
                 document.getElementById("produto-id").value = produto.id;
                 document.getElementById("produto-marca").value = produto.marca;
@@ -254,20 +262,15 @@
 
     function deleteProduto(id) {
         if (confirm("Tem certeza que deseja excluir este produto?")) {
-            fetch("<?= BASE_URL ?>/produtos/excluir/" + id, {
+            requisicaoJson("<?= BASE_URL ?>/produtos/excluir/" + id, {
                     method: "DELETE"
                 })
-                .then(async (res) => {
-                    const data = await res.json().catch(() => ({}));
-                    if (res.ok) {
+                .then(resposta => {
+                    if (resposta.sucesso) {
                         location.reload();
                     } else {
-                        const msg = data && data.error ? data.error : "Falha ao excluir produto.";
-                        alert(msg);
+                        alert(resposta.mensagem);
                     }
-                })
-                .catch((err) => {
-                    alert("Erro de rede ao excluir: " + err.message);
                 });
         }
     }

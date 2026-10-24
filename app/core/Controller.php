@@ -1,6 +1,13 @@
 <?php
 
+use App\Core\RespostaJson;
+
 abstract class Controller {
+    // Toda resposta JSON passa por aqui (contrato em docs/arquitetura.md).
+    protected function json(bool $sucesso, ?string $mensagem = null, mixed $dados = null, int $status = 200, bool $requerConfirmacao = false): never {
+        RespostaJson::enviar($sucesso, $mensagem, $dados, $status, $requerConfirmacao);
+    }
+
     // Erros de renderização sobem para o tratamento único em public/index.php.
     protected function renderView($viewPath, $data = [], $layout = null) {
         if (!isset($data['usuarioAtual']) && AuthHelper::isLoggedIn()) {

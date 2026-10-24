@@ -29,17 +29,6 @@ class ProdutoController extends Controller
 
     public function salvar()
     {
-        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-            ErrorHelper::logSuccess('Acesso incorreto via GET bloqueado', 'Validação de Método');
-            if ($this->isAjaxRequest()) {
-                http_response_code(405);
-                echo json_encode(["error" => "Método não permitido"]);
-                exit;
-            }
-            header('Location: ' . BASE_URL . '/produtos');
-            exit;
-        }
-
         $dados = [
             "marca" => $_POST["marca"] ?? "",
             "preco_custo" => floatval($_POST["preco_custo"] ?? 0),
@@ -49,23 +38,12 @@ class ProdutoController extends Controller
         ];
 
         if (empty($dados["marca"]) || $dados["preco_custo"] < 0 || $dados["preco_venda"] < 0 || $dados["fornecedor_id"] <= 0) {
-            if ($this->isAjaxRequest()) {
-                http_response_code(400);
-                echo json_encode(["error" => "Todos os campos são obrigatórios e devem ser válidos"]);
-                exit;
-            }
-
             Session::flash('error', "Todos os campos são obrigatórios e devem ser válidos");
             header('Location: ' . BASE_URL . '/produtos');
             exit;
         }
 
         if ($dados["preco_venda"] < $dados["preco_custo"]) {
-            if ($this->isAjaxRequest()) {
-                http_response_code(400);
-                echo json_encode(["error" => "Preço de venda não pode ser menor que o preço de custo."]);
-                exit;
-            }
             Session::flash('error', "Preço de venda não pode ser menor que o preço de custo.");
             header('Location: ' . BASE_URL . '/produtos');
             exit;
@@ -75,42 +53,17 @@ class ProdutoController extends Controller
             $result = $this->produtoModel->salvar($dados);
             if ($result) {
                 ErrorHelper::logSuccess('Produto cadastrado com sucesso', 'Cadastro de Produto', json_encode($dados));
-
-                if ($this->isAjaxRequest()) {
-                    echo json_encode(["success" => true, "message" => "Produto cadastrado com sucesso!"]);
-                    exit;
-                }
-
                 Session::flash('success', "Produto cadastrado com sucesso!");
             } else {
-                if ($this->isAjaxRequest()) {
-                    http_response_code(500);
-                    echo json_encode(["error" => "Erro ao salvar produto no banco de dados"]);
-                    exit;
-                }
-
                 Session::flash('error', "Erro ao salvar produto no banco de dados");
             }
         } catch (Exception $e) {
             ErrorHelper::handle($e, 'Erro ao cadastrar produto', 'Cadastro de Produto');
-
-            if ($this->isAjaxRequest()) {
-                http_response_code(500);
-                echo json_encode(["error" => $this->mensagemDeErro($e, "Erro ao cadastrar produto.")]);
-                exit;
-            }
-
             Session::flash('error', $this->mensagemDeErro($e, "Erro ao cadastrar produto."));
         }
 
         header('Location: ' . BASE_URL . '/produtos');
         exit;
-    }
-
-    private function isAjaxRequest()
-    {
-        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     }
 
     public function atualizar($id)
@@ -158,54 +111,38 @@ class ProdutoController extends Controller
 
     public function buscar()
     {
-        header("Content-Type: application/json");
         $id = intval($_GET["id"] ?? 0);
         try {
             $produto = $this->produtoModel->buscarPorId($id);
-            if ($produto) {
-                echo json_encode($produto);
-            } else {
-                http_response_code(404);
-                echo json_encode(["error" => "Produto não encontrado."]);
-            }
         } catch (Exception $e) {
-            http_response_code(500);
             ErrorHelper::handle($e, 'Erro ao buscar produto', 'Cadastro de Produto');
-            echo json_encode(["error" => "Erro ao buscar produto."]);
+            $this->json(false, "Erro ao buscar produto.", status: 500);
         }
+        if (!$produto) {
+            $this->json(false, "Produto não encontrado.", status: 404);
+        }
+        $this->json(true, dados: $produto);
     }
 
     public function excluir($id)
     {
-        header("Content-Type: application/json");
-        if ($_SERVER["REQUEST_METHOD"] !== "DELETE" && $_SERVER["REQUEST_METHOD"] !== "POST") {
-            http_response_code(405);
-            echo json_encode(["error" => "Método não permitido."]);
-            exit;
-        }
         try {
             $ok = $this->produtoModel->deletar($id);
-            if ($ok) {
-                Session::flash('success', "Produto excluído com sucesso!");
-                echo json_encode(["success" => true, "message" => "Produto excluído com sucesso!"]);
-            } else {
-                http_response_code(404);
-                echo json_encode(["error" => "Produto não encontrado."]);
-            }
         } catch (PDOException $e) {
             if ($e->getCode() === '23000') {
-                http_response_code(409);
-                echo json_encode(["error" => "Não é possível excluir este produto porque há movimentações associadas."]);
-            } else {
-                ErrorHelper::handle($e, 'Erro ao excluir produto', 'Cadastro de Produto');
-                http_response_code(500);
-                echo json_encode(["error" => "Erro ao excluir produto."]);
+                $this->json(false, "Não é possível excluir este produto porque há movimentações associadas.", status: 409);
             }
+            ErrorHelper::handle($e, 'Erro ao excluir produto', 'Cadastro de Produto');
+            $this->json(false, "Erro ao excluir produto.", status: 500);
         } catch (Exception $e) {
             ErrorHelper::handle($e, 'Erro ao excluir produto', 'Cadastro de Produto');
-            http_response_code(500);
-            echo json_encode(["error" => "Erro ao excluir produto."]);
+            $this->json(false, "Erro ao excluir produto.", status: 500);
         }
+        if (!$ok) {
+            $this->json(false, "Produto não encontrado.", status: 404);
+        }
+        Session::flash('success', "Produto excluído com sucesso!");
+        $this->json(true, "Produto excluído com sucesso!");
     }
 
     // Traduz erros de banco conhecidos em mensagem para o usuário; o detalhe técnico fica no log.

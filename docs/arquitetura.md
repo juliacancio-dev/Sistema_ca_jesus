@@ -28,7 +28,8 @@ Não fazem parte da arquitetura:
 backend/                              # namespace App\ → backend/ (PSR-4 via Composer)
   Core/
     Config.php  Database.php  Router.php  Session.php  Auth.php
-    Controller.php                    # render() e json() com o formato único
+    Controller.php                    # render() e json()
+    RespostaJson.php                  # formato único das respostas JSON
     ErroDeNegocio.php                 # exceção com mensagem que pode ir ao usuário
   Features/
     Autenticacao/   AuthController.php  AuthMiddleware.php  AdminMiddleware.php
@@ -116,17 +117,21 @@ Toda resposta JSON, de qualquer slice e também do tratamento de erro em `public
 | Status HTTP | Quando |
 |---|---|
 | 200 | Sucesso, ou `requer_confirmacao: true` |
+| 401 | Sessão expirada ou usuário não logado (o front leva ao login) |
 | 403 | Sem permissão ou token CSRF inválido |
-| 404 | Recurso não encontrado |
+| 404 | Recurso ou rota não encontrados |
 | 405 | Método não permitido |
+| 409 | Conflito com dados vinculados (ex.: excluir fornecedor que tem produtos) |
 | 422 | Regra de negócio ou validação recusou (`ErroDeNegocio`) |
 | 500 | Erro inesperado (mensagem genérica, detalhe só no log) |
 
-O controller nunca monta o array à mão: ele usa `$this->json(...)`. Uma `ErroDeNegocio` não capturada vira 422 com a mensagem dela. Qualquer outra exceção vira 500 com a mensagem genérica.
+O controller nunca monta o array à mão: ele usa `$this->json(...)`. Fora de um controller (Router, middlewares, `index.php`), usa-se `RespostaJson::enviar(...)`. Uma `ErroDeNegocio` não capturada vira 422 com a mensagem dela. Qualquer outra exceção vira 500 com a mensagem genérica.
+
+A resposta é JSON quando a rota começa com `/api/` ou quando a requisição manda `Accept: application/json`. No front, toda chamada usa `requisicaoJson(url, opcoes)` (`public/assets/js/app.js`), que manda esse header, sempre devolve o objeto do contrato (inclusive em falha de rede) e leva ao login quando recebe 401.
 
 **Exemplo: custo maior que venda numa movimentação.** O primeiro envio vem sem `confirmar_custo_maior` e recebe `200 { sucesso: false, requer_confirmacao: true, mensagem: "O custo é maior que o preço de venda. Deseja continuar?" }`. Se o usuário confirmar, o front reenvia com `confirmar_custo_maior=1`.
 
-As rotas e o que cada uma devolve estão em [`rotas.md`](rotas.md), criado na etapa do contrato JSON.
+As rotas e o que cada uma devolve estão em [`rotas.md`](rotas.md).
 
 ## Erros e mensagens
 

@@ -416,7 +416,7 @@ if (isActive('/dashboard', $currentUri)) {
                 if (!bellLoaded) {
                     try {
                         const res = await fetch('<?= BASE_URL ?>/api/estoque/atual');
-                        const data = await res.json();
+                        const data = (await res.json()).dados;
                         const low = (data || []).filter(p => (parseInt(p.estoque || p.estoque_produto || 0, 10)) < 5);
                         bellList.innerHTML = '';
                         if (low.length === 0) {
@@ -444,7 +444,7 @@ if (isActive('/dashboard', $currentUri)) {
             (async () => {
                 try {
                     const res = await fetch('<?= BASE_URL ?>/api/estoque/atual');
-                    const data = await res.json();
+                    const data = (await res.json()).dados;
                     const low = (data || []).filter(p => (parseInt(p.estoque || p.estoque_produto || 0, 10)) < 5);
                     if (low.length > 0 && bellBadge) {
                         bellBadge.style.display = '';
