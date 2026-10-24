@@ -69,12 +69,10 @@
                         <p class="text-gray-600">Entre com suas credenciais para continuar</p>
                     </div>
 
-                    <?php
-                    if (isset($_SESSION['error'])): ?>
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                            <?= $_SESSION['error'] ?>
+                    <?php $flash = Session::pullFlash(); if ($flash): ?>
+                        <div class="<?= $flash['type'] === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700' ?> border px-4 py-3 rounded mb-4">
+                            <?= nl2br(htmlspecialchars($flash['message'])) ?>
                         </div>
-                        <?php unset($_SESSION['error']); ?>
                     <?php endif; ?>
 
                     <form action="<?= BASE_URL ?>/login" method="POST" class="space-y-6">

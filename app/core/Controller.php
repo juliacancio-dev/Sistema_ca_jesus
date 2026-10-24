@@ -7,16 +7,6 @@ abstract class Controller {
             $data['usuarioAtual'] = AuthHelper::getUser();
         }
 
-        if (isset($_SESSION['error']) && !isset($data['error'])) {
-            $data['error'] = $_SESSION['error'];
-            unset($_SESSION['error']);
-        }
-
-        if (isset($_SESSION['success']) && !isset($data['success'])) {
-            $data['success'] = $_SESSION['success'];
-            unset($_SESSION['success']);
-        }
-
         extract($data);
 
         $viewFile = realpath(__DIR__ . "/../views/" . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $viewPath) . ".php");
@@ -55,11 +45,7 @@ abstract class Controller {
     
     protected function redirect($url, $message = null, $isError = false) {
         if ($message) {
-            if ($isError) {
-                $_SESSION['error'] = $message;
-            } else {
-                $_SESSION['success'] = $message;
-            }
+            Session::flash($isError ? 'error' : 'success', $message);
         }
         
         if (strpos($url, 'http') !== 0) {

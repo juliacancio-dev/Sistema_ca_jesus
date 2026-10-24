@@ -24,7 +24,6 @@ class MovimentacaoController extends Controller
     {
         $model = new MovimentacaoModel();
 
-
         $produtoMarca = trim($_POST['produto'] ?? '');
         $acao = trim($_POST['tipo'] ?? '');
         $quantidade = (int)($_POST['quantidade'] ?? 0);
@@ -34,12 +33,12 @@ class MovimentacaoController extends Controller
         $usuarioId = $_SESSION['user']['id'] ?? null;
 
         if (empty($produtoMarca) || empty($acao) || $quantidade <= 0 || $precoCusto < 0 || $precoVenda < 0) {
-            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Preencha todos os campos obrigatórios corretamente.'];
+            Session::flash('error', 'Preencha todos os campos obrigatórios corretamente.');
             return $this->redirect('/movimentacoes');
         }
 
         if ($precoCusto > $precoVenda) {
-            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Preço de custo não pode ser maior que o preço de venda.'];
+            Session::flash('error', 'Preço de custo não pode ser maior que o preço de venda.');
             return $this->redirect('/movimentacoes');
         }
 
@@ -53,15 +52,15 @@ class MovimentacaoController extends Controller
                 }
             }
             if ($estoqueAtual === null) {
-                $_SESSION['flash'] = ['type' => 'error', 'message' => 'Produto não encontrado.'];
+                Session::flash('error', 'Produto não encontrado.');
                 return $this->redirect('/movimentacoes');
             }
             if ($estoqueAtual <= 0) {
-                $_SESSION['flash'] = ['type' => 'error', 'message' => 'Estoque do produto está zerado. Não é possível registrar saída.'];
+                Session::flash('error', 'Estoque do produto está zerado. Não é possível registrar saída.');
                 return $this->redirect('/movimentacoes');
             }
             if ($quantidade > $estoqueAtual) {
-                $_SESSION['flash'] = ['type' => 'error', 'message' => 'Quantidade de saída maior que o estoque disponível (' . $estoqueAtual . ').'];
+                Session::flash('error', 'Quantidade de saída maior que o estoque disponível (' . $estoqueAtual . ').');
                 return $this->redirect('/movimentacoes');
             }
         }
@@ -77,18 +76,19 @@ class MovimentacaoController extends Controller
         ];
 
         try {
-            $ok = $model->registrar($dados);
+            $model->registrar($dados);
             ErrorHelper::logSuccess('Movimentação registrada com sucesso', 'Registro de Movimentação', json_encode($dados));
-            $_SESSION['flash'] = [
-                'type' => 'success',
-                'message' => 'Movimentação registrada com sucesso!'
-            ];
+            Session::flash('success', 'Movimentação registrada com sucesso!');
+        } catch (DomainException $e) {
+            Session::flash('error', $e->getMessage());
+        } catch (PDOException $e) {
+            ErrorHelper::handle($e, 'Erro ao registrar movimentação', 'Registro de Movimentação');
+            // SQLSTATE 45000 = regra de negócio sinalizada por trigger (ex.: estoque insuficiente)
+            $mensagemDoBanco = ($e->errorInfo[0] ?? '') === '45000' ? ($e->errorInfo[2] ?? null) : null;
+            Session::flash('error', $mensagemDoBanco ?: 'Não foi possível registrar a movimentação. Tente novamente.');
         } catch (Exception $e) {
             ErrorHelper::handle($e, 'Erro ao registrar movimentação', 'Registro de Movimentação');
-            $_SESSION['flash'] = [
-                'type' => 'error',
-                'message' => $e->getMessage()
-            ];
+            Session::flash('error', 'Não foi possível registrar a movimentação. Tente novamente.');
         }
         $this->redirect('/movimentacoes');
     }

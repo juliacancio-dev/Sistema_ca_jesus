@@ -6,7 +6,7 @@ class AdminMiddleware
     {
         if (!AuthHelper::isAdmin()) {
             error_log("[AdminMiddleware] Acesso de administrador negado.");
-            $_SESSION['error'] = "Acesso restrito. Você precisa ser administrador para acessar esta área.";
+            Session::flash('error', "Acesso restrito. Você precisa ser administrador para acessar esta área.");
             header('Location: ' . BASE_URL . '/dashboard');
             exit;
         }

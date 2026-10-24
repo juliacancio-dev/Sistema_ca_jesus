@@ -130,6 +130,7 @@ class FornecedorModel
         } catch (PDOException $e) {
             $this->db->rollBack();
             error_log("Erro ao criar fornecedor: " . $e->getMessage());
+            $this->lancarSeDuplicado($e);
             throw new DatabaseException("Erro ao criar fornecedor");
         }
     }
@@ -152,7 +153,6 @@ class FornecedorModel
                     cidade_fornecedor = ?,
                     estado_fornecedor = ?,
                     cep_fornecedor = ?,
-                    ativo_fornecedor = ?,
                     data_atualizacao = NOW()
                 WHERE id_fornecedor = ?
             ");
@@ -169,7 +169,6 @@ class FornecedorModel
                 $dados['cidade'] ?? null,
                 $dados['estado'] ?? null,
                 $dados['cep'] ?? null,
-                $dados['ativo'] ?? 1,
                 $id
             ]);
 
@@ -178,7 +177,15 @@ class FornecedorModel
         } catch (PDOException $e) {
             $this->db->rollBack();
             error_log("Erro ao atualizar fornecedor: " . $e->getMessage());
+            $this->lancarSeDuplicado($e);
             throw new DatabaseException("Erro ao atualizar fornecedor");
+        }
+    }
+
+    private function lancarSeDuplicado(PDOException $e): void
+    {
+        if (($e->errorInfo[1] ?? null) === 1062) {
+            throw new DomainException("Já existe um fornecedor com este CNPJ ou e-mail.");
         }
     }
 

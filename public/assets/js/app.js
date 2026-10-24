@@ -22,14 +22,17 @@ window.showToast = function(message, type = 'info', duration = 4000) {
             toast.classList.add('bg-blue-500');
     }
 
-    toast.innerHTML = `
-        <div class="flex items-center justify-between">
-            <span>${message}</span>
-            <button onclick="this.parentElement.parentElement.remove()" class="ml-3 text-white hover:text-gray-200">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
+    const linha = document.createElement('div');
+    linha.className = 'flex items-center justify-between';
+    const texto = document.createElement('span');
+    texto.style.whiteSpace = 'pre-line';
+    texto.textContent = message;
+    const fechar = document.createElement('button');
+    fechar.className = 'ml-3 text-white hover:text-gray-200';
+    fechar.innerHTML = '<i class="fas fa-times"></i>';
+    fechar.addEventListener('click', () => toast.remove());
+    linha.append(texto, fechar);
+    toast.appendChild(linha);
 
     container.appendChild(toast);
 
@@ -37,14 +40,28 @@ window.showToast = function(message, type = 'info', duration = 4000) {
         toast.classList.remove('translate-x-full');
     }, 100);
 
-    setTimeout(() => {
-        toast.classList.add('translate-x-full');
+    // duration 0 = fica até ser fechado (ou removido por quem chamou)
+    if (duration > 0) {
         setTimeout(() => {
-            if (toast.parentNode) {
-                toast.remove();
-            }
-        }, 300);
-    }, duration);
+            toast.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 300);
+        }, duration);
+    }
+    return toast;
+};
+
+// Escapa texto vindo do banco antes de colocá-lo em HTML montado no JS.
+window.escapeHtml = function(valor) {
+    return String(valor ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 };
 
 window.openModal = function(modalId) {

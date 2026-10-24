@@ -66,7 +66,9 @@ class AuthHelper
             $inactiveTime = time() - $_SESSION['last_activity'];
             if ($inactiveTime > 7200) {
                 self::logout();
-                $_SESSION['error'] = 'Sua sessão expirou por inatividade. Por favor, faça login novamente.';
+                // logout() destrói a sessão; abre uma nova só para levar a mensagem até o login.
+                session_start();
+                Session::flash('error', 'Sua sessão expirou por inatividade. Por favor, faça login novamente.');
                 header('Location: ' . BASE_URL . '/login');
                 exit;
             }

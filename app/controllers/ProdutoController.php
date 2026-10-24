@@ -55,7 +55,7 @@ class ProdutoController extends Controller
                 exit;
             }
 
-            $_SESSION["error"] = "Todos os campos são obrigatórios e devem ser válidos";
+            Session::flash('error', "Todos os campos são obrigatórios e devem ser válidos");
             header('Location: ' . BASE_URL . '/produtos');
             exit;
         }
@@ -66,7 +66,7 @@ class ProdutoController extends Controller
                 echo json_encode(["error" => "Preço de venda não pode ser menor que o preço de custo."]);
                 exit;
             }
-            $_SESSION["error"] = "Preço de venda não pode ser menor que o preço de custo.";
+            Session::flash('error', "Preço de venda não pode ser menor que o preço de custo.");
             header('Location: ' . BASE_URL . '/produtos');
             exit;
         }
@@ -81,7 +81,7 @@ class ProdutoController extends Controller
                     exit;
                 }
 
-                $_SESSION["success"] = "Produto cadastrado com sucesso!";
+                Session::flash('success', "Produto cadastrado com sucesso!");
             } else {
                 if ($this->isAjaxRequest()) {
                     http_response_code(500);
@@ -89,18 +89,18 @@ class ProdutoController extends Controller
                     exit;
                 }
 
-                $_SESSION["error"] = "Erro ao salvar produto no banco de dados";
+                Session::flash('error', "Erro ao salvar produto no banco de dados");
             }
         } catch (Exception $e) {
             ErrorHelper::handle($e, 'Erro ao cadastrar produto', 'Cadastro de Produto');
 
             if ($this->isAjaxRequest()) {
                 http_response_code(500);
-                echo json_encode(["error" => "Erro ao cadastrar produto: " . $e->getMessage()]);
+                echo json_encode(["error" => $this->mensagemDeErro($e, "Erro ao cadastrar produto.")]);
                 exit;
             }
 
-            $_SESSION["error"] = "Erro ao cadastrar produto: " . $e->getMessage();
+            Session::flash('error', $this->mensagemDeErro($e, "Erro ao cadastrar produto."));
         }
 
         header('Location: ' . BASE_URL . '/produtos');
@@ -129,13 +129,13 @@ class ProdutoController extends Controller
         ];
 
         if (empty($dados["marca"]) || $dados["preco_custo"] < 0 || $dados["preco_venda"] < 0 || $dados["fornecedor_id"] <= 0) {
-            $_SESSION["error"] = "Todos os campos são obrigatórios e devem ser válidos";
+            Session::flash('error', "Todos os campos são obrigatórios e devem ser válidos");
             header('Location: ' . BASE_URL . '/produtos');
             exit;
         }
 
         if ($dados["preco_venda"] < $dados["preco_custo"]) {
-            $_SESSION["error"] = "Preço de venda não pode ser menor que o preço de custo.";
+            Session::flash('error', "Preço de venda não pode ser menor que o preço de custo.");
             header('Location: ' . BASE_URL . '/produtos');
             exit;
         }
@@ -143,12 +143,13 @@ class ProdutoController extends Controller
         try {
             $result = $this->produtoModel->salvar($dados);
             if ($result) {
-                $_SESSION["success"] = "Produto atualizado com sucesso!";
+                Session::flash('success', "Produto atualizado com sucesso!");
             } else {
-                $_SESSION["error"] = "Erro ao salvar produto no banco de dados";
+                Session::flash('error', "Erro ao salvar produto no banco de dados");
             }
         } catch (Exception $e) {
-            $_SESSION["error"] = "Erro ao atualizar produto: " . $e->getMessage();
+            ErrorHelper::handle($e, 'Erro ao atualizar produto', 'Cadastro de Produto');
+            Session::flash('error', $this->mensagemDeErro($e, "Erro ao atualizar produto."));
         }
 
         header('Location: ' . BASE_URL . '/produtos');
@@ -169,7 +170,8 @@ class ProdutoController extends Controller
             }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(["error" => "Erro ao buscar produto: " . $e->getMessage()]);
+            ErrorHelper::handle($e, 'Erro ao buscar produto', 'Cadastro de Produto');
+            echo json_encode(["error" => "Erro ao buscar produto."]);
         }
     }
 
@@ -184,6 +186,7 @@ class ProdutoController extends Controller
         try {
             $ok = $this->produtoModel->deletar($id);
             if ($ok) {
+                Session::flash('success', "Produto excluído com sucesso!");
                 echo json_encode(["success" => true, "message" => "Produto excluído com sucesso!"]);
             } else {
                 http_response_code(404);
@@ -194,12 +197,27 @@ class ProdutoController extends Controller
                 http_response_code(409);
                 echo json_encode(["error" => "Não é possível excluir este produto porque há movimentações associadas."]);
             } else {
+                ErrorHelper::handle($e, 'Erro ao excluir produto', 'Cadastro de Produto');
                 http_response_code(500);
-                echo json_encode(["error" => "Erro ao excluir produto: " . $e->getMessage()]);
+                echo json_encode(["error" => "Erro ao excluir produto."]);
             }
         } catch (Exception $e) {
+            ErrorHelper::handle($e, 'Erro ao excluir produto', 'Cadastro de Produto');
             http_response_code(500);
-            echo json_encode(["error" => "Erro ao excluir produto: " . $e->getMessage()]);
+            echo json_encode(["error" => "Erro ao excluir produto."]);
         }
+    }
+
+    // Traduz erros de banco conhecidos em mensagem para o usuário; o detalhe técnico fica no log.
+    private function mensagemDeErro(Exception $e, string $padrao): string
+    {
+        $codigoMysql = $e instanceof PDOException ? ($e->errorInfo[1] ?? null) : null;
+        if ($codigoMysql === 1062) {
+            return "Já existe um produto com esta marca.";
+        }
+        if ($codigoMysql === 1451) {
+            return "Não é possível alterar a marca: este produto já tem movimentações registradas.";
+        }
+        return $padrao;
     }
 }
