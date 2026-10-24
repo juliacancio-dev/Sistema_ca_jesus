@@ -36,7 +36,7 @@ class ProdutoController extends Controller
                 echo json_encode(["error" => "Método não permitido"]);
                 exit;
             }
-            header('Location: ' . BASE_URL . '/public/produtos');
+            header('Location: ' . BASE_URL . '/produtos');
             exit;
         }
 
@@ -55,11 +55,8 @@ class ProdutoController extends Controller
                 exit;
             }
 
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
             $_SESSION["error"] = "Todos os campos são obrigatórios e devem ser válidos";
-            header('Location: ' . BASE_URL . '/public/produtos');
+            header('Location: ' . BASE_URL . '/produtos');
             exit;
         }
 
@@ -69,11 +66,8 @@ class ProdutoController extends Controller
                 echo json_encode(["error" => "Preço de venda não pode ser menor que o preço de custo."]);
                 exit;
             }
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
             $_SESSION["error"] = "Preço de venda não pode ser menor que o preço de custo.";
-            header('Location: ' . BASE_URL . '/public/produtos');
+            header('Location: ' . BASE_URL . '/produtos');
             exit;
         }
 
@@ -87,9 +81,6 @@ class ProdutoController extends Controller
                     exit;
                 }
 
-                if (session_status() === PHP_SESSION_NONE) {
-                    session_start();
-                }
                 $_SESSION["success"] = "Produto cadastrado com sucesso!";
             } else {
                 if ($this->isAjaxRequest()) {
@@ -98,9 +89,6 @@ class ProdutoController extends Controller
                     exit;
                 }
 
-                if (session_status() === PHP_SESSION_NONE) {
-                    session_start();
-                }
                 $_SESSION["error"] = "Erro ao salvar produto no banco de dados";
             }
         } catch (Exception $e) {
@@ -112,13 +100,10 @@ class ProdutoController extends Controller
                 exit;
             }
 
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
             $_SESSION["error"] = "Erro ao cadastrar produto: " . $e->getMessage();
         }
 
-        header('Location: ' . BASE_URL . '/public/produtos');
+        header('Location: ' . BASE_URL . '/produtos');
         exit;
     }
 
@@ -131,7 +116,7 @@ class ProdutoController extends Controller
     public function atualizar($id)
     {
         if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-            header('Location: ' . BASE_URL . '/public/produtos');
+            header('Location: ' . BASE_URL . '/produtos');
             exit;
         }
 
@@ -144,44 +129,29 @@ class ProdutoController extends Controller
         ];
 
         if (empty($dados["marca"]) || $dados["preco_custo"] < 0 || $dados["preco_venda"] < 0 || $dados["fornecedor_id"] <= 0) {
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
             $_SESSION["error"] = "Todos os campos são obrigatórios e devem ser válidos";
-            header('Location: ' . BASE_URL . '/public/produtos');
+            header('Location: ' . BASE_URL . '/produtos');
             exit;
         }
 
         if ($dados["preco_venda"] < $dados["preco_custo"]) {
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
             $_SESSION["error"] = "Preço de venda não pode ser menor que o preço de custo.";
-            header('Location: ' . BASE_URL . '/public/produtos');
+            header('Location: ' . BASE_URL . '/produtos');
             exit;
         }
 
         try {
             $result = $this->produtoModel->salvar($dados);
             if ($result) {
-                if (session_status() === PHP_SESSION_NONE) {
-                    session_start();
-                }
                 $_SESSION["success"] = "Produto atualizado com sucesso!";
             } else {
-                if (session_status() === PHP_SESSION_NONE) {
-                    session_start();
-                }
                 $_SESSION["error"] = "Erro ao salvar produto no banco de dados";
             }
         } catch (Exception $e) {
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
             $_SESSION["error"] = "Erro ao atualizar produto: " . $e->getMessage();
         }
 
-        header('Location: ' . BASE_URL . '/public/produtos');
+        header('Location: ' . BASE_URL . '/produtos');
         exit;
     }
 

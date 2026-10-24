@@ -9,9 +9,6 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         try {
             $this->usuarioModel = new UsuarioModel();
             $this->db = Database::getInstance();
@@ -24,7 +21,7 @@ class AuthController extends Controller
     public function loginForm()
     {
         if (AuthHelper::isLoggedIn()) {
-            header('Location: /sistema_ca_jesus/public/dashboard');
+            header('Location: ' . BASE_URL . '/dashboard');
             exit;
         }
         $this->renderView('layouts/auth/login');
@@ -34,7 +31,7 @@ class AuthController extends Controller
     {
         try {
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                header('Location: /sistema_ca_jesus/public/login');
+                header('Location: ' . BASE_URL . '/login');
                 exit;
             }
 
@@ -43,7 +40,7 @@ class AuthController extends Controller
 
             if (empty($email) || empty($senha)) {
                 $_SESSION['error'] = 'Email e senha são obrigatórios';
-                header('Location: /sistema_ca_jesus/public/login');
+                header('Location: ' . BASE_URL . '/login');
                 exit;
             }
 
@@ -53,7 +50,7 @@ class AuthController extends Controller
                 $uDados = $this->usuarioModel->buscarPorEmail($email);
                 if ($uDados && isset($uDados['ativo']) && (int)$uDados['ativo'] === 0) {
                     $_SESSION['error'] = 'Seu usuário está inativo. Contate o administrador.';
-                    header('Location: /sistema_ca_jesus/public/login');
+                    header('Location: ' . BASE_URL . '/login');
                     exit;
                 }
             } catch (Throwable $e) {
@@ -63,7 +60,7 @@ class AuthController extends Controller
 
             if ($usuario) {
                 AuthHelper::login($usuario);
-                $redirect = $_SESSION['redirect_after_login'] ?? '/sistema_ca_jesus/public/dashboard';
+                $redirect = $_SESSION['redirect_after_login'] ?? BASE_URL . '/dashboard';
                 unset($_SESSION['redirect_after_login']);
                 header('Location: ' . $redirect);
                 exit;
@@ -71,17 +68,17 @@ class AuthController extends Controller
 
             error_log("[AuthController] Falha de login para: $email");
             $_SESSION['error'] = 'Email ou senha incorretos';
-            header('Location: /sistema_ca_jesus/public/login');
+            header('Location: ' . BASE_URL . '/login');
             exit;
         } catch (DatabaseException $e) {
             error_log('[AuthController] Erro de banco de dados no login: ' . $e->getMessage());
             $_SESSION['error'] = 'Erro interno do sistema. Tente novamente.';
-            header('Location: /sistema_ca_jesus/public/login');
+            header('Location: ' . BASE_URL . '/login');
             exit;
         } catch (Exception $e) {
             error_log('[AuthController] Erro no login: ' . $e->getMessage());
             $_SESSION['error'] = 'Erro interno do sistema. Tente novamente.';
-            header('Location: /sistema_ca_jesus/public/login');
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
     }
@@ -89,7 +86,7 @@ class AuthController extends Controller
     public function logout()
     {
         AuthHelper::logout();
-        header('Location: /sistema_ca_jesus/public/login');
+        header('Location: ' . BASE_URL . '/login');
         exit;
     }
 }

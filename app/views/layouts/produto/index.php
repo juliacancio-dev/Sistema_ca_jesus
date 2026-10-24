@@ -153,7 +153,7 @@
             <h3 id="produto-modal-title" class="text-lg font-semibold text-gray-800">Cadastrar Produto</h3>
         </div>
 
-        <form id="produto-form" action="<?= BASE_URL ?>/public/produtos/salvar" method="POST" class="p-6 space-y-4">
+        <form id="produto-form" action="<?= BASE_URL ?>/produtos/salvar" method="POST" class="p-6 space-y-4">
             <input type="hidden" id="produto-id" name="id">
 
             <div>
@@ -200,7 +200,7 @@
     document.getElementById("new-produto-btn").addEventListener("click", () => {
         document.getElementById("produto-modal-title").textContent = "Cadastrar Produto";
         document.getElementById("produto-form").reset();
-        document.getElementById("produto-form").action = "<?= BASE_URL ?>/public/produtos/salvar";
+        document.getElementById("produto-form").action = "<?= BASE_URL ?>/produtos/salvar";
         setProdutoFormReadOnly(false);
         document.getElementById("produto-modal").classList.remove("hidden");
     });
@@ -210,7 +210,7 @@
     });
 
     function editProduto(id) {
-        fetch("<?= BASE_URL ?>/public/api/produtos/buscar?id=" + id)
+        fetch("<?= BASE_URL ?>/api/produtos/buscar?id=" + id)
             .then(response => response.json())
             .then(produto => {
                 document.getElementById("produto-modal-title").textContent = "Editar Produto";
@@ -219,14 +219,14 @@
                 document.getElementById("produto-custo").value = produto.preco_custo;
                 document.getElementById("produto-venda").value = produto.preco_venda;
                 document.getElementById("produto-fornecedor").value = produto.fornecedor_id;
-                document.getElementById("produto-form").action = "<?= BASE_URL ?>/public/produtos/atualizar/" + id;
+                document.getElementById("produto-form").action = "<?= BASE_URL ?>/produtos/atualizar/" + id;
                 setProdutoFormReadOnly(false);
                 document.getElementById("produto-modal").classList.remove("hidden");
             });
     }
 
     function viewProduto(id) {
-        fetch("<?= BASE_URL ?>/public/api/produtos/buscar?id=" + id)
+        fetch("<?= BASE_URL ?>/api/produtos/buscar?id=" + id)
             .then(response => response.json())
             .then(produto => {
                 document.getElementById("produto-modal-title").textContent = "Visualizar Produto";
@@ -255,7 +255,7 @@
 
     function deleteProduto(id) {
         if (confirm("Tem certeza que deseja excluir este produto?")) {
-            fetch("<?= BASE_URL ?>/public/produtos/excluir/" + id, {
+            fetch("<?= BASE_URL ?>/produtos/excluir/" + id, {
                     method: "DELETE"
                 })
                 .then(async (res) => {

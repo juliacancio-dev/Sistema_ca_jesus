@@ -422,7 +422,7 @@
         if (mostrarFin) {
             const pFin = new URLSearchParams(params);
             pFin.set('tipo', 'financeiro');
-            fetch('<?= BASE_URL ?>/public/api/relatorios/dados?' + pFin.toString())
+            fetch('<?= BASE_URL ?>/api/relatorios/dados?' + pFin.toString())
                 .then(r => r.json())
                 .then(json => {
                     if (!json || !json.dados) return;
@@ -436,7 +436,7 @@
         if (mostrarEst) {
             const pEst = new URLSearchParams(params);
             pEst.set('tipo', 'estoque');
-            fetch('<?= BASE_URL ?>/public/api/relatorios/dados?' + pEst.toString())
+            fetch('<?= BASE_URL ?>/api/relatorios/dados?' + pEst.toString())
                 .then(r => r.json())
                 .then(json => {
                     if (!json || !json.dados) return;

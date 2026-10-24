@@ -8,7 +8,7 @@ RewriteRule ^vendor/ - [F,L]
 RewriteRule ^armazenamento/ - [F,L]
 
 # Redirecionar todas as requisições para a pasta public
-RewriteCond %{REQUEST_URI} !^/sistema_ca_jesus/public/
+RewriteRule ^public/ - [L]
 RewriteRule ^(.*)$ public/$1 [L]
 
 # Desabilitar listagem de diretórios

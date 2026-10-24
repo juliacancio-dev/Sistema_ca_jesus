@@ -236,7 +236,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
                         <span id="progressText" class="ml-4 text-sm font-medium text-gray-700">1 / 3</span>
                     </div>
 
-                    <form id="usuario-form" method="POST" action="/sistema_ca_jesus/public/usuarios/salvar" class="space-y-8" novalidate>
+                    <form id="usuario-form" method="POST" action="<?= BASE_URL ?>/usuarios/salvar" class="space-y-8" novalidate>
                         <input type="hidden" id="usuario-id" name="id">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
 
@@ -925,7 +925,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
             }
 
             function viewUsuario(id) {
-                fetch(`/sistema_ca_jesus/public/usuarios/buscar/${id}`)
+                fetch(`<?= BASE_URL ?>/usuarios/buscar/${id}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
@@ -941,7 +941,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
             }
 
             function editUsuario(id) {
-                fetch(`/sistema_ca_jesus/public/usuarios/buscar/${id}`)
+                fetch(`<?= BASE_URL ?>/usuarios/buscar/${id}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
@@ -959,7 +959,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
             function toggleUsuarioStatus(id, novoStatus) {
                 const acao = novoStatus ? 'ativar' : 'desativar';
                 if (confirm(`Deseja ${acao} este usuário?`)) {
-                    fetch(`/sistema_ca_jesus/public/usuarios/toggle-status/${id}`, {
+                    fetch(`<?= BASE_URL ?>/usuarios/toggle-status/${id}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -986,7 +986,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
 
             function deleteUsuario(id, nome) {
                 if (confirm(`Tem certeza que deseja excluir o usuário "${nome}"?\n\nEsta ação não pode ser desfeita.`)) {
-                    fetch(`/sistema_ca_jesus/public/usuarios/excluir/${id}`, {
+                    fetch(`<?= BASE_URL ?>/usuarios/excluir/${id}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

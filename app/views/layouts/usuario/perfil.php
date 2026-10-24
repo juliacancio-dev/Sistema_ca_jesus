@@ -18,7 +18,7 @@
                     <h1 class="text-3xl font-bold text-gray-900">Meu Perfil</h1>
                     <p class="text-gray-600 mt-2">Gerencie suas informações pessoais e configurações de conta</p>
                 </div>
-                <a href="/sistema_ca_jesus/public/dashboard"
+                <a href="<?= BASE_URL ?>/dashboard"
                     class="inline-flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
                     <i class="fas fa-arrow-left"></i>
                     Voltar ao Dashboard
@@ -64,7 +64,7 @@
                         Dados Pessoais
                     </h2>
 
-                    <form method="POST" action="/sistema_ca_jesus/public/usuarios/atualizarPerfil">
+                    <form method="POST" action="<?= BASE_URL ?>/usuarios/atualizarPerfil">
                         <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -126,7 +126,7 @@
                         Endereço
                     </h2>
 
-                    <form method="POST" action="/sistema_ca_jesus/public/usuarios/atualizarPerfil">
+                    <form method="POST" action="<?= BASE_URL ?>/usuarios/atualizarPerfil">
                         <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
 
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -225,7 +225,7 @@
                         Alterar Senha
                     </h2>
 
-                    <form method="POST" action="/sistema_ca_jesus/public/usuarios/alterarSenha">
+                    <form method="POST" action="<?= BASE_URL ?>/usuarios/alterarSenha">
                         <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
 
                         <div class="space-y-6">

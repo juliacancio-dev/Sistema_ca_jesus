@@ -11,7 +11,6 @@ class UsuarioController extends Controller
     public function __construct()
     {
         $this->usuarioModel = new UsuarioModel();
-        $this->iniciarSessao();
     }
     public function index()
     {
@@ -712,15 +711,5 @@ class UsuarioController extends Controller
         ];
 
         error_log("LOGIN_ATTEMPT: " . json_encode($log));
-    }
-    private function iniciarSessao(): void
-    {
-        if (session_status() === PHP_SESSION_NONE) {
-            ini_set('session.cookie_httponly', 1);
-            ini_set('session.cookie_secure', 1);
-            ini_set('session.use_strict_mode', 1);
-
-            session_start();
-        }
     }
 }

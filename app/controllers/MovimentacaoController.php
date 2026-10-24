@@ -24,9 +24,6 @@ class MovimentacaoController extends Controller
     {
         $model = new MovimentacaoModel();
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
 
         $produtoMarca = trim($_POST['produto'] ?? '');
         $acao = trim($_POST['tipo'] ?? '');

@@ -12,17 +12,11 @@ class ErrorHelper
         $detalhes = $exception->getFile() . ':' . $exception->getLine() . ' | Trace: ' . $exception->getTraceAsString();
         LogHelper::registrar('error', $exception->getMessage(), $tipoTeste, $detalhes);
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $_SESSION['toast_error'] = $msg;
     }
 
     public static function displayToast()
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         if (!empty($_SESSION['toast_error'])) {
             echo "<script>
                 window.onload=function(){
