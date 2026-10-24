@@ -2,7 +2,7 @@
 
 Sistema web para controle de estoque de uma distribuidora: cadastro de produtos e fornecedores, registro de entradas e saídas, relatórios financeiros e de estoque, e gestão de usuários.
 
-> Este projeto está passando por uma refatoração. Diagnóstico e plano: [`docs/diagnostico-fase-a.md`](docs/diagnostico-fase-a.md).
+> Este projeto está passando por uma refatoração. Arquitetura-alvo e regras: [`docs/arquitetura.md`](docs/arquitetura.md). Diagnóstico e plano: [`docs/diagnostico-fase-a.md`](docs/diagnostico-fase-a.md).
 
 ## Funcionalidades
 

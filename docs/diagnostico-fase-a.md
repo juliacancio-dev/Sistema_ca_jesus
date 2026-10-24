@@ -2,6 +2,8 @@
 
 Data: 2026-10-23 · Base: `main` @ `fff3403` · Nenhum arquivo do sistema foi alterado.
 
+> **Atualização (2026-10-24):** a arquitetura foi revisada depois das etapas 1–4. As decisões que mudaram e o plano revisado estão em [Revisão de arquitetura](#revisão-de-arquitetura-2026-10-24), no fim deste documento. A referência da arquitetura-alvo passa a ser [`arquitetura.md`](arquitetura.md).
+
 Ambiente verificado: PHP 8.2.12 e **MariaDB 10.4.32** (XAMPP). Composer **não está instalado**. `php -l` passa em todos os 47 arquivos `.php` versionados (linha de base limpa).
 
 Legenda: ✗ = rota quebrada · (morto) = sem nenhum chamador encontrado por busca no repositório.
@@ -237,6 +239,7 @@ Semelhança acidental, que **não** deve ser unificada: `validarDados` de Usuár
 - *B — manter o autoloader manual por pastas:* zero esforço, mas a lista de caminhos cresce com cada slice e nomes de classe podem colidir.
 - *C — namespaces `App\...` + um autoloader PSR-4 de ~10 linhas em `public/index.php`:* mesmo mapeamento do `composer.json` (`App\` → `app/`), sem instalar nada. Se um dia entrar o PHPUnit, `composer dump-autoload` passa a funcionar sem mudar nenhuma classe.
 - **RECOMENDAÇÃO: C.** Tem a organização do A sem a dependência operacional. Exige renomear pastas para PascalCase (`app/Core`, `app/Features`), que no Windows precisa de `git mv` em dois passos.
+- *Revisado em 2026-10-24: passa a ser **A**. Ver [Revisão de arquitetura](#revisão-de-arquitetura-2026-10-24).*
 
 **D3 — Onde ficam as views**
 - *A — dentro do slice (`Features/Produtos/views/index.php`):* tudo o que muda junto fica junto; é o objetivo do slice.
@@ -388,6 +391,8 @@ MOTIVO: sobra / arquivo gerado
 
 ## 10. Plano de execução (Fase B)
 
+> As etapas 1–4 foram concluídas como descritas abaixo. A partir da etapa 5, vale o [plano revisado](#plano-revisado-a-partir-da-etapa-5).
+
 Mudei duas coisas na ordem sugerida, ambas para que cada etapa possa ser validada:
 - As **correções de feedback ao usuário (C1)** vêm cedo (etapa 4). Sem elas, o roteiro de teste manual das etapas seguintes não consegue ver erros como “saída acima do estoque”.
 - A **limpeza de logging** acontece junto com a mudança de cada slice (etapa 7). Assim cada arquivo é mexido uma vez só; a estratégia de erro é definida antes, na etapa 2.
@@ -475,3 +480,37 @@ Consequências:
 - `Controller::render('produtos/index')` resolve em `frontend/views/`. O nome da view é igual ao nome da pasta da feature, para que backend e frontend de cada slice fiquem fáceis de achar.
 - O `.htaccess` raiz passa a bloquear também `backend/`, `frontend/` e `database/` (no lugar de `app/`). Um `.htaccess` com `Deny from all` fica em `backend/` e em `frontend/`.
 - O `composer.json` muda o mapeamento PSR-4 para `"App\\": "backend/"`.
+
+---
+
+## Revisão de arquitetura (2026-10-24)
+
+Feita depois das etapas 1–4 (`main` @ `61ba78c`). A árvore-alvo revisada (backend × frontend) continua valendo. O que mudou foram as premissas: **o sistema ainda não tem produção**, ou seja, não há servidor de deploy nem dados reais a preservar. A arquitetura completa, com as regras, o contrato JSON e a estratégia de testes, está em [`arquitetura.md`](arquitetura.md).
+
+### Decisões revisadas
+
+| # | Tema | Antes | Agora | Motivo |
+|---|---|---|---|---|
+| R1 | D2 — autoload | C: autoloader próprio, sem Composer | **A: Composer (PSR-4 `App\` → `backend/`)** | O argumento contra era a dependência no servidor, e não há servidor. O Composer também traz o PHPUnit. |
+| R2 | Versão do PHP | ≥ 7.4 | **≥ 8.2** | É a versão do ambiente (XAMPP, 8.2.12) e a exigida pelo PHPUnit 11. O PHP 8.1 já não recebe correções de segurança. |
+| R3 | Testes | PHPUnit opcional, etapa 11 | **Obrigatório, instalado na etapa 5**, antes de mexer na regra de estoque | O ponto mais frágil do plano era mover tudo sem rede de proteção. |
+| R4 | Mudanças de schema | Migrações em `database/migrations/` | **Editar `database/schema.sql` e recriar o banco local** até o primeiro deploy | Não há dados a preservar. As migrações começam depois do primeiro deploy. |
+| R5 | Respostas JSON | Sem formato definido (`success`/`message`, `error`, `dados`/`erro` convivem) | **Contrato único** `{ sucesso, mensagem, dados, requer_confirmacao }` com status HTTP definido | O front precisa diferenciar "ok", "erro" e "precisa confirmar" (fluxo `confirmar_custo_maior`). |
+| R6 | Casos de uso | `RegistrarMovimentacao` com lock | O mesmo, **sem depender de HTTP** (não lê `$_POST` nem sessão) | Permite testar chamando a classe direto. |
+
+Continuam valendo: D1 (estoque em PHP + `CHECK`), D3 revisada (`frontend/views/`), D4, D5, D6 e as decisões 3 a 7 da tabela de 2026-10-23.
+
+### Plano revisado (a partir da etapa 5)
+
+| # | Etapa | Tipo | Arquivos principais | Risco | Validação |
+|---|---|---|---|---|---|
+| 5 | **Composer + PHPUnit:** `composer.json` (`php >= 8.2`, PSR-4 `App\` → `backend/`, `phpunit/phpunit ^11` em `require-dev`), `phpunit.xml`, `tests/bootstrap.php`, um teste inicial de `FormatHelper`; `public/index.php` carrega `vendor/autoload.php` (o autoloader manual continua para as classes antigas até a etapa 9); README com os requisitos novos; `.htaccess` bloqueia `vendor/` e `tests/`. **Você instala o Composer.** | MELHORIA | raiz, `tests/`, `public/index.php` | Baixo | `composer install`; `vendor/bin/phpunit` verde; todas as telas abrem. |
+| 6 | **Contrato JSON:** `Controller::json()`, `ErroDeNegocio` no Core, tratamento único em `index.php` (422/500 no formato novo), todas as respostas JSON e os `fetch` das telas convertidos de uma vez; `docs/rotas.md`. | REFATORAÇÃO | `app/core/*`, controllers com JSON, views com `fetch`, `public/index.php` | Médio | Roteiro dos itens que usam `fetch`: buscar e excluir produto, status e exclusão de usuário e fornecedor, relatórios, sino de estoque. Console do navegador sem erro. |
+| 7 | **CSRF em todos os POST** (antiga etapa 5), com 403 no formato do contrato. | MELHORIA | `Session`, views com form/fetch | Médio | Cada ação POST funciona; um POST sem token devolve 403. |
+| 8 | **Regra de estoque (D1).** Primeiro o teste: `RegistrarMovimentacaoTest` contra `bd_sistema_teste`. Depois o caso de uso `App\Features\Movimentacoes\RegistrarMovimentacao` (com lock, sem HTTP, com `confirmar_custo_maior`). No schema: `app/database/bancoInteiro.sql` → `database/schema.sql`, com a correção de A7, o DROP dos triggers `before`/`after`, o `CHECK (estoque_produto >= 0)` e a remoção das procedures, views e `tb_logs_movimentacao` mortas. **Você recria o banco.** | REFATORAÇÃO + **SCHEMA** | `backend/Features/Movimentacoes/`, `MovimentacaoController`, `database/schema.sql`, `tests/` | **Alto** (código novo com banco antigo baixa o estoque duas vezes) | `vendor/bin/phpunit` verde; roteiro item 4; conferir o saldo no banco antes e depois. |
+| 9 | **Slices** (antiga etapa 7), um por commit, na mesma ordem. Move para `backend/Features/*` e `frontend/views/*`, aplica namespaces e, no último slice, remove o autoloader manual e os `require_once`. Relatórios ganha `RelatorioFinanceiro`/`RelatorioEstoque` com testes. | REFATORAÇÃO | `backend/`, `frontend/` | Médio (por slice) | `php -l`; `vendor/bin/phpunit`; grep pelo nome antigo; roteiro da tela movida. |
+| 10 | **Views** (antiga etapa 8). | REFATORAÇÃO | views + `public/assets/js` | Médio (visual) | Comparar cada tela; console sem erro. |
+| 11 | **Escape na entrada (M1)** (antiga etapa 9). Não precisa de migração de dados: o banco é recriado. | CORREÇÃO | Usuários, Fornecedores | Baixo | Cadastrar "D'Ávila & Filhos" e ver o nome correto. |
+| 12 | **`marca_produto` → `id_produto`** (antiga etapa 10), editando `database/schema.sql`. **Você recria o banco.** | **SCHEMA** | `database/schema.sql`, Movimentações, Relatórios, Dashboard | Médio | `vendor/bin/phpunit`; renomear produto com histórico; relatórios mostram o nome novo. |
+
+A antiga etapa 11 (PHPUnit) foi absorvida pela etapa 5.
