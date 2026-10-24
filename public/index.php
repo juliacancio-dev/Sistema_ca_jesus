@@ -1,9 +1,9 @@
 <?php
-if (!defined('ENVIRONMENT')) {
-    define('ENVIRONMENT', 'development');
-}
-
 require_once __DIR__ . '/../config/config.php';
+
+if (!defined('ENVIRONMENT')) {
+    define('ENVIRONMENT', 'production');
+}
 
 if (ENVIRONMENT === 'development') {
     ini_set('display_errors', 1);
@@ -60,8 +60,6 @@ $router = new Router();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-error_log("[index.php] SESSION: " . json_encode($_SESSION));
-error_log("[index.php] is_logged_in: " . (AuthHelper::isLoggedIn() ? 'true' : 'false'));
 
 $router->get('/', ['AuthController', 'loginForm']);
 $router->get('/login', ['AuthController', 'loginForm']);

@@ -1,0 +1,16 @@
+# Arquivos gerados pela aplicação
+armazenamento/logs/*
+!armazenamento/logs/index.html
+armazenamento/sessions/
+
+# Configuração local (credenciais). Copie config/config.example.php.
+config/config.php
+
+# Dependências
+vendor/
+
+# Editor / sistema operacional
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

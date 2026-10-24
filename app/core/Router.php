@@ -48,7 +48,6 @@ class Router {
         }
         error_log("[Router Debug] Request Path após ajuste: " . $requestPath);
         error_log("[Router Debug] Request Method: " . $requestMethod);
-        error_log("[Router Debug] Sessão: " . json_encode($_SESSION));
 
         foreach ($this->routes as $route) {
             $pattern = $this->createPatternFromPath($route['path']);

@@ -130,7 +130,7 @@ class UsuarioController extends Controller
             if ($resultado) {
                 $mensagem = $dados['id'] ? 'Usuário atualizado com sucesso.' : 'Usuário criado com sucesso.';
                 $this->setFlashMessage('success', $mensagem);
-                $this->logarAcao($dados['id'] ? 'usuario_editado' : 'usuario_criado', $dados);
+                $this->logarAcao($dados['id'] ? 'usuario_editado' : 'usuario_criado', ['id' => $dados['id'], 'email' => $dados['email']]);
             } else {
                 $this->setFlashMessage('error', 'Erro ao salvar usuário.');
             }

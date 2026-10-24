@@ -80,8 +80,6 @@ class AuthHelper
             $_SESSION['error'] = 'ATENÇÃO: Usuário logado não encontrado ou sessão expirada. Faça login novamente.';
 
             error_log("[AuthHelper] Falha na autenticação: " . json_encode([
-                'session_id' => session_id(),
-                'session_data' => $_SESSION,
                 'request_uri' => $_SERVER['REQUEST_URI'],
                 'timestamp' => date('Y-m-d H:i:s')
             ]));
