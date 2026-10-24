@@ -19,7 +19,7 @@ Sistema web para controle de estoque de uma distribuidora: cadastro de produtos 
 
 | Camada | Tecnologia |
 |---|---|
-| Backend | PHP ≥ 7.4, MVC próprio (sem framework) |
+| Backend | PHP ≥ 8.2, MVC próprio (sem framework), Composer |
 | Banco | MySQL / MariaDB via PDO, com triggers |
 | Frontend | Views PHP, Tailwind CSS (CDN), JavaScript, Chart.js |
 | Servidor | Apache com `mod_rewrite` (testado no XAMPP) |
@@ -44,8 +44,10 @@ sistema_ca_jesus/
 │   └── config.php          # sua configuração local (não versionado)
 ├── docs/              # documentação da refatoração
 ├── public/            # index.php (ponto de entrada) e assets
+├── tests/             # testes PHPUnit
 ├── .htaccess          # redireciona para public/ e bloqueia pastas internas
-└── composer.json
+├── composer.json
+└── phpunit.xml
 ```
 
 ## Como executar (XAMPP)
@@ -59,11 +61,23 @@ sistema_ca_jesus/
    ```bash
    cp config/config.example.php config/config.php
    ```
-3. Importe `app/database/bancoInteiro.sql` no phpMyAdmin ou pelo cliente `mysql`. O script cria o banco `bd_sistema`, as tabelas, os triggers e os dados iniciais.
-4. Garanta que o `mod_rewrite` do Apache está ativo.
-5. Acesse `http://localhost/sistema_ca_jesus/public`.
+3. Instale as dependências (requer o [Composer](https://getcomposer.org/download/)):
+   ```bash
+   composer install
+   ```
+4. Importe `app/database/bancoInteiro.sql` no phpMyAdmin ou pelo cliente `mysql`. O script cria o banco `bd_sistema`, as tabelas, os triggers e os dados iniciais.
+5. Garanta que o `mod_rewrite` do Apache está ativo.
+6. Acesse `http://localhost/sistema_ca_jesus/public`.
 
 Em produção, defina `ENVIRONMENT` com um valor diferente de `'development'` em `config/config.php`, para que os erros não apareçam na tela.
+
+## Testes
+
+```bash
+composer test
+```
+
+Os testes usam o banco `bd_sistema_teste`, separado do banco de desenvolvimento. Os testes que precisam de banco entram na etapa 8 da refatoração.
 
 ## Autora
 

@@ -9,6 +9,9 @@ config/config.php
 # Dependências
 vendor/
 
+# Cache do PHPUnit
+.phpunit.cache/
+
 # Editor / sistema operacional
 .vscode/
 .idea/

@@ -5,6 +5,7 @@ RewriteEngine On
 RewriteRule ^app/ - [F,L]
 RewriteRule ^config/ - [F,L]
 RewriteRule ^vendor/ - [F,L]
+RewriteRule ^tests/ - [F,L]
 RewriteRule ^armazenamento/ - [F,L]
 
 # Redirecionar todas as requisições para a pasta public
