@@ -1,7 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /sistema_ca_jesus/public/
-    
+
     # Permitir acesso direto aos assets
     RewriteCond %{REQUEST_URI} \.(css|js|png|jpg|gif|ico|woff|woff2|ttf|eot|svg)$ [NC]
     RewriteRule ^(.*)$ - [L]

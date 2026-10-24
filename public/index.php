@@ -5,21 +5,21 @@ if (!defined('ENVIRONMENT')) {
     define('ENVIRONMENT', 'production');
 }
 
-if (ENVIRONMENT === 'development') {
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-} else {
-    ini_set('display_errors', 0);
-    error_reporting(0);
-}
+// Erros sempre vão para o log; só aparecem na tela em desenvolvimento.
+error_reporting(E_ALL);
+ini_set('display_errors', ENVIRONMENT === 'development' ? '1' : '0');
+ini_set('log_errors', '1');
+ini_set('error_log', __DIR__ . '/../armazenamento/logs/php-erros.log');
 
-error_log("[index.php] __FILE__: " . __FILE__);
-error_log("[index.php] __DIR__: " . __DIR__);
-error_log("[index.php] SCRIPT_NAME: " . $_SERVER['SCRIPT_NAME']);
-error_log("[index.php] REQUEST_URI: " . $_SERVER['REQUEST_URI']);
+// URL da pasta public, derivada de onde o index.php está publicado
+// (ex.: "/sistema_ca_jesus/public" no XAMPP, "" se o DocumentRoot for a própria public).
+define('BASE_URL', rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/'));
 
-require_once __DIR__ . '/../config/config.php';
+ini_set('session.use_strict_mode', '1');
+ini_set('session.cookie_httponly', '1');
+ini_set('session.cookie_samesite', 'Lax');
+session_start();
+
 require_once __DIR__ . '/../app/core/Database.php';
 require_once __DIR__ . '/../app/core/Router.php';
 require_once __DIR__ . '/../app/core/Controller.php';
@@ -42,24 +42,9 @@ spl_autoload_register(function ($className) {
             return;
         }
     }
-  
-    error_log("[index.php] Classe não encontrada: $className");
-    error_log("[index.php] Caminhos verificados: " . json_encode($paths));
 });
 
-if (class_exists('Router')) {
-    error_log('[index.php] Router carregado, tamo junto!');
-} else {
-    error_log('[index.php] ERRO: Router não carregou, deu ruim!');
-    http_response_code(500);
-    exit('Erro crítico: Router não carregada.');
-}
-
 $router = new Router();
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 $router->get('/', ['AuthController', 'loginForm']);
 $router->get('/login', ['AuthController', 'loginForm']);
@@ -122,16 +107,38 @@ $router->get('/api/usuarios/listar', ['UsuarioController', 'usuariosJson'], $adm
 $router->get('/api/movimentacoes/listar', ['MovimentacaoController', 'movimentacoesJson'], $authMiddleware);
 $router->get('/api/estoque/atual', ['MovimentacaoController', 'estoqueAtualJson'], $authMiddleware);
 
+// Único ponto de tratamento de erros não capturados.
 try {
     $router->resolve();
-} catch (Exception $e) {
-    http_response_code(500);
-    error_log("[index.php] Deu ruim: " . $e->getMessage());
-    error_log("[index.php] Trace: " . $e->getTraceAsString());
-    
-    echo '<div style="background-color: #ffebee; color: #b71c1c; padding: 15px; margin: 15px; border-radius: 5px;">';
-    echo '<h2>Ops! Algo deu errado</h2>';
-    echo '<p>Tivemos um problema ao processar sua solicitação. Tenta de novo mais tarde?</p>';
-    echo '<p>Se continuar dando erro, fala com o administrador do sistema.</p>';
-    echo '</div>';
+} catch (Throwable $e) {
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+    error_log('[erro] ' . get_class($e) . ': ' . $e->getMessage() . ' em ' . $e->getFile() . ':' . $e->getLine() . "\n" . $e->getTraceAsString());
+
+    if (!headers_sent()) {
+        http_response_code(500);
+    }
+
+    $mensagem = 'Não foi possível processar sua solicitação. Tente novamente; se o erro continuar, avise o administrador do sistema.';
+    $isApi = strpos(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), BASE_URL . '/api/') === 0;
+
+    if ($isApi) {
+        if (!headers_sent()) {
+            header('Content-Type: application/json; charset=utf-8');
+        }
+        echo json_encode(['success' => false, 'message' => $mensagem]);
+        exit;
+    }
+
+    echo '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Erro</title></head>';
+    echo '<body style="font-family:sans-serif;max-width:720px;margin:40px auto;padding:0 16px;">';
+    echo '<h2>Algo deu errado</h2><p>' . $mensagem . '</p>';
+    echo '<p><a href="' . BASE_URL . '/dashboard">Voltar ao início</a></p>';
+    if (ENVIRONMENT === 'development') {
+        echo '<pre style="white-space:pre-wrap;background:#f5f5f5;padding:12px;font-size:12px;">'
+            . htmlspecialchars(get_class($e) . ': ' . $e->getMessage() . "\n" . $e->getFile() . ':' . $e->getLine() . "\n\n" . $e->getTraceAsString())
+            . '</pre>';
+    }
+    echo '</body></html>';
 }

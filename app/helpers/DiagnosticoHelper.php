@@ -268,8 +268,8 @@ class DiagnosticoHelper
         $recursos = [
             'chart.js' => 'https://cdn.jsdelivr.net/npm/chart.js',
             'font-awesome' => 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
-            'app.js' => BASE_URL . '/public/assets/js/app.js',
-            'charts.js' => BASE_URL . '/public/assets/js/charts.js'
+            'app.js' => BASE_URL . '/assets/js/app.js',
+            'charts.js' => BASE_URL . '/assets/js/charts.js'
         ];
 
         self::$diagnostico['recursos_js']['status'] = 'verificado';

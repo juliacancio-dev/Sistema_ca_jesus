@@ -2,7 +2,6 @@
 
 class Router {
     private $routes = [];
-    private $middlewares = [];
 
     public function get($path, $handler, $middlewares = []) {
         $this->addRoute('GET', $path, $handler, $middlewares);
@@ -10,10 +9,6 @@ class Router {
 
     public function post($path, $handler, $middlewares = []) {
         $this->addRoute('POST', $path, $handler, $middlewares);
-    }
-
-    public function put($path, $handler, $middlewares = []) {
-        $this->addRoute('PUT', $path, $handler, $middlewares);
     }
 
     public function delete($path, $handler, $middlewares = []) {
@@ -30,59 +25,59 @@ class Router {
     }
 
     public function resolve() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         $requestMethod = $_SERVER['REQUEST_METHOD'];
-        $requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-        $baseDir = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
-        
-        if (!empty($baseDir) && strpos($requestPath, $baseDir) === 0) {
-            $requestPath = substr($requestPath, strlen($baseDir));
-        }
-        if (empty($requestPath)) {
-            $requestPath = '/';
-        }
-        error_log("[Router Debug] Request Path após ajuste: " . $requestPath);
-        error_log("[Router Debug] Request Method: " . $requestMethod);
+        $requestPath = $this->caminhoDaRota(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
         foreach ($this->routes as $route) {
             $pattern = $this->createPatternFromPath($route['path']);
             $matches = [];
-            
+
             if ($route['method'] === $requestMethod && preg_match($pattern, $requestPath, $matches)) {
-                error_log("[Router Debug] Rota encontrada: " . $route['path']);
-                
                 array_shift($matches);
-                
+
                 foreach ($route['middlewares'] as $middleware) {
                     $middlewareInstance = new $middleware();
                     $middlewareInstance->handle();
                 }
-                if (is_array($route['handler'])) {
-                    $controllerName = $route['handler'][0];
-                    $methodName = $route['handler'][1];
-                    
-                    error_log("[Router Debug] Executando: {$controllerName}::{$methodName}");
-                    
-                    $controller = new $controllerName();
-                    call_user_func_array([$controller, $methodName], $matches);
-                } else {
-                    call_user_func_array($route['handler'], $matches);
-                }
-                
+
+                $controller = new $route['handler'][0]();
+                call_user_func_array([$controller, $route['handler'][1]], $matches);
                 return;
             }
         }
 
-        error_log("[Router Debug] Nenhuma rota encontrada para: {$requestMethod} {$requestPath}");
-        http_response_code(404);
-        echo json_encode(["error" => "Pagina nao encontrada"]);
+        $this->naoEncontrado($requestPath);
     }
-    
+
+    // Remove o prefixo de publicação da URL. Aceita tanto ".../public/rota"
+    // quanto ".../rota" (quando o .htaccess da raiz reescreve para public/).
+    private function caminhoDaRota($path) {
+        $prefixos = [BASE_URL, rtrim(str_replace('\\', '/', dirname(BASE_URL)), '/')];
+        foreach ($prefixos as $prefixo) {
+            if ($prefixo !== '' && strpos($path, $prefixo . '/') === 0) {
+                return substr($path, strlen($prefixo));
+            }
+            if ($prefixo !== '' && $path === $prefixo) {
+                return '/';
+            }
+        }
+        return $path === '' ? '/' : $path;
+    }
+
+    private function naoEncontrado($requestPath) {
+        http_response_code(404);
+        if (strpos($requestPath, '/api/') === 0) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['success' => false, 'message' => 'Rota não encontrada']);
+            return;
+        }
+        echo '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Página não encontrada</title></head>';
+        echo '<body style="font-family:sans-serif;max-width:720px;margin:40px auto;padding:0 16px;">';
+        echo '<h2>Página não encontrada</h2>';
+        echo '<p><a href="' . BASE_URL . '/dashboard">Voltar ao início</a></p>';
+        echo '</body></html>';
+    }
+
     private function createPatternFromPath($path) {
         $pattern = preg_replace('/{([^\/]+)}/', '([^\/]+)', $path);
         return "#^{$pattern}$#";

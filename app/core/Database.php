@@ -21,10 +21,7 @@ class Database {
                 $options
             );
         } catch (PDOException $e) {
-            require_once __DIR__ . '/../helpers/ErrorHelper.php';
-            ErrorHelper::handle($e, 'Erro de conexão com o banco de dados.');
-            ErrorHelper::displayToast();
-            throw new Exception('Erro de conexão com o banco de dados.');
+            throw new Exception('Erro de conexão com o banco de dados: ' . $e->getMessage(), 0, $e);
         }
     }
 

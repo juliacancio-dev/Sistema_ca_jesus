@@ -204,7 +204,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
 
                 <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
 
-                    <form id="fornecedor-form" method="POST" action="/sistema_ca_jesus/public/fornecedores/salvar" class="space-y-8" novalidate>
+                    <form id="fornecedor-form" method="POST" action="<?= BASE_URL ?>/fornecedores/salvar" class="space-y-8" novalidate>
                         <input type="hidden" id="fornecedor-id" name="id">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
 
@@ -736,7 +736,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
             function toggleFornecedorStatus(id, novoStatus) {
                 const acao = novoStatus ? 'ativar' : 'desativar';
                 if (confirm(`Deseja ${acao} este fornecedor?`)) {
-                    fetch(`/sistema_ca_jesus/public/fornecedores/toggle-status/${id}`, {
+                    fetch(`<?= BASE_URL ?>/fornecedores/toggle-status/${id}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -762,7 +762,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
 
             function deleteFornecedor(id, nome) {
                 if (confirm(`Tem certeza que deseja excluir o fornecedor "${nome}"?`)) {
-                    fetch(`/sistema_ca_jesus/public/fornecedores/excluir/${id}`, {
+                    fetch(`<?= BASE_URL ?>/fornecedores/excluir/${id}`, {
                             method: 'POST'
                         })
                         .then(response => response.json())

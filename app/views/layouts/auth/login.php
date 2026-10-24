@@ -36,7 +36,7 @@
             <div class="w-full md:w-1/2 welcome-section flex items-center justify-center p-10 text-white">
                 <div class="text-center">
                     <div class="mb-8">
-                        <img src="../public/assets/img/logoLogin.png" class="mx-auto w-48 md:w-72 h-auto" alt="Logo">
+                        <img src="<?= BASE_URL ?>/assets/img/logoLogin.png" class="mx-auto w-48 md:w-72 h-auto" alt="Logo">
                         <h2 class="welcome-title text-3xl md:text-4xl font-bold mb-4">Bem-vindo ao</h2>
                         <h1 class="welcome-title text-4xl md:text-5xl font-bold mb-6 text-orange-300">C.A DE JESUS</h1>
                     </div>
@@ -70,9 +70,6 @@
                     </div>
 
                     <?php
-                    if (session_status() === PHP_SESSION_NONE) {
-                        session_start();
-                    }
                     if (isset($_SESSION['error'])): ?>
                         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                             <?= $_SESSION['error'] ?>
@@ -80,7 +77,7 @@
                         <?php unset($_SESSION['error']); ?>
                     <?php endif; ?>
 
-                    <form action="/sistema_ca_jesus/public/login" method="POST" class="space-y-6">
+                    <form action="<?= BASE_URL ?>/login" method="POST" class="space-y-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                             <div class="relative">
@@ -112,7 +109,8 @@
         </div>
     </div>
 
-    <script src="<?= BASE_URL ?>/public/assets/js/app.js"></script>
+    <script>window.APP_BASE_URL = <?= json_encode(BASE_URL) ?>;</script>
+    <script src="<?= BASE_URL ?>/assets/js/app.js"></script>
 </body>
 
 </html>

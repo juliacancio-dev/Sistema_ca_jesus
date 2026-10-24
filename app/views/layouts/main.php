@@ -64,10 +64,11 @@ if (isActive('/dashboard', $currentUri)) {
     <title><?= $title ?? 'Sistema de Gestão de Estoque - C.A de Jesus' ?></title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/css/app.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/app.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="<?= BASE_URL ?>/public/assets/js/app.js" defer></script>
-    <script src="<?= BASE_URL ?>/public/assets/js/charts.js" defer></script>
+    <script>window.APP_BASE_URL = <?= json_encode(BASE_URL) ?>;</script>
+    <script src="<?= BASE_URL ?>/assets/js/app.js" defer></script>
+    <script src="<?= BASE_URL ?>/assets/js/charts.js" defer></script>
     <style>
         .sidebar-transition {
             transition: transform 0.3s ease-in-out;
@@ -163,9 +164,9 @@ if (isActive('/dashboard', $currentUri)) {
 
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 sidebar-transition">
 
-        <a href="/sistema_ca_jesus/public/dashboard" class="block">
+        <a href="<?= BASE_URL ?>/dashboard" class="block">
             <div class="h-20 px-6 flex items-center text-white mainbar-blue">
-                <img src="<?= BASE_URL ?>/public/assets/img/logoLogin.png" alt="Logo C.A de Jesus" class="brand-logo mr-4">
+                <img src="<?= BASE_URL ?>/assets/img/logoLogin.png" alt="Logo C.A de Jesus" class="brand-logo mr-4">
                 <div class="flex-1">
                     <h1 class="text-xl font-bold leading-tight">C.A de Jesus</h1>
                     <p class="text-sm text-blue-100 opacity-90 -mt-1">Comércio</p>
@@ -179,19 +180,19 @@ if (isActive('/dashboard', $currentUri)) {
             </div>
 
             <div class="mt-2">
-                <a href="/sistema_ca_jesus/public/dashboard" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 <?= isActive('/dashboard', $currentUri) ? 'nav-active font-semibold' : '' ?>">
+                <a href="<?= BASE_URL ?>/dashboard" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 <?= isActive('/dashboard', $currentUri) ? 'nav-active font-semibold' : '' ?>">
                     <i class="fas fa-chart-pie mr-3 w-5 text-current"></i>
                     <span>Main Screen</span>
                 </a>
-                <a href="/sistema_ca_jesus/public/produtos" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 <?= isActive('/produtos', $currentUri) ? 'nav-active font-semibold' : '' ?>">
+                <a href="<?= BASE_URL ?>/produtos" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 <?= isActive('/produtos', $currentUri) ? 'nav-active font-semibold' : '' ?>">
                     <i class="fas fa-boxes mr-3 w-5 text-current"></i>
                     <span>Produtos</span>
                 </a>
-                <a href="/sistema_ca_jesus/public/movimentacoes" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 <?= isActive('/movimentacoes', $currentUri) ? 'nav-active font-semibold' : '' ?>">
+                <a href="<?= BASE_URL ?>/movimentacoes" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 <?= isActive('/movimentacoes', $currentUri) ? 'nav-active font-semibold' : '' ?>">
                     <i class="fas fa-exchange-alt mr-3 w-5 text-current"></i>
                     <span>Movimentações</span>
                 </a>
-                <a href="/sistema_ca_jesus/public/relatorios" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 <?= isActive('/relatorios', $currentUri) ? 'nav-active font-semibold' : '' ?>">
+                <a href="<?= BASE_URL ?>/relatorios" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 <?= isActive('/relatorios', $currentUri) ? 'nav-active font-semibold' : '' ?>">
                     <i class="fas fa-chart-bar mr-3 w-5 text-current"></i>
                     <span>Relatórios</span>
                 </a>
@@ -200,11 +201,11 @@ if (isActive('/dashboard', $currentUri)) {
                     <div class="px-6 py-2 mt-4">
                         <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Administração</p>
                     </div>
-                    <a href="/sistema_ca_jesus/public/usuarios" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 <?= isActive('/usuarios', $currentUri) ? 'nav-active font-semibold' : '' ?>">
+                    <a href="<?= BASE_URL ?>/usuarios" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 <?= isActive('/usuarios', $currentUri) ? 'nav-active font-semibold' : '' ?>">
                         <i class="fas fa-users mr-3 w-5 text-current"></i>
                         <span>Usuários</span>
                     </a>
-                    <a href="/sistema_ca_jesus/public/fornecedores" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 <?= isActive('/fornecedores', $currentUri) ? 'nav-active font-semibold' : '' ?>">
+                    <a href="<?= BASE_URL ?>/fornecedores" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 <?= isActive('/fornecedores', $currentUri) ? 'nav-active font-semibold' : '' ?>">
                         <i class="fas fa-truck mr-3 w-5 text-current"></i>
                         <span>Fornecedores</span>
                     </a>
@@ -260,10 +261,10 @@ if (isActive('/dashboard', $currentUri)) {
                                         <?= isset($usuarioLogado) && $usuarioLogado ? ($usuarioLogado['tipo'] == 1 ? 'Administrador' : 'Funcionário') : '' ?>
                                     </p>
                                 </div>
-                                <a href="/sistema_ca_jesus/public/usuarios/perfil" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
+                                <a href="<?= BASE_URL ?>/usuarios/perfil" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
                                     <i class="fas fa-id-badge mr-2"></i> Meu Perfil
                                 </a>
-                                <a href="/sistema_ca_jesus/public/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
+                                <a href="<?= BASE_URL ?>/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
                                     <i class="fas fa-sign-out-alt mr-2"></i> Sair
                                 </a>
                             </div>
@@ -425,7 +426,7 @@ if (isActive('/dashboard', $currentUri)) {
                 searchResults.classList.remove('hidden');
 
                 try {
-                    const response = await fetch(`<?= BASE_URL ?>/public/api/search/simple.php?q=${encodeURIComponent(query)}`);
+                    const response = await fetch(`<?= BASE_URL ?>/api/search/simple.php?q=${encodeURIComponent(query)}`);
 
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -536,7 +537,7 @@ if (isActive('/dashboard', $currentUri)) {
                             }
                         }
                       
-                        window.location.href = '<?= BASE_URL ?>/public/produtos?search=' + encodeURIComponent(query);
+                        window.location.href = '<?= BASE_URL ?>/produtos?search=' + encodeURIComponent(query);
                     }
                 }
 
@@ -597,7 +598,7 @@ if (isActive('/dashboard', $currentUri)) {
                 bellMenu.classList.toggle('hidden');
                 if (!bellLoaded) {
                     try {
-                        const res = await fetch('<?= BASE_URL ?>/public/api/estoque/atual');
+                        const res = await fetch('<?= BASE_URL ?>/api/estoque/atual');
                         const data = await res.json();
                         const low = (data || []).filter(p => (parseInt(p.estoque || p.estoque_produto || 0, 10)) < 5);
                         bellList.innerHTML = '';
@@ -625,7 +626,7 @@ if (isActive('/dashboard', $currentUri)) {
 
             (async () => {
                 try {
-                    const res = await fetch('<?= BASE_URL ?>/public/api/estoque/atual');
+                    const res = await fetch('<?= BASE_URL ?>/api/estoque/atual');
                     const data = await res.json();
                     const low = (data || []).filter(p => (parseInt(p.estoque || p.estoque_produto || 0, 10)) < 5);
                     if (low.length > 0 && bellBadge) {

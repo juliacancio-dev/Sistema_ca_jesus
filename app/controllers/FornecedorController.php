@@ -40,12 +40,11 @@ class FornecedorController extends Controller
             $erros = $this->validarDados($dados);
 
             if (!empty($erros)) {
-                session_start();
                 $_SESSION['flash'] = [
                     'type' => 'error',
                     'message' => implode('<br>', $erros)
                 ];
-                header('Location: /sistema_ca_jesus/public/fornecedores');
+                header('Location: ' . BASE_URL . '/fornecedores');
                 exit;
             }
 
@@ -54,7 +53,6 @@ class FornecedorController extends Controller
 
             if ($resultado) {
                 ErrorHelper::logSuccess('Fornecedor salvo com sucesso', 'Teste de Sistema', json_encode($dados));
-                session_start();
                 $_SESSION['flash'] = [
                     'type' => 'success',
                     'message' => $dados['id'] ? 'Fornecedor atualizado com sucesso.' : 'Fornecedor criado com sucesso.'
@@ -64,13 +62,12 @@ class FornecedorController extends Controller
             }
         } catch (Exception $e) {
             ErrorHelper::handle($e, 'Erro ao salvar fornecedor', 'Teste de Sistema');
-            session_start();
             $_SESSION['flash'] = [
                 'type' => 'error',
                 'message' => $e->getMessage()
             ];
         }
-        header('Location: /sistema_ca_jesus/public/fornecedores');
+        header('Location: ' . BASE_URL . '/fornecedores');
         exit;
     }
 
@@ -103,13 +100,12 @@ class FornecedorController extends Controller
             }
             exit;
         }
-        session_start();
         $ok = $model->deletar((int)$id);
         $_SESSION['flash'] = [
             'type' => $ok ? 'success' : 'error',
             'message' => $ok ? 'Fornecedor excluído com sucesso.' : 'Erro ao excluir fornecedor.'
         ];
-        header('Location: /sistema_ca_jesus/public/fornecedores');
+        header('Location: ' . BASE_URL . '/fornecedores');
         exit;
     }
 

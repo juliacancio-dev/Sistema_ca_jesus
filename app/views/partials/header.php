@@ -20,7 +20,7 @@
                         </span>
                     </div>
                     
-                    <a href="/sistema_ca_jesus/public/logout" class="text-gray-500 hover:text-gray-700">
+                    <a href="<?= BASE_URL ?>/logout" class="text-gray-500 hover:text-gray-700">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>

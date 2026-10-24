@@ -20,7 +20,7 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Nova Movimentação</h3>
 
-                <form action="/sistema_ca_jesus/public/movimentacoes/registrar" method="POST" class="space-y-4" onsubmit="return handleFormSubmit(event)">
+                <form action="<?= BASE_URL ?>/movimentacoes/registrar" method="POST" class="space-y-4" onsubmit="return handleFormSubmit(event)">
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Produto</label>

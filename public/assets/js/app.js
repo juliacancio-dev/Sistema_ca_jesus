@@ -333,7 +333,7 @@ function highlightActiveMenuItem() {
     
     menuItems.forEach(item => {
         const href = item.getAttribute('href');
-        if (href && currentPath.includes(href.replace('/sistema_ca_jesus/public', ''))) {
+        if (href && currentPath.includes(href.replace(window.APP_BASE_URL || '', ''))) {
             item.classList.add('bg-blue-50', 'text-blue-600');
         }
     });

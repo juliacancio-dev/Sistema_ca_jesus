@@ -5,26 +5,17 @@ class AuthHelper
 
     public static function isLoggedIn()
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         return isset($_SESSION['user']) && !empty($_SESSION['user']) &&
             isset($_SESSION['user']['id']) && !empty($_SESSION['user']['id']);
     }
 
     public static function getUser()
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         return $_SESSION['user'] ?? null;
     }
 
     public static function login($user)
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         session_regenerate_id(true);
 
         $_SESSION['user'] = $user;
@@ -39,9 +30,6 @@ class AuthHelper
 
     public static function logout()
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         if (isset($_SESSION['user'])) {
             error_log("[AuthHelper] Logout realizado: " . json_encode([
                 'user_id' => $_SESSION['user']['id'] ?? 'não definido',
@@ -84,7 +72,7 @@ class AuthHelper
                 'timestamp' => date('Y-m-d H:i:s')
             ]));
 
-            header('Location: /sistema_ca_jesus/public/login');
+            header('Location: ' . BASE_URL . '/login');
             exit;
         }
         $_SESSION['last_activity'] = time();
@@ -107,7 +95,7 @@ class AuthHelper
             if ($inactiveTime > 7200) {
                 self::logout();
                 $_SESSION['error'] = 'Sua sessão expirou por inatividade. Por favor, faça login novamente.';
-                header('Location: /sistema_ca_jesus/public/login');
+                header('Location: ' . BASE_URL . '/login');
                 exit;
             }
             $_SESSION['last_activity'] = time();

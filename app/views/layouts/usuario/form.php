@@ -1,6 +1,6 @@
 <?php
 $isEdit = isset($usuario) && is_array($usuario) && !empty($usuario['id']);
-$actionUrl = BASE_URL . '/public/usuarios/salvar';
+$actionUrl = BASE_URL . '/usuarios/salvar';
 $titleForm = $isEdit ? 'Editar Usuário' : 'Novo Usuário';
 
 function field($arr, $key, $default = '') {
@@ -12,7 +12,7 @@ function field($arr, $key, $default = '') {
     <div class="bg-white rounded-xl shadow p-5 mb-6">
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold text-gray-800"><?= $titleForm ?></h1>
-            <a href="<?= BASE_URL ?>/public/usuarios" class="inline-flex items-center px-3 py-2 rounded-lg border text-sm text-gray-700 hover:bg-gray-50">
+            <a href="<?= BASE_URL ?>/usuarios" class="inline-flex items-center px-3 py-2 rounded-lg border text-sm text-gray-700 hover:bg-gray-50">
                 <i class="fas fa-arrow-left mr-2"></i> Voltar
             </a>
         </div>
@@ -104,7 +104,7 @@ function field($arr, $key, $default = '') {
                 Usuário ativo
             </label>
             <div class="flex items-center gap-3">
-                <a href="<?= BASE_URL ?>/public/usuarios" class="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-50">Cancelar</a>
+                <a href="<?= BASE_URL ?>/usuarios" class="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-50">Cancelar</a>
                 <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Salvar</button>
             </div>
         </div>
