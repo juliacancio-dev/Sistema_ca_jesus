@@ -1,10 +1,10 @@
 # Diagnóstico — Fase A (Sistema CA Jesus)
 
-Data: 2026-10-23 · Base: `main` @ `fff3403` · Nenhum arquivo do sistema foi alterado.
+Data: 2026-10-23 · Base: `main` @ `fff3403`.
 
-> **Atualização (2026-10-24):** a arquitetura foi revisada depois das etapas 1–4. As decisões que mudaram e o plano revisado estão em [Revisão de arquitetura](#revisão-de-arquitetura-2026-10-24), no fim deste documento. A referência da arquitetura-alvo passa a ser [`arquitetura.md`](arquitetura.md).
+> **Este documento é o registro histórico do diagnóstico.** As seções 1 a 9 descrevem o projeto como ele estava em 2026-10-23 e citam caminhos que já não existem (`app/`, `bancoInteiro.sql`...). A arquitetura atual está em [`arquitetura.md`](arquitetura.md). As decisões que mudaram e o plano em vigor estão em [Revisão de arquitetura](#revisão-de-arquitetura-2026-10-24), no fim deste documento.
 
-Ambiente verificado: PHP 8.2.12 e **MariaDB 10.4.32** (XAMPP). Composer **não está instalado**. `php -l` passa em todos os 47 arquivos `.php` versionados (linha de base limpa).
+Ambiente na data do diagnóstico: PHP 8.2.12 e **MariaDB 10.4.32** (XAMPP), sem Composer (instalado depois, na etapa 5). `php -l` passava em todos os 47 arquivos `.php` versionados.
 
 Legenda: ✗ = rota quebrada · (morto) = sem nenhum chamador encontrado por busca no repositório.
 
@@ -416,10 +416,10 @@ Mudei duas coisas na ordem sugerida, ambas para que cada etapa possa ser validad
 1. Login com senha errada → mensagem visível. Login com usuário inativo → mensagem específica. Login correto → dashboard.
 2. Dashboard: os cards e os 2 gráficos carregam; o sino mostra os produtos com estoque baixo.
 3. Produtos: cadastrar (venda < custo é recusado); editar; excluir um produto sem movimentação (ok) e um com movimentação (mensagem clara).
-4. Movimentações: entrada de 10 → saldo +10; saída de 5 → saldo −5; **saída acima do saldo → recusada com mensagem e saldo inalterado**.
+4. Movimentações: entrada de 10 → saldo +10; saída de 5 → saldo −5; **saída acima do saldo → recusada com mensagem e saldo inalterado**. Custo maior que venda → o sistema pede confirmação: cancelar não registra nada; confirmar registra.
 5. Relatórios: financeiro e estoque no período mensal e num intervalo personalizado; exportar PDF e Excel.
 6. Usuários (admin): criar, editar, inativar e reativar, tentar inativar a si mesmo (recusado), excluir. Como funcionário, acessar `/usuarios` → redirecionado com mensagem.
-7. Perfil: editar dados (CEP preenche o endereço); trocar a senha com a senha atual errada (recusado) e com a correta.
+7. Perfil: salvar os dados pessoais e o endereço, cada um no seu formulário, sem que um altere o outro (CEP preenche o endereço); trocar a senha com a senha atual errada (recusado) e com a correta.
 8. Fornecedores: criar, editar (**continua ativo**), inativar com produtos vinculados (recusado), excluir com produtos (mensagem clara).
 9. Logout e voltar → tela de login.
 
@@ -485,7 +485,7 @@ Consequências:
 
 ## Revisão de arquitetura (2026-10-24)
 
-Feita depois das etapas 1–4 (`main` @ `61ba78c`). A árvore-alvo revisada (backend × frontend) continua valendo. O que mudou foram as premissas: **o sistema ainda não tem produção**, ou seja, não há servidor de deploy nem dados reais a preservar. A arquitetura completa, com as regras, o contrato JSON e a estratégia de testes, está em [`arquitetura.md`](arquitetura.md).
+Feita depois das etapas 1–4 (`main` @ `61ba78c`). A divisão entre `backend/` e `frontend/` continua valendo; a árvore detalhada em vigor é a de [`arquitetura.md`](arquitetura.md#estrutura). O que mudou foram as premissas: **o sistema ainda não tem produção**, ou seja, não há servidor de deploy nem dados reais a preservar. A arquitetura completa, com as regras, o contrato JSON e a estratégia de testes, está em [`arquitetura.md`](arquitetura.md).
 
 ### Decisões revisadas
 
@@ -500,6 +500,16 @@ Feita depois das etapas 1–4 (`main` @ `61ba78c`). A árvore-alvo revisada (bac
 
 Continuam valendo: D1 (estoque em PHP + `CHECK`), D3 revisada (`frontend/views/`), D4, D5, D6 e as decisões 3 a 7 da tabela de 2026-10-23.
 
+### Situação do plano (2026-10-31)
+
+| Etapa | Situação |
+|---|---|
+| 1 a 9 | Concluídas, na `main` |
+| Fora do plano | Testes E2E no navegador com Docker (`test/e2e-docker`) e formulários do perfil gravando só os próprios campos (`fix/perfil-formularios`): concluídos, na `main` |
+| 10 — Views | Em andamento (`refactor/10-views`) |
+| 11 — Escape na entrada | Pendente |
+| 12 — `marca_produto` → `id_produto` | Pendente |
+
 ### Plano revisado (a partir da etapa 5)
 
 | # | Etapa | Tipo | Arquivos principais | Risco | Validação |
@@ -510,7 +520,7 @@ Continuam valendo: D1 (estoque em PHP + `CHECK`), D3 revisada (`frontend/views/`
 | 8 | **Regra de estoque (D1).** Primeiro o teste: `RegistrarMovimentacaoTest` contra `bd_sistema_teste`. Depois o caso de uso `App\Features\Movimentacoes\RegistrarMovimentacao` (com lock, sem HTTP, com `confirmar_custo_maior`). No schema: `app/database/bancoInteiro.sql` → `database/schema.sql`, com a correção de A7, o DROP dos triggers `before`/`after`, o `CHECK (estoque_produto >= 0)` e a remoção das procedures, views e `tb_logs_movimentacao` mortas. **Você recria o banco.** | REFATORAÇÃO + **SCHEMA** | `backend/Features/Movimentacoes/`, `MovimentacaoController`, `database/schema.sql`, `tests/` | **Alto** (código novo com banco antigo baixa o estoque duas vezes) | `vendor/bin/phpunit` verde; roteiro item 4; conferir o saldo no banco antes e depois. |
 | 9 | **Slices** (antiga etapa 7), um por commit, na mesma ordem. Move para `backend/Features/*` e `frontend/views/*`, aplica namespaces e, no último slice, remove o autoloader manual e os `require_once`. Relatórios ganha `RelatorioFinanceiro`/`RelatorioEstoque` com testes. | REFATORAÇÃO | `backend/`, `frontend/` | Médio (por slice) | `php -l`; `vendor/bin/phpunit`; grep pelo nome antigo; roteiro da tela movida. |
 | 10 | **Views** (antiga etapa 8). | REFATORAÇÃO | views + `public/assets/js` | Médio (visual) | Comparar cada tela; console sem erro. |
-| 11 | **Escape na entrada (M1)** (antiga etapa 9). Não precisa de migração de dados: o banco é recriado. | CORREÇÃO | Usuários, Fornecedores | Baixo | Cadastrar "D'Ávila & Filhos" e ver o nome correto. |
+| 11 | **Escape na entrada (M1)** (antiga etapa 9). Não precisa de migração de dados: o banco é recriado. **Precisa ir junto:** o escape com `escapeHtml` nos modais de detalhe (`showUsuarioDetails` em `usuarios.js` e o equivalente em `fornecedores.js`), adiado na etapa 4. Hoje eles só estão protegidos porque os dados são gravados já escapados; sem isso, a etapa abre uma falha de XSS. | CORREÇÃO | Usuários, Fornecedores | Baixo | Cadastrar "D'Ávila & Filhos" e ver o nome correto na lista e no modal; cadastrar um nome com `<b>` e ver o texto literal no modal. |
 | 12 | **`marca_produto` → `id_produto`** (antiga etapa 10), editando `database/schema.sql`. **Você recria o banco.** | **SCHEMA** | `database/schema.sql`, Movimentações, Relatórios, Dashboard | Médio | `vendor/bin/phpunit`; renomear produto com histórico; relatórios mostram o nome novo. |
 
 A antiga etapa 11 (PHPUnit) foi absorvida pela etapa 5.

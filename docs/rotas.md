@@ -21,7 +21,7 @@ Todo POST e DELETE exige o token CSRF (ver [`arquitetura.md`](arquitetura.md#csr
 | POST | `/produtos/atualizar/{id}` | login | Atualiza; redirect + flash |
 | GET | `/movimentacoes` | login | Lista e formulário |
 | GET | `/relatorios` | login | Tela de relatórios (dados via `/api/relatorios/dados`) |
-| GET | `/usuarios` | admin | Lista e modal |
+| GET | `/usuarios` | admin | Lista paginada e modal (`?search=` filtra, `?pagina=` escolhe a página) |
 | POST | `/usuarios/salvar` | admin | Cria ou atualiza; redirect + flash |
 | GET | `/usuarios/perfil` | login | Perfil do próprio usuário |
 | POST | `/usuarios/atualizarDados` | login | Atualiza o próprio nome e telefone; redirect + flash |
