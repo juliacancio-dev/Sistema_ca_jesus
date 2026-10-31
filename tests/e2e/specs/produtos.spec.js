@@ -103,6 +103,32 @@ test.describe('Produtos', () => {
         await expect(linha(page, marca)).toBeVisible();
     });
 
+    test('renomear produto com movimentação atualiza o nome em todo lugar', async ({ page }) => {
+        const marca = unico('Antigo');
+        const nova = unico('Renomeado');
+        await criarProduto(page, marca);
+        await registrarMovimentacao(page, marca, 'entrada', 3);
+        await page.goto('produtos');
+        await linha(page, marca).locator('button[onclick^="editProduto"]').click();
+        await page.fill('#produto-marca', nova);
+        await page.click('#produto-form button[type="submit"]');
+        await expect(toast(page)).toContainText('Produto atualizado com sucesso');
+        await expect(linha(page, nova)).toBeVisible();
+
+        await page.goto('movimentacoes');
+        await expect(page.locator('table tbody tr', { hasText: nova })).toHaveCount(1);
+        await expect(page.locator('table tbody')).not.toContainText(marca);
+        await expect(page.locator('#estoque-atual > div', { hasText: nova })).toContainText('3 unidade(s)');
+
+        await page.goto('dashboard');
+        await expect(page.locator('#recent-activities')).toContainText(nova);
+
+        const resposta = await page.request.get('api/relatorios/dados?tipo=estoque&periodo=mensal', { headers: { Accept: 'application/json' } });
+        const historico = (await resposta.json()).dados.historico_movimentacoes.map((h) => h.produto);
+        expect(historico).toContain(nova);
+        expect(historico).not.toContain(marca);
+    });
+
     test('a busca filtra a tabela', async ({ page }) => {
         const marca = unico('Filtrado');
         await criarProduto(page, marca);

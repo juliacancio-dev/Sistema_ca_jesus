@@ -19,7 +19,7 @@ class RelatorioConsultas
     {
         $stmt = $this->db->prepare("
             SELECT
-                m.marca_produto AS produto,
+                p.marca_produto AS produto,
                 m.data_movimentacao AS data,
                 m.acao_movimentacao AS acao,
                 m.quantidade_movimentacao AS quantidade,
@@ -27,6 +27,7 @@ class RelatorioConsultas
                 m.preco_venda_movimentacao AS preco_venda,
                 m.observacao_movimentacao AS observacao
             FROM tbmovimentacoes m
+            JOIN tbprodutos p ON m.produto_id = p.id_produto
             WHERE DATE(m.data_movimentacao) BETWEEN ? AND ?
             ORDER BY m.data_movimentacao DESC
         ");
