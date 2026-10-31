@@ -46,3 +46,20 @@ Todo POST e DELETE exige o token CSRF (ver [`arquitetura.md`](arquitetura.md#csr
 | POST | `/fornecedores/excluir/{id}` | admin | — | `null` | 409 com produtos; 500 |
 
 As ações de alterar status e excluir também gravam um flash de sucesso, mostrado depois que a tela recarrega.
+
+## Diferenças conhecidas
+
+Comportamento atual que difere do esperado, confirmado em execução na [auditoria](auditoria-seguranca.md):
+
+| Rota | Comportamento atual | Achado |
+|---|---|---|
+| Qualquer rota, com método errado | 404, não 405 | M-003 |
+| `POST /produtos/atualizar/{id}`, `POST /usuarios/salvar`, `POST /fornecedores/salvar`, com id inexistente | Flash de sucesso, sem gravar nada | I-002 |
+| `POST /usuarios/salvar`, com o id de um usuário excluído | Grava, e também aceita o próprio usuário logado, mudando o tipo e o status dele | I-002, I-003 |
+| `POST /fornecedores/excluir/{id}`, com id inexistente | Responde sucesso | I-002 |
+| `DELETE /produtos/excluir/{id}`, com id como `1abc` | O banco converte para o id 1 | I-005 |
+| `GET /usuarios/buscar/{id}`, com id não numérico | 500, não 404 | R-004 |
+| `POST /usuarios/toggle-status/{id}` | Grava qualquer inteiro em `status`, e um corpo inválido desativa o usuário | I-003 |
+| `POST /login` e buscas, com parâmetro em array (`email[]=x`, `search[]=x`) | 500, não 422 | R-004 |
+| `GET /api/relatorios/dados` | Datas inválidas respondem `sucesso: true`, datas prevalecem sobre `periodo`, e um período enorme esgota a memória | I-006, R-006 |
+| Rotas protegidas na raiz do domínio, com `//outro-site/dashboard` | Depois do login, redireciona para o outro site | S-007 |
