@@ -2,6 +2,8 @@
 
 Situação em 2026-10-31, na branch `refactor/10-views`, incluindo as alterações ainda não commitadas (`config/`, `database/` e `storage/` movidos para `backend/`). Este documento registra uma análise pontual e não é atualizado conforme os itens são resolvidos. O que falta fazer na refatoração continua em [`plano.md`](plano.md).
 
+> A [auditoria de segurança](auditoria-seguranca.md), mais recente, reproduziu estes itens em execução. Ela corrige S7, que só vale quando os diretórios acima de `public/` não têm `AllowOverride`, e amplia S2 e S6.
+
 ## Conclusão
 
 O sistema está adequado ao uso local atual, mas ainda não está pronto para a internet.

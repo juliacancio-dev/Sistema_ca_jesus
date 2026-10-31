@@ -10,6 +10,7 @@
 | Saber por que uma decisão foi tomada | [Diagnóstico](historico/diagnostico-fase-a.md) |
 | Ver os problemas de desempenho e segurança encontrados | [Diagnóstico de desempenho e segurança](diagnostico-desempenho-seguranca.md) |
 | Ver as métricas, as notas e as medições de performance e boas práticas | [Avaliação técnica](avaliacao-tecnica.md) |
+| Ver a auditoria mais recente de segurança e confiabilidade, com provas em execução | [Auditoria de segurança](auditoria-seguranca.md) |
 
 ## Histórico
 
