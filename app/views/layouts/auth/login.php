@@ -76,6 +76,7 @@
                     <?php endif; ?>
 
                     <form action="<?= BASE_URL ?>/login" method="POST" class="space-y-6">
+                        <?= Session::campoCsrf() ?>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                             <div class="relative">

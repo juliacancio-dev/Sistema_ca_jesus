@@ -28,13 +28,10 @@ class UsuarioController extends Controller
                 $resultado = $this->usuarioModel->listarTodosComPaginacao($pagina, $itensPorPagina);
             }
 
-            $this->gerarCsrfToken();
-
             $this->renderView('layouts/usuario/index', [
                 'usuarios' => $resultado['dados'],
                 'termoBusca' => $termoBusca,
-                'paginacao' => $resultado['paginacao'],
-                'csrf_token' => $_SESSION['csrf_token']
+                'paginacao' => $resultado['paginacao']
             ]);
         } catch (Exception $e) {
             $this->tratarErro($e, 'Erro ao listar usuários');
@@ -46,7 +43,6 @@ class UsuarioController extends Controller
             $this->verificarAutenticacao();
             $this->verificarPermissao(['admin']);
             $this->verificarMetodoPost();
-            $this->verificarCsrfToken();
 
             $dados = $this->processarDados();
             $erros = $this->validarDados($dados);
@@ -85,9 +81,6 @@ class UsuarioController extends Controller
             } else {
                 $this->setFlashMessage('error', 'Erro ao salvar usuário.');
             }
-        } catch (SecurityException $e) {
-            $this->setFlashMessage('error', 'O formulário expirou. Recarregue a página e tente novamente.');
-            $this->logarErro($e);
         } catch (Exception $e) {
             $this->setFlashMessage('error', 'Erro ao salvar usuário.');
             $this->logarErro($e);
@@ -186,11 +179,8 @@ class UsuarioController extends Controller
                 $this->redirect('/dashboard');
             }
 
-            $this->gerarCsrfToken();
-
             $this->renderView('layouts/usuario/perfil', [
-                'usuario' => $usuario,
-                'csrf_token' => $_SESSION['csrf_token']
+                'usuario' => $usuario
             ]);
         } catch (Exception $e) {
             $this->tratarErro($e, 'Erro ao carregar perfil');
@@ -201,7 +191,6 @@ class UsuarioController extends Controller
         try {
             $this->verificarAutenticacao();
             $this->verificarMetodoPost();
-            $this->verificarCsrfToken();
 
             $dados = [
                 'id' => $_SESSION['user']['id'],
@@ -240,7 +229,6 @@ class UsuarioController extends Controller
         try {
             $this->verificarAutenticacao();
             $this->verificarMetodoPost();
-            $this->verificarCsrfToken();
 
             $senhaAtual = $_POST['senha_atual'] ?? '';
             $novaSenha = $_POST['nova_senha'] ?? '';
@@ -405,20 +393,6 @@ class UsuarioController extends Controller
             'time_cost' => 4,
             'threads' => 3
         ]);
-    }
-    private function gerarCsrfToken(): void
-    {
-        if (empty($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
-    }
-    private function verificarCsrfToken(): void
-    {
-        $token = $_POST['csrf_token'] ?? '';
-        if (empty($token) || !hash_equals($_SESSION['csrf_token'], $token)) {
-            throw new SecurityException('Token CSRF inválido');
-        }
-        unset($_SESSION['csrf_token']);
     }
     private function verificarMetodoPost(): void
     {

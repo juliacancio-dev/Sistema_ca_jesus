@@ -60,6 +60,7 @@ if (isActive('/dashboard', $currentUri)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?= Session::csrfToken() ?>">
     <title><?= $title ?? 'Sistema de Gestão de Estoque - C.A de Jesus' ?></title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
