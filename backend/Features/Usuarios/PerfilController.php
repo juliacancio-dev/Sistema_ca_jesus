@@ -33,10 +33,10 @@ class PerfilController extends Controller
     public function atualizarDados()
     {
         try {
-            $nome = $this->sanitizarInput($_POST['nome'] ?? '');
+            $nome = trim($_POST['nome'] ?? '');
             $telefone = preg_replace('/[^0-9\s\-\(\)]/', '', $_POST['telefone'] ?? '');
 
-            if (empty($nome) || strlen($nome) < 3 || strlen($nome) > 100) {
+            if (empty($nome) || mb_strlen($nome) < 3 || mb_strlen($nome) > 100) {
                 Session::flash('error', 'Nome é obrigatório e deve ter entre 3 e 100 caracteres.');
                 $this->redirect('/usuarios/perfil');
             }
@@ -61,13 +61,13 @@ class PerfilController extends Controller
     {
         try {
             $endereco = [
-                'endereco' => $this->sanitizarInput($_POST['endereco'] ?? ''),
-                'cidade' => $this->sanitizarInput($_POST['cidade'] ?? ''),
-                'estado' => strtoupper($this->sanitizarInput($_POST['estado'] ?? '')),
+                'endereco' => trim($_POST['endereco'] ?? ''),
+                'cidade' => trim($_POST['cidade'] ?? ''),
+                'estado' => strtoupper(trim($_POST['estado'] ?? '')),
                 'cep' => preg_replace('/[^0-9]/', '', $_POST['cep'] ?? ''),
-                'numero' => $this->sanitizarInput($_POST['numero'] ?? ''),
-                'complemento' => $this->sanitizarInput($_POST['complemento'] ?? ''),
-                'bairro' => $this->sanitizarInput($_POST['bairro'] ?? '')
+                'numero' => trim($_POST['numero'] ?? ''),
+                'complemento' => trim($_POST['complemento'] ?? ''),
+                'bairro' => trim($_POST['bairro'] ?? '')
             ];
 
             if ($this->usuarioModel->atualizarEndereco($_SESSION['user']['id'], $endereco)) {
@@ -125,11 +125,6 @@ class PerfilController extends Controller
         }
 
         $this->redirect('/usuarios/perfil');
-    }
-
-    private function sanitizarInput(string $input): string
-    {
-        return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
     }
 
     private function registrarAcao(string $acao): void

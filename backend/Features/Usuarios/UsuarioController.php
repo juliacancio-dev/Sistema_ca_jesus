@@ -21,7 +21,7 @@ class UsuarioController extends Controller
 
     public function index()
     {
-        $termoBusca = $this->sanitizarInput($_GET['search'] ?? '');
+        $termoBusca = trim($_GET['search'] ?? '');
         $pagina = max(1, (int)($_GET['pagina'] ?? 1));
         $itensPorPagina = 10;
 
@@ -163,20 +163,20 @@ class UsuarioController extends Controller
         return [
             'id' => !empty($_POST['id']) ? $this->validarId($_POST['id']) : null,
             'tipo' => (int)($_POST['tipo'] ?? 0),
-            'nome' => $this->sanitizarInput($_POST['nome'] ?? ''),
+            'nome' => trim($_POST['nome'] ?? ''),
             'email' => filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL),
             'senha' => $_POST['senha'] ?? '',
             'cpf' => preg_replace('/[^0-9]/', '', $_POST['cpf'] ?? ''),
-            'rg' => $this->sanitizarInput($_POST['rg'] ?? ''),
+            'rg' => trim($_POST['rg'] ?? ''),
             'telefone' => preg_replace('/[^0-9\s\-\(\)]/', '', $_POST['telefone'] ?? ''),
-            'sexo' => $this->sanitizarInput($_POST['sexo'] ?? ''),
+            'sexo' => trim($_POST['sexo'] ?? ''),
             'cep' => preg_replace('/[^0-9]/', '', $_POST['cep'] ?? ''),
-            'endereco' => $this->sanitizarInput($_POST['endereco'] ?? ''),
-            'cidade' => $this->sanitizarInput($_POST['cidade'] ?? ''),
-            'estado' => strtoupper($this->sanitizarInput($_POST['estado'] ?? '')),
-            'numero' => $this->sanitizarInput($_POST['numero'] ?? ''),
-            'complemento' => $this->sanitizarInput($_POST['complemento'] ?? ''),
-            'bairro' => $this->sanitizarInput($_POST['bairro'] ?? ''),
+            'endereco' => trim($_POST['endereco'] ?? ''),
+            'cidade' => trim($_POST['cidade'] ?? ''),
+            'estado' => strtoupper(trim($_POST['estado'] ?? '')),
+            'numero' => trim($_POST['numero'] ?? ''),
+            'complemento' => trim($_POST['complemento'] ?? ''),
+            'bairro' => trim($_POST['bairro'] ?? ''),
             'ativo' => isset($_POST['ativo']) ? 1 : 0
         ];
     }
@@ -184,7 +184,7 @@ class UsuarioController extends Controller
     private function validarDados(array $dados): array
     {
         $erros = [];
-        if (empty($dados['nome']) || strlen($dados['nome']) < 3 || strlen($dados['nome']) > 100) {
+        if (empty($dados['nome']) || mb_strlen($dados['nome']) < 3 || mb_strlen($dados['nome']) > 100) {
             $erros[] = 'Nome é obrigatório e deve ter entre 3 e 100 caracteres.';
         }
         if (empty($dados['email']) || !filter_var($dados['email'], FILTER_VALIDATE_EMAIL)) {
@@ -196,7 +196,7 @@ class UsuarioController extends Controller
         if (!$this->validarCpf($dados['cpf'])) {
             $erros[] = 'CPF inválido.';
         }
-        if (!empty($dados['rg']) && (strlen($dados['rg']) < 3 || strlen($dados['rg']) > 20)) {
+        if (!empty($dados['rg']) && (mb_strlen($dados['rg']) < 3 || mb_strlen($dados['rg']) > 20)) {
             $erros[] = 'RG deve ter entre 3 e 20 caracteres quando informado.';
         }
         $telefone = preg_replace('/[^0-9]/', '', $dados['telefone']);
@@ -209,11 +209,11 @@ class UsuarioController extends Controller
         if (!$this->validarCep($dados['cep'])) {
             $erros[] = 'CEP inválido. Deve conter 8 dígitos.';
         }
-        if (empty($dados['endereco']) || strlen($dados['endereco']) > 200) {
+        if (empty($dados['endereco']) || mb_strlen($dados['endereco']) > 200) {
             $erros[] = 'Endereço é obrigatório e deve ter no máximo 200 caracteres.';
         }
 
-        if (empty($dados['cidade']) || strlen($dados['cidade']) > 100) {
+        if (empty($dados['cidade']) || mb_strlen($dados['cidade']) > 100) {
             $erros[] = 'Cidade é obrigatória e deve ter no máximo 100 caracteres.';
         }
 
@@ -221,7 +221,7 @@ class UsuarioController extends Controller
             $erros[] = 'Estado é obrigatório e deve ter 2 caracteres.';
         }
 
-        if (empty($dados['bairro']) || strlen($dados['bairro']) > 100) {
+        if (empty($dados['bairro']) || mb_strlen($dados['bairro']) > 100) {
             $erros[] = 'Bairro é obrigatório e deve ter no máximo 100 caracteres.';
         }
 
@@ -263,11 +263,6 @@ class UsuarioController extends Controller
             throw new InvalidArgumentException('ID inválido');
         }
         return $id;
-    }
-
-    private function sanitizarInput(string $input): string
-    {
-        return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
     }
 
     private function registrarAcao(string $acao, array $dados = []): void

@@ -418,11 +418,11 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-600">Nome</label>
-                        <p class="text-gray-900">${usuario.nome || '-'}</p>
+                        <p class="text-gray-900">${escapeHtml(usuario.nome || '-')}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-600">Email</label>
-                        <p class="text-gray-900">${usuario.email || '-'}</p>
+                        <p class="text-gray-900">${escapeHtml(usuario.email || '-')}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-600">CPF</label>
@@ -457,27 +457,27 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-600">CEP</label>
-                        <p class="text-gray-900">${usuario.cep || '-'}</p>
+                        <p class="text-gray-900">${escapeHtml(usuario.cep || '-')}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-600">Endereço</label>
-                        <p class="text-gray-900">${usuario.endereco || '-'}</p>
+                        <p class="text-gray-900">${escapeHtml(usuario.endereco || '-')}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-600">Número</label>
-                        <p class="text-gray-900">${usuario.numero || '-'}</p>
+                        <p class="text-gray-900">${escapeHtml(usuario.numero || '-')}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-600">Bairro</label>
-                        <p class="text-gray-900">${usuario.bairro || '-'}</p>
+                        <p class="text-gray-900">${escapeHtml(usuario.bairro || '-')}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-600">Cidade</label>
-                        <p class="text-gray-900">${usuario.cidade || '-'}</p>
+                        <p class="text-gray-900">${escapeHtml(usuario.cidade || '-')}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-600">Estado</label>
-                        <p class="text-gray-900">${usuario.estado || '-'}</p>
+                        <p class="text-gray-900">${escapeHtml(usuario.estado || '-')}</p>
                     </div>
                 </div>
             </div>

@@ -71,7 +71,7 @@ test.describe('Usuários', () => {
     });
 
     test('visualizar mostra os dados', async ({ page }) => {
-        await page.goto('usuarios');
+        await page.goto('usuarios?search=e2e-func@teste.com');
         await linha(page, 'e2e-func@teste.com').locator('button[onclick^="viewUsuario"]').click();
         await expect(page.locator('.fixed', { hasText: 'Funcionario E2E' }).first()).toBeVisible();
     });
@@ -89,6 +89,7 @@ test.describe('Usuários', () => {
         await page.click('#usuario-form button[type="submit"]');
 
         await expect(toast(page)).toContainText('Usuário atualizado com sucesso');
+        await page.goto(`usuarios?search=${encodeURIComponent(email)}`);
         await expect(linha(page, email)).toContainText('Pessoa Editada');
         await expect(linha(page, email)).toContainText('Ativo');
 
@@ -115,7 +116,7 @@ test.describe('Usuários', () => {
 
     test('não dá para excluir nem inativar a si mesmo pela tela', async ({ page }) => {
         const dialogos = aceitarDialogos(page);
-        await page.goto('usuarios');
+        await page.goto(`usuarios?search=${ADMIN}`);
         const propria = linha(page, ADMIN);
         await expect(propria).toBeVisible();
 
@@ -126,7 +127,7 @@ test.describe('Usuários', () => {
                 await expect.poll(() => dialogos.join(' ')).toContain('próprio usuário');
             }
         }
-        await page.goto('usuarios');
+        await page.goto(`usuarios?search=${ADMIN}`);
         await expect(linha(page, ADMIN)).toContainText('Ativo');
     });
 
