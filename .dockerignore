@@ -1,7 +1,7 @@
 .git
 vendor
-config/config.php
-armazenamento/logs/*
+backend/config/config.php
+backend/storage/logs/*
 tests/e2e/node_modules
 tests/e2e/test-results
 tests/e2e/playwright-report

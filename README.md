@@ -29,14 +29,13 @@ Sistema web para controle de estoque de uma distribuidora: cadastro de produtos 
 
 ```
 sistema_ca_jesus/
-├── armazenamento/
-│   └── logs/          # logs gerados pela aplicação (não versionados)
 ├── backend/
 │   ├── config/
 │   │   ├── config.example.php  # modelo de configuração (versionado)
 │   │   └── config.php          # sua configuração local (não versionado)
 │   ├── Core/          # Router, Controller base, Database, sessão, autenticação
 │   ├── database/      # schema.sql (estrutura) e seed.sql (dados iniciais)
+│   ├── storage/logs/  # logs gerados pela aplicação (não versionados)
 │   ├── Features/      # uma pasta por funcionalidade
 │   └── Shared/        # formatação
 ├── frontend/views/    # layout e telas

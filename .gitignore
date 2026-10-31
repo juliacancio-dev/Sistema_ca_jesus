@@ -1,10 +1,9 @@
 # Arquivos gerados pela aplicação
-armazenamento/logs/*
-!armazenamento/logs/index.html
-armazenamento/sessions/
+backend/storage/logs/*
+!backend/storage/logs/index.html
 
-# Configuração local (credenciais). Copie config/config.example.php.
-config/config.php
+# Configuração local (credenciais). Copie backend/config/config.example.php.
+backend/config/config.php
 
 # Dependências
 vendor/

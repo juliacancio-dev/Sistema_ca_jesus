@@ -5,7 +5,7 @@ namespace App\Tests;
 use PDO;
 use RuntimeException;
 
-// Recria o banco de teste a partir de database/schema.sql.
+// Recria o banco de teste a partir de backend/database/schema.sql.
 final class BancoDeTeste
 {
     private const NOME = 'bd_sistema_teste';
@@ -22,7 +22,7 @@ final class BancoDeTeste
         $pdo->exec('CREATE DATABASE ' . self::NOME . ' CHARACTER SET utf8mb4');
         $pdo->exec('USE ' . self::NOME);
 
-        foreach (self::comandos(file_get_contents(__DIR__ . '/../database/schema.sql')) as $comando) {
+        foreach (self::comandos(file_get_contents(__DIR__ . '/../backend/database/schema.sql')) as $comando) {
             $pdo->exec($comando);
         }
         return $pdo;

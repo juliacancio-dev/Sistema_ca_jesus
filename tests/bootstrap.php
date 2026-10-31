@@ -6,5 +6,5 @@ require_once __DIR__ . '/../vendor/autoload.php';
 define('ENVIRONMENT', 'testing');
 define('DB_NAME', 'bd_sistema_teste');
 
-$config = __DIR__ . '/../config/config.php';
-require_once file_exists($config) ? $config : __DIR__ . '/../config/config.example.php';
+$config = __DIR__ . '/../backend/config/config.php';
+require_once file_exists($config) ? $config : __DIR__ . '/../backend/config/config.example.php';
