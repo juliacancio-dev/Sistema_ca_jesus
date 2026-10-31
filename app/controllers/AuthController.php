@@ -4,6 +4,7 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\DatabaseException;
 use App\Core\Session;
+use App\Features\Usuarios\UsuarioModel;
 
 class AuthController extends Controller
 {

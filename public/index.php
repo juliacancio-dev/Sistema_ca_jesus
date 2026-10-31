@@ -7,6 +7,8 @@ use App\Core\Session;
 use App\Features\Fornecedores\FornecedorController;
 use App\Features\Movimentacoes\MovimentacaoController;
 use App\Features\Produtos\ProdutoController;
+use App\Features\Usuarios\PerfilController;
+use App\Features\Usuarios\UsuarioController;
 
 require_once __DIR__ . '/../config/config.php';
 
@@ -74,15 +76,15 @@ $router->get('/relatorios', ['RelatorioController', 'index'], $authMiddleware);
 
 $adminMiddleware = ['AuthMiddleware', 'AdminMiddleware'];
 
-$router->get('/usuarios', ['UsuarioController', 'index'], $adminMiddleware);
-$router->get('/usuarios/buscar/{id}', ['UsuarioController', 'buscar'], $adminMiddleware);
-$router->post('/usuarios/salvar', ['UsuarioController', 'salvar'], $adminMiddleware);
-$router->post('/usuarios/toggle-status/{id}', ['UsuarioController', 'toggleStatus'], $adminMiddleware);
-$router->post('/usuarios/excluir/{id}', ['UsuarioController', 'excluir'], $adminMiddleware);
+$router->get('/usuarios', [UsuarioController::class, 'index'], $adminMiddleware);
+$router->get('/usuarios/buscar/{id}', [UsuarioController::class, 'buscar'], $adminMiddleware);
+$router->post('/usuarios/salvar', [UsuarioController::class, 'salvar'], $adminMiddleware);
+$router->post('/usuarios/toggle-status/{id}', [UsuarioController::class, 'toggleStatus'], $adminMiddleware);
+$router->post('/usuarios/excluir/{id}', [UsuarioController::class, 'excluir'], $adminMiddleware);
 
-$router->get('/usuarios/perfil', ['UsuarioController', 'perfil'], $authMiddleware);
-$router->post('/usuarios/atualizarPerfil', ['UsuarioController', 'atualizarPerfil'], $authMiddleware);
-$router->post('/usuarios/alterarSenha', ['UsuarioController', 'alterarSenha'], $authMiddleware);
+$router->get('/usuarios/perfil', [PerfilController::class, 'perfil'], $authMiddleware);
+$router->post('/usuarios/atualizarPerfil', [PerfilController::class, 'atualizarPerfil'], $authMiddleware);
+$router->post('/usuarios/alterarSenha', [PerfilController::class, 'alterarSenha'], $authMiddleware);
 
 $router->get('/fornecedores', [FornecedorController::class, 'index'], $adminMiddleware);
 $router->post('/fornecedores/salvar', [FornecedorController::class, 'salvar'], $adminMiddleware);
