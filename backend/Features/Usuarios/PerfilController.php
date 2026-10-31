@@ -2,6 +2,7 @@
 
 namespace App\Features\Usuarios;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Session;
 use Exception;
@@ -113,7 +114,9 @@ class PerfilController extends Controller
                 $this->redirect('/usuarios/perfil');
             }
 
-            if ($this->usuarioModel->alterarSenha($_SESSION['user']['id'], UsuarioModel::gerarHashDeSenha($novaSenha))) {
+            $novoHash = UsuarioModel::gerarHashDeSenha($novaSenha);
+            if ($this->usuarioModel->alterarSenha($_SESSION['user']['id'], $novoHash)) {
+                Auth::renovarSessaoAposTrocaDeSenha($novoHash);
                 Session::flash('success', 'Senha alterada com sucesso.');
                 $this->registrarAcao('senha_alterada');
             } else {

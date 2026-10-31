@@ -1,4 +1,4 @@
-# Plano da refatoração
+# Plano do projeto
 
 Situação em 2026-10-31. As regras que este plano segue estão em [`arquitetura.md`](arquitetura.md); os motivos das decisões, no [diagnóstico](historico/diagnostico-fase-a.md).
 
@@ -27,16 +27,15 @@ Detalhes, evidências e testes de cada ID estão na [auditoria](auditoria-segura
 
 | # | Item | IDs |
 |---|---|---|
-| 1 | Revalidar o usuário a cada requisição, derrubar sessões na troca de senha, expiração absoluta | S-001 |
-| 2 | Limite de tentativas no login e hash fictício para conta inexistente | S-002, S-012 |
-| 3 | Validar o destino do redirecionamento pós-login | S-007 |
-| 4 | Regra de último admin, 404 para id inexistente, validação estrita no servidor | I-003, I-002, I-005 |
-| 5 | Relatório respeita o período escolhido, e falha aparece como falha na tela | I-006, R-001 |
-| 6 | Uma só fonte de data entre PHP e banco | R-002 |
-| 7 | Logs sem CPF, RG e e-mail | S-009 |
-| 8 | Implementar as decisões sobre o funcionário | S-008, I-001 |
-| 9 | CSS gerado e bibliotecas servidas localmente | S-004, P-002, S-015 |
-| 10 | Pacote de implantação: `DocumentRoot` em `public/`, HTTPS, cabeçalhos, usuário de banco restrito, retenção e backup | S-005, S-006, S-016, L-001 |
+| 1 | Limite de tentativas no login e hash fictício para conta inexistente | S-002, S-012 |
+| 2 | Validar o destino do redirecionamento pós-login | S-007 |
+| 3 | Regra de último admin, 404 para id inexistente, validação estrita no servidor | I-003, I-002, I-005 |
+| 4 | Relatório respeita o período escolhido, e falha aparece como falha na tela | I-006, R-001 |
+| 5 | Uma só fonte de data entre PHP e banco | R-002 |
+| 6 | Logs sem CPF, RG e e-mail | S-009 |
+| 7 | Implementar as decisões sobre o funcionário | S-008, I-001 |
+| 8 | CSS gerado e bibliotecas servidas localmente | S-004, P-002, S-015 |
+| 9 | Pacote de implantação: `DocumentRoot` em `public/`, HTTPS, cabeçalhos, usuário de banco restrito, retenção e backup | S-005, S-006, S-016, L-001 |
 
 **Recomendadas:** CSP em bloqueio, depois de remover os `onclick` (S-004); testes dos cenários sem cobertura (M-001); chave de idempotência nas movimentações (I-007); auditoria de operações administrativas (I-012); ciclo de vida da senha (S-014); logout por POST (S-013); paginar movimentações (P-001); fornecedor inativo (I-009); CPF e RG de excluídos (I-011); ViaCEP (R-003); parâmetros malformados (R-004); busca de usuários (R-005); limite do período do relatório (R-006); restringir o Apache local (S-011), que leva minutos.
 
@@ -58,9 +57,10 @@ Detalhes, evidências e testes de cada ID estão na [auditoria](auditoria-segura
 | Testes E2E | Playwright com Docker, em MariaDB e MySQL | `119c7aa` |
 | Perfil | Cada formulário grava só os próprios campos | `70a5d7d` |
 | 10. Views | JS em `public/assets/js/`; bibliotecas com versão fixa só no layout; XSS do dashboard corrigido | `15d2888` |
-| 11. Escape na entrada | O banco guarda o dado como foi digitado; escape só na saída, modais e botões de excluir incluídos (S-003, I-004) | `fix/11-escape-na-entrada` |
-| 12. Movimentação por id | `tbmovimentacoes.produto_id`; renomear produto com histórico funciona e o nome novo aparece em todo lugar | `schema/12-movimentacao-id-produto` |
-| Pastas | `config/`, `database/` e `storage/` (antiga `armazenamento/`) dentro de `backend/`; `public/` continua na raiz | `refactor/config-database-no-backend` |
+| 11. Escape na entrada | O banco guarda o dado como foi digitado; escape só na saída, modais e botões de excluir incluídos (S-003, I-004) | `d3b76e5` |
+| 12. Movimentação por id | `tbmovimentacoes.produto_id`; renomear produto com histórico funciona e o nome novo aparece em todo lugar | `87035c8` |
+| Pastas | `config/`, `database/` e `storage/` (antiga `armazenamento/`) dentro de `backend/`; `public/` continua na raiz | `e16b77d` |
+| S-001 | Sessão conferida no banco a cada requisição; troca de senha encerra as outras sessões; expiração absoluta de 12 h | `fix/s001-revalidar-sessao` |
 
 ## Como cada etapa é entregue
 

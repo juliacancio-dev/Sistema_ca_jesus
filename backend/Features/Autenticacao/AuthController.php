@@ -39,6 +39,7 @@ class AuthController extends Controller
                 $this->voltarAoLogin('Seu usuário está inativo. Contate o administrador.');
             }
 
+            $hashDaSenha = $usuario['senha'];
             unset($usuario['senha']);
             $consultas->registrarLogin($usuario['id']);
         } catch (Exception $e) {
@@ -46,7 +47,7 @@ class AuthController extends Controller
             $this->voltarAoLogin('Erro interno do sistema. Tente novamente.');
         }
 
-        Auth::login($usuario);
+        Auth::login($usuario, $hashDaSenha);
         $redirect = $_SESSION['redirect_after_login'] ?? BASE_URL . '/dashboard';
         unset($_SESSION['redirect_after_login']);
         header('Location: ' . $redirect);

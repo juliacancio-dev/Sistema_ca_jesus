@@ -38,13 +38,15 @@ Os usuários e a senha estão no [README](../README.md#usuários-de-desenvolvime
 - [ ] Inativar e reativar um usuário.
 - [ ] Tentar inativar a si mesmo: recusado.
 - [ ] Como funcionário, abrir `/usuarios`: redireciona com mensagem.
+- [ ] Com o funcionário logado em outra janela, desativar ou excluir esse usuário: a próxima ação dele leva ao login.
+- [ ] Rebaixar um administrador logado em outra janela: ele perde o acesso a `/usuarios` na hora.
 - [ ] Mudar o próprio nome para `');window.__x=1;//` e, como admin, clicar em excluir esse usuário: nada executa.
 
 ## Perfil
 - [ ] Salvar os dados pessoais: o endereço não muda.
 - [ ] Salvar o endereço: os dados pessoais não mudam. O CEP preenche o endereço.
 - [ ] Trocar a senha com a senha atual errada: recusado.
-- [ ] Trocar a senha com a senha atual correta.
+- [ ] Trocar a senha com a senha atual correta: esta sessão continua, e outra janela aberta volta ao login.
 
 ## Fornecedores (admin)
 - [ ] Criar um fornecedor.
@@ -60,8 +62,6 @@ Os usuários e a senha estão no [README](../README.md#usuários-de-desenvolvime
 
 Estes itens falham hoje. Passe a exigi-los quando o achado correspondente da [auditoria](auditoria-seguranca.md) for corrigido.
 
-- [ ] Com o funcionário logado em outra janela, desativar, excluir ou rebaixar esse usuário: a próxima ação dele leva ao login (S-001).
-- [ ] Trocar a senha: a outra sessão aberta é encerrada (S-001).
 - [ ] Errar a senha várias vezes seguidas: o login é bloqueado por um tempo, e outra conta não é afetada (S-002).
 - [ ] Editar o próprio usuário sem marcar "ativo" ou mudando o tipo: recusado (I-003).
 - [ ] No relatório, escolher "Anual" e aplicar: vêm as movimentações do ano todo (I-006).
