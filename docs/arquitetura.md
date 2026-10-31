@@ -31,6 +31,7 @@ backend/                              # namespace App\ → backend/ (PSR-4 via C
     Controller.php                    # render() e json()
     RespostaJson.php                  # formato único das respostas JSON
     ErroDeNegocio.php                 # exceção com mensagem que pode ir ao usuário
+    ConfirmacaoNecessaria.php         # a operação depende de o usuário confirmar
   Features/
     Autenticacao/   AuthController.php  AuthMiddleware.php  AdminMiddleware.php
     Dashboard/      DashboardController.php  DashboardConsultas.php
@@ -50,9 +51,10 @@ public/                               # única pasta servida pelo Apache
   assets/css/  assets/img/
   assets/js/app.js  formatacao.js  cep.js  <feature>.js
 database/
-  schema.sql                          # cria o banco do zero
+  schema.sql                          # estrutura; não cria nem seleciona o banco
+  seed.sql                            # dados iniciais de desenvolvimento
 tests/
-  bootstrap.php
+  bootstrap.php  BancoDeTeste.php
   Features/<Feature>/...Test.php
 config/       config.example.php      # config.php fica fora do git
 armazenamento/logs/
@@ -129,7 +131,7 @@ O controller nunca monta o array à mão: ele usa `$this->json(...)`. Fora de um
 
 A resposta é JSON quando a rota começa com `/api/` ou quando a requisição manda `Accept: application/json`. No front, toda chamada usa `requisicaoJson(url, opcoes)` (`public/assets/js/app.js`), que manda esse header, sempre devolve o objeto do contrato (inclusive em falha de rede) e leva ao login quando recebe 401.
 
-**Exemplo: custo maior que venda numa movimentação.** O primeiro envio vem sem `confirmar_custo_maior` e recebe `200 { sucesso: false, requer_confirmacao: true, mensagem: "O custo é maior que o preço de venda. Deseja continuar?" }`. Se o usuário confirmar, o front reenvia com `confirmar_custo_maior=1`.
+**Exemplo: custo maior que venda numa movimentação.** O caso de uso lança `ConfirmacaoNecessaria`. O primeiro envio vem sem `confirmar_custo_maior` e recebe `200 { sucesso: false, requer_confirmacao: true, mensagem: "O preço de custo é maior que o preço de venda. Tem certeza de que deseja registrar?" }`. Se o usuário confirmar, o front reenvia com `confirmar_custo_maior=1`.
 
 As rotas e o que cada uma devolve estão em [`rotas.md`](rotas.md).
 
@@ -153,5 +155,5 @@ O token é um por sessão, para funcionar com várias abas, e é trocado no logi
 
 - **PHPUnit**, instalado com `composer install`, roda com `vendor/bin/phpunit`.
 - **Testa-se primeiro o que mexe com dinheiro e saldo:** `RegistrarMovimentacao` (com banco de teste) e `RelatorioFinanceiro`/`RelatorioEstoque` (cálculos puros).
-- O banco de teste se chama `bd_sistema_teste` e é criado a partir de `database/schema.sql`. O `tests/bootstrap.php` define `DB_NAME` antes de carregar a configuração.
+- O banco de teste se chama `bd_sistema_teste` e é criado a partir de `database/schema.sql`. O `tests/bootstrap.php` define `DB_NAME` antes de carregar a configuração, e `BancoDeTeste` recusa recriar qualquer outro banco.
 - CRUDs simples não precisam de teste automatizado. O roteiro manual cobre esses casos.

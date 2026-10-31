@@ -7,60 +7,6 @@ class MovimentacaoModel {
         $this->db = Database::getInstance();
     }
 
-    public function registrar($dados) {
-        try {
-            $this->db->beginTransaction();
-
-            $produto = $this->buscarProdutoPorMarca($dados["marca_produto"]);
-            if (!$produto) {
-                throw new DomainException("Produto não encontrado.");
-            }
-
-            if ($dados["acao"] === "saida" && $produto["estoque_produto"] < $dados["quantidade"]) {
-                throw new DomainException("Estoque insuficiente para esta operação.");
-            }
-
-            // lucro_movimentacao é coluna calculada pelo banco (VIRTUAL); não é enviada.
-            $stmt = $this->db->prepare("
-                INSERT INTO tbmovimentacoes (
-                    marca_produto,
-                    acao_movimentacao,
-                    quantidade_movimentacao,
-                    preco_custo_movimentacao,
-                    preco_venda_movimentacao,
-                    observacao_movimentacao,
-                    usuario_id
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            ");
-            
-            $ok = $stmt->execute([
-                $dados["marca_produto"],
-                $dados["acao"],
-                $dados["quantidade"],
-                $dados["preco_custo"],
-                $dados["preco_venda"],
-                $dados["observacao"],
-                $dados["usuario_id"]
-            ]);
-
-            $this->db->commit();
-            return $ok;
-        } catch (Exception $e) {
-            $this->db->rollBack();
-            throw $e;
-        }
-    }
-
-    private function buscarProdutoPorMarca($marca) {
-        $stmt = $this->db->prepare("
-            SELECT id_produto, estoque_produto 
-            FROM tbprodutos 
-            WHERE marca_produto = ?
-        ");
-        $stmt->execute([$marca]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
     public function listarTodas() {
         $stmt = $this->db->prepare("
             SELECT 
