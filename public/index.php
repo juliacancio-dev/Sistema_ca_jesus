@@ -1,4 +1,5 @@
 <?php
+use App\Core\ConfirmacaoNecessaria;
 use App\Core\ErroDeNegocio;
 use App\Core\RespostaJson;
 
@@ -105,7 +106,7 @@ try {
         ob_end_clean();
     }
     if (RespostaJson::esperada()) {
-        RespostaJson::enviar(false, $e->getMessage(), status: $e->status());
+        RespostaJson::enviar(false, $e->getMessage(), status: $e->status(), requerConfirmacao: $e instanceof ConfirmacaoNecessaria);
     }
     Session::flash('error', $e->getMessage());
     $voltar = $_SERVER['HTTP_REFERER'] ?? '';
