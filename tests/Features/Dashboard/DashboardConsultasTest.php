@@ -34,7 +34,7 @@ final class DashboardConsultasTest extends TestCase
 
     private function mov(string $marca, string $data, string $acao, int $qtd, float $custo = 10, float $venda = 20): void
     {
-        self::$pdo->prepare('INSERT INTO tbmovimentacoes (marca_produto, data_movimentacao, acao_movimentacao, quantidade_movimentacao, preco_custo_movimentacao, preco_venda_movimentacao) VALUES (?, ?, ?, ?, ?, ?)')
+        self::$pdo->prepare('INSERT INTO tbmovimentacoes (produto_id, data_movimentacao, acao_movimentacao, quantidade_movimentacao, preco_custo_movimentacao, preco_venda_movimentacao) VALUES ((SELECT id_produto FROM tbprodutos WHERE marca_produto = ?), ?, ?, ?, ?, ?)')
             ->execute([$marca, $data, $acao, $qtd, $custo, $venda]);
     }
 
@@ -106,13 +106,22 @@ final class DashboardConsultasTest extends TestCase
         $this->assertSame([2, 1], array_map('intval', array_column($this->consultas->atividadesRecentes(), 'quantidade')));
     }
 
+    public function testAtividadesMostramONomeAtualDoProduto(): void
+    {
+        $this->produto('A', 0);
+        $this->mov('A', '2026-10-01 10:00:00', 'entrada', 1);
+        self::$pdo->exec("UPDATE tbprodutos SET marca_produto = 'Nome Novo'");
+
+        $this->assertSame('Nome Novo', $this->consultas->atividadesRecentes()[0]['produto']);
+    }
+
     public function testUltimos7DiasCobremHojeESeisDiasAtras(): void
     {
         $this->produto('A', 0);
-        self::$pdo->exec("INSERT INTO tbmovimentacoes (marca_produto, data_movimentacao, acao_movimentacao, quantidade_movimentacao, preco_custo_movimentacao, preco_venda_movimentacao) VALUES
-            ('A', NOW(), 'entrada', 1, 10, 20),
-            ('A', CURDATE() - INTERVAL 6 DAY, 'entrada', 2, 10, 20),
-            ('A', CURDATE() - INTERVAL 7 DAY, 'entrada', 3, 10, 20)");
+        self::$pdo->exec("INSERT INTO tbmovimentacoes (produto_id, data_movimentacao, acao_movimentacao, quantidade_movimentacao, preco_custo_movimentacao, preco_venda_movimentacao) VALUES
+            ((SELECT id_produto FROM tbprodutos WHERE marca_produto = 'A'), NOW(), 'entrada', 1, 10, 20),
+            ((SELECT id_produto FROM tbprodutos WHERE marca_produto = 'A'), CURDATE() - INTERVAL 6 DAY, 'entrada', 2, 10, 20),
+            ((SELECT id_produto FROM tbprodutos WHERE marca_produto = 'A'), CURDATE() - INTERVAL 7 DAY, 'entrada', 3, 10, 20)");
 
         $quantidades = array_map('intval', array_column($this->consultas->movimentacoesDosUltimos7Dias(), 'quantidade'));
         sort($quantidades);

@@ -146,9 +146,6 @@ class ProdutoController extends Controller
         if ($codigoMysql === 1062) {
             return "Já existe um produto com esta marca.";
         }
-        if ($codigoMysql === 1451) {
-            return "Não é possível alterar a marca: este produto já tem movimentações registradas.";
-        }
         return $padrao;
     }
 }

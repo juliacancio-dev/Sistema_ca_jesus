@@ -46,14 +46,15 @@ class DashboardConsultas
     {
         $stmt = $this->db->prepare('
             SELECT
-                marca_produto AS produto,
-                data_movimentacao AS data,
-                acao_movimentacao AS acao,
-                quantidade_movimentacao AS quantidade,
-                preco_custo_movimentacao AS preco_custo,
-                preco_venda_movimentacao AS preco_venda
-            FROM tbmovimentacoes
-            ORDER BY data_movimentacao DESC, id_movimentacao DESC
+                p.marca_produto AS produto,
+                m.data_movimentacao AS data,
+                m.acao_movimentacao AS acao,
+                m.quantidade_movimentacao AS quantidade,
+                m.preco_custo_movimentacao AS preco_custo,
+                m.preco_venda_movimentacao AS preco_venda
+            FROM tbmovimentacoes m
+            JOIN tbprodutos p ON m.produto_id = p.id_produto
+            ORDER BY m.data_movimentacao DESC, m.id_movimentacao DESC
             LIMIT ?
         ');
         $stmt->bindValue(1, $limite, PDO::PARAM_INT);

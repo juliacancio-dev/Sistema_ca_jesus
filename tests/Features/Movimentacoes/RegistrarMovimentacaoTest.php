@@ -17,6 +17,7 @@ final class RegistrarMovimentacaoTest extends TestCase
 
     private static PDO $pdo;
     private RegistrarMovimentacao $registrar;
+    private int $produtoId;
 
     public static function setUpBeforeClass(): void
     {
@@ -34,12 +35,13 @@ final class RegistrarMovimentacaoTest extends TestCase
         self::$pdo->exec('DELETE FROM tbprodutos');
         $stmt = self::$pdo->prepare('INSERT INTO tbprodutos (marca_produto, preco_custo_produto, preco_venda_produto, estoque_produto, fornecedor_id) VALUES (?, 10, 20, 10, 1)');
         $stmt->execute([self::MARCA]);
+        $this->produtoId = (int)self::$pdo->lastInsertId();
         $this->registrar = new RegistrarMovimentacao(self::$pdo);
     }
 
     public function testEntradaSomaAoSaldoEGravaAMovimentacao(): void
     {
-        $saldo = $this->registrar->executar(self::MARCA, 'entrada', 5, 10.0, 20.0, 'Compra', 1);
+        $saldo = $this->registrar->executar($this->produtoId, 'entrada', 5, 10.0, 20.0, 'Compra', 1);
 
         $this->assertSame(15, $saldo);
         $this->assertSame(15, $this->saldo());
@@ -56,7 +58,7 @@ final class RegistrarMovimentacaoTest extends TestCase
 
     public function testSaidaSubtraiDoSaldoECalculaOLucro(): void
     {
-        $saldo = $this->registrar->executar(self::MARCA, 'saida', 4, 10.0, 20.0, null, 1);
+        $saldo = $this->registrar->executar($this->produtoId, 'saida', 4, 10.0, 20.0, null, 1);
 
         $this->assertSame(6, $saldo);
         $this->assertSame(6, $this->saldo());
@@ -65,13 +67,13 @@ final class RegistrarMovimentacaoTest extends TestCase
 
     public function testSaidaDeTodoOEstoqueZeraOSaldo(): void
     {
-        $this->assertSame(0, $this->registrar->executar(self::MARCA, 'saida', 10, 10.0, 20.0, null, 1));
+        $this->assertSame(0, $this->registrar->executar($this->produtoId, 'saida', 10, 10.0, 20.0, null, 1));
     }
 
     public function testSaidaAcimaDoSaldoERecusadaENadaMuda(): void
     {
         try {
-            $this->registrar->executar(self::MARCA, 'saida', 11, 10.0, 20.0, null, 1);
+            $this->registrar->executar($this->produtoId, 'saida', 11, 10.0, 20.0, null, 1);
             $this->fail('Deveria ter recusado.');
         } catch (ErroDeNegocio $e) {
             $this->assertSame('Quantidade de saída maior que o estoque disponível (10).', $e->getMessage());
@@ -86,7 +88,7 @@ final class RegistrarMovimentacaoTest extends TestCase
     {
         self::$pdo->exec('UPDATE tbprodutos SET estoque_produto = 0');
         try {
-            $this->registrar->executar(self::MARCA, 'saida', 1, 10.0, 20.0, null, 1);
+            $this->registrar->executar($this->produtoId, 'saida', 1, 10.0, 20.0, null, 1);
             $this->fail('Deveria ter recusado.');
         } catch (ErroDeNegocio $e) {
             $this->assertSame('Estoque do produto está zerado. Não é possível registrar saída.', $e->getMessage());
@@ -98,7 +100,7 @@ final class RegistrarMovimentacaoTest extends TestCase
     public function testProdutoInexistenteERecusado(): void
     {
         try {
-            $this->registrar->executar('Não existe', 'entrada', 1, 10.0, 20.0, null, 1);
+            $this->registrar->executar(999999, 'entrada', 1, 10.0, 20.0, null, 1);
             $this->fail('Deveria ter recusado.');
         } catch (ErroDeNegocio $e) {
             $this->assertSame(404, $e->status());
@@ -109,20 +111,20 @@ final class RegistrarMovimentacaoTest extends TestCase
     public static function dadosInvalidos(): array
     {
         return [
-            'sem produto' => ['', 'entrada', 1, 10.0, 20.0],
-            'tipo inválido' => [self::MARCA, 'ajuste', 1, 10.0, 20.0],
-            'quantidade zero' => [self::MARCA, 'entrada', 0, 10.0, 20.0],
-            'quantidade negativa' => [self::MARCA, 'saida', -1, 10.0, 20.0],
-            'custo negativo' => [self::MARCA, 'entrada', 1, -1.0, 20.0],
-            'venda negativa' => [self::MARCA, 'entrada', 1, 10.0, -1.0],
+            'sem produto' => [0, 'entrada', 1, 10.0, 20.0],
+            'tipo inválido' => [null, 'ajuste', 1, 10.0, 20.0],
+            'quantidade zero' => [null, 'entrada', 0, 10.0, 20.0],
+            'quantidade negativa' => [null, 'saida', -1, 10.0, 20.0],
+            'custo negativo' => [null, 'entrada', 1, -1.0, 20.0],
+            'venda negativa' => [null, 'entrada', 1, 10.0, -1.0],
         ];
     }
 
     #[DataProvider('dadosInvalidos')]
-    public function testDadosInvalidosSaoRecusados(string $marca, string $acao, int $quantidade, float $custo, float $venda): void
+    public function testDadosInvalidosSaoRecusados(?int $produto, string $acao, int $quantidade, float $custo, float $venda): void
     {
         try {
-            $this->registrar->executar($marca, $acao, $quantidade, $custo, $venda, null, 1);
+            $this->registrar->executar($produto ?? $this->produtoId, $acao, $quantidade, $custo, $venda, null, 1);
             $this->fail('Deveria ter recusado.');
         } catch (ErroDeNegocio $e) {
             $this->assertSame(422, $e->status());
@@ -140,7 +142,7 @@ final class RegistrarMovimentacaoTest extends TestCase
     public function testCustoMaiorQueVendaPedeConfirmacaoENadaMuda(string $acao, int $saldoComConfirmacao): void
     {
         try {
-            $this->registrar->executar(self::MARCA, $acao, 2, 30.0, 20.0, null, 1);
+            $this->registrar->executar($this->produtoId, $acao, 2, 30.0, 20.0, null, 1);
             $this->fail('Deveria ter pedido confirmação.');
         } catch (ConfirmacaoNecessaria $e) {
             $this->assertSame(200, $e->status());
@@ -152,21 +154,21 @@ final class RegistrarMovimentacaoTest extends TestCase
     #[DataProvider('acoes')]
     public function testCustoMaiorQueVendaPassaComConfirmacao(string $acao, int $saldoComConfirmacao): void
     {
-        $this->assertSame($saldoComConfirmacao, $this->registrar->executar(self::MARCA, $acao, 2, 30.0, 20.0, null, 1, true));
+        $this->assertSame($saldoComConfirmacao, $this->registrar->executar($this->produtoId, $acao, 2, 30.0, 20.0, null, 1, true));
     }
 
     public function testConfirmacaoNaoLiberaSaidaAcimaDoSaldo(): void
     {
         $this->expectException(ErroDeNegocio::class);
         $this->expectExceptionMessage('maior que o estoque');
-        $this->registrar->executar(self::MARCA, 'saida', 11, 30.0, 20.0, null, 1, true);
+        $this->registrar->executar($this->produtoId, 'saida', 11, 30.0, 20.0, null, 1, true);
     }
 
     public function testFalhaAoGravarDesfazTudo(): void
     {
         try {
             // usuario_id inexistente viola a FK ao gravar a movimentação.
-            $this->registrar->executar(self::MARCA, 'entrada', 5, 10.0, 20.0, null, 999999);
+            $this->registrar->executar($this->produtoId, 'entrada', 5, 10.0, 20.0, null, 999999);
             $this->fail('Deveria ter falhado.');
         } catch (PDOException) {
         }
@@ -183,7 +185,7 @@ final class RegistrarMovimentacaoTest extends TestCase
 
         self::$pdo->exec('SET innodb_lock_wait_timeout = 1');
         try {
-            $this->registrar->executar(self::MARCA, 'saida', 1, 10.0, 20.0, null, 1);
+            $this->registrar->executar($this->produtoId, 'saida', 1, 10.0, 20.0, null, 1);
             $this->fail('Deveria ter esperado o lock da outra conexão.');
         } catch (PDOException $e) {
             $this->assertSame(1205, $e->errorInfo[1]);
@@ -194,9 +196,28 @@ final class RegistrarMovimentacaoTest extends TestCase
         $this->assertSame(10, $this->saldo());
     }
 
+    public function testRenomearOProdutoNaoAfetaAsMovimentacoes(): void
+    {
+        $this->registrar->executar($this->produtoId, 'entrada', 5, 10.0, 20.0, null, 1);
+
+        self::$pdo->exec("UPDATE tbprodutos SET marca_produto = 'Nome Novo'");
+
+        $this->assertSame(1, $this->totalDeMovimentacoes());
+        $this->assertSame($this->produtoId, (int)self::$pdo->query('SELECT produto_id FROM tbmovimentacoes')->fetchColumn());
+        $this->assertSame(15, $this->saldo());
+    }
+
+    public function testNaoExcluiProdutoComMovimentacao(): void
+    {
+        $this->registrar->executar($this->produtoId, 'entrada', 5, 10.0, 20.0, null, 1);
+
+        $this->expectException(PDOException::class);
+        self::$pdo->exec('DELETE FROM tbprodutos');
+    }
+
     public function testAuditoriaRegistraAMudancaDeSaldo(): void
     {
-        $this->registrar->executar(self::MARCA, 'saida', 3, 10.0, 20.0, null, 1);
+        $this->registrar->executar($this->produtoId, 'saida', 3, 10.0, 20.0, null, 1);
 
         $auditoria = self::$pdo->query('SELECT * FROM tb_auditoria')->fetchAll();
         $this->assertCount(1, $auditoria);

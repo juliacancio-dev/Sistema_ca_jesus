@@ -16,7 +16,7 @@ final class RegistrarMovimentacao
 
     /** @return int o saldo do produto depois da movimentação */
     public function executar(
-        string $marca,
+        int $produtoId,
         string $acao,
         int $quantidade,
         float $precoCusto,
@@ -25,13 +25,13 @@ final class RegistrarMovimentacao
         ?int $usuarioId,
         bool $custoMaiorConfirmado = false
     ): int {
-        if ($marca === '' || !in_array($acao, ['entrada', 'saida'], true) || $quantidade <= 0 || $precoCusto < 0 || $precoVenda < 0) {
+        if ($produtoId <= 0 || !in_array($acao, ['entrada', 'saida'], true) || $quantidade <= 0 || $precoCusto < 0 || $precoVenda < 0) {
             throw new ErroDeNegocio('Preencha todos os campos obrigatórios corretamente.');
         }
 
         $this->db->beginTransaction();
         try {
-            $saldo = $this->travarSaldo($marca);
+            $saldo = $this->travarSaldo($produtoId);
 
             if ($acao === 'saida' && $saldo <= 0) {
                 throw new ErroDeNegocio('Estoque do produto está zerado. Não é possível registrar saída.');
@@ -47,7 +47,7 @@ final class RegistrarMovimentacao
             // lucro_movimentacao é coluna calculada pelo banco (VIRTUAL); não é enviada.
             $this->db->prepare('
                 INSERT INTO tbmovimentacoes (
-                    marca_produto,
+                    produto_id,
                     acao_movimentacao,
                     quantidade_movimentacao,
                     preco_custo_movimentacao,
@@ -55,11 +55,11 @@ final class RegistrarMovimentacao
                     observacao_movimentacao,
                     usuario_id
                 ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            ')->execute([$marca, $acao, $quantidade, $precoCusto, $precoVenda, $observacao, $usuarioId]);
+            ')->execute([$produtoId, $acao, $quantidade, $precoCusto, $precoVenda, $observacao, $usuarioId]);
 
             $novoSaldo = $acao === 'entrada' ? $saldo + $quantidade : $saldo - $quantidade;
-            $this->db->prepare('UPDATE tbprodutos SET estoque_produto = ? WHERE marca_produto = ?')
-                ->execute([$novoSaldo, $marca]);
+            $this->db->prepare('UPDATE tbprodutos SET estoque_produto = ? WHERE id_produto = ?')
+                ->execute([$novoSaldo, $produtoId]);
 
             $this->db->commit();
             return $novoSaldo;
@@ -71,10 +71,10 @@ final class RegistrarMovimentacao
 
     // FOR UPDATE: duas saídas simultâneas do mesmo produto esperam uma pela outra,
     // então a segunda já enxerga o saldo atualizado pela primeira.
-    private function travarSaldo(string $marca): int
+    private function travarSaldo(int $produtoId): int
     {
-        $stmt = $this->db->prepare('SELECT estoque_produto FROM tbprodutos WHERE marca_produto = ? FOR UPDATE');
-        $stmt->execute([$marca]);
+        $stmt = $this->db->prepare('SELECT estoque_produto FROM tbprodutos WHERE id_produto = ? FOR UPDATE');
+        $stmt->execute([$produtoId]);
         $saldo = $stmt->fetchColumn();
 
         if ($saldo === false) {
