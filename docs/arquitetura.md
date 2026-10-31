@@ -27,13 +27,14 @@ Não fazem parte da arquitetura:
 ```
 backend/                              # namespace App\ → backend/ (PSR-4 via Composer)
   Core/
-    Config.php  Database.php  Router.php  Session.php  Auth.php
+    Database.php  Router.php  Session.php  Auth.php
     Controller.php                    # render() e json()
     RespostaJson.php                  # formato único das respostas JSON
     ErroDeNegocio.php                 # exceção com mensagem que pode ir ao usuário
     ConfirmacaoNecessaria.php         # a operação depende de o usuário confirmar
+    DatabaseException.php             # falha de banco já registrada, com mensagem genérica
   Features/
-    Autenticacao/   AuthController.php  AuthMiddleware.php  AdminMiddleware.php
+    Autenticacao/   AuthController.php  AuthMiddleware.php  AdminMiddleware.php  AutenticacaoConsultas.php
     Dashboard/      DashboardController.php  DashboardConsultas.php
     Produtos/       ProdutoController.php  ProdutoModel.php
     Movimentacoes/  MovimentacaoController.php  RegistrarMovimentacao.php  MovimentacaoModel.php
