@@ -20,7 +20,7 @@ for imagem in "${imagens[@]}"; do
         continue
     fi
     npx playwright test --output "test-results/${imagem//[:.]/-}" || falhou=1
-    docker compose exec -T web sh -c 'cat armazenamento/logs/php-erros.log 2>/dev/null | grep -E "PHP (Fatal|Warning|Deprecated|Notice|Parse)" | tail -20'
+    docker compose exec -T web sh -c 'cat backend/storage/logs/php-erros.log 2>/dev/null | grep -E "PHP (Fatal|Warning|Deprecated|Notice|Parse)" | tail -20'
     docker compose down -v > /dev/null 2>&1
 done
 exit $falhou

@@ -1,9 +1,9 @@
 <?php
-// Copie este arquivo para config/config.php e ajuste os valores do seu ambiente.
-// config/config.php não é versionado.
+// Copie este arquivo para backend/config/config.php e ajuste os valores do seu ambiente.
+// backend/config/config.php não é versionado.
 
 // 'development' mostra erros na tela; em qualquer outro valor eles ficam ocultos
-// (e continuam sendo gravados em armazenamento/logs/php-erros.log).
+// (e continuam sendo gravados em backend/storage/logs/php-erros.log).
 if (!defined('ENVIRONMENT')) define('ENVIRONMENT', 'development');
 
 if (!defined('DB_HOST')) define('DB_HOST', 'localhost');

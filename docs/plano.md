@@ -6,28 +6,12 @@ Situação em 2026-10-31. As regras que este plano segue estão em [`arquitetura
 
 | Etapa | Situação |
 |---|---|
-| 1 a 9 | Concluídas |
-| 10. Views | **Em andamento** (`refactor/10-views`) |
-| Mover `config/` e `database/` | Pendente, depois da etapa 10 |
+| 1 a 10 | Concluídas |
+| `config/`, `database/` e `storage/` em `backend/` | Concluída |
 | 11. Escape na entrada | Pendente |
 | 12. `marca_produto` → `id_produto` | Pendente |
 
 ## O que falta
-
-### Etapa 10: Views
-
-Tirar o JS das telas e levá-lo para `public/assets/js/`, com `cep.js` e `formatacao.js` compartilhados. Tailwind, FontAwesome e Chart.js ficam só no layout, com versão fixa.
-
-- **Risco:** médio (visual).
-- **Como validar:** comparar cada tela; console do navegador sem erro; testes E2E.
-
-### Mover `config/` e `database/` para dentro de `backend/`
-
-Decisão de 2026-10-31, em branch própria. `public/` continua na raiz.
-
-- **Precisa atualizar:** os caminhos em `public/index.php`, `tests/` e `tests/e2e/`, o `.htaccess` e o `.gitignore`, além do README e da arquitetura.
-- **Risco:** baixo.
-- **Como validar:** `composer test`, testes E2E, e recriar o banco seguindo o README.
 
 ### Etapa 11: Escape na entrada
 
@@ -40,7 +24,7 @@ Parar de gravar `htmlspecialchars()` no banco em Usuários, Perfil e Fornecedore
 
 ### Etapa 12: `marca_produto` → `id_produto`
 
-Movimentações passam a referenciar o produto pelo id, editando `database/schema.sql`. Resolve o erro ao renomear um produto que já tem movimentações. **É preciso recriar o banco.**
+Movimentações passam a referenciar o produto pelo id, editando `backend/database/schema.sql`. Resolve o erro ao renomear um produto que já tem movimentações. **É preciso recriar o banco.**
 
 - **Afeta:** Movimentações, Relatórios e Dashboard.
 - **Risco:** médio.
@@ -61,6 +45,8 @@ Movimentações passam a referenciar o produto pelo id, editando `database/schem
 | 9. Slices | `backend/Features/` e `frontend/views/`; `app/` removida | `0221226` |
 | Testes E2E | Playwright com Docker, em MariaDB e MySQL | `119c7aa` |
 | Perfil | Cada formulário grava só os próprios campos | `70a5d7d` |
+| 10. Views | JS em `public/assets/js/`; bibliotecas com versão fixa só no layout; XSS do dashboard corrigido | `15d2888` |
+| Pastas | `config/`, `database/` e `storage/` (antiga `armazenamento/`) dentro de `backend/`; `public/` continua na raiz | `refactor/config-database-no-backend` |
 
 ## Como cada etapa é entregue
 
