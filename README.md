@@ -20,7 +20,7 @@ Sistema web para controle de estoque de uma distribuidora: cadastro de produtos 
 | Camada | Tecnologia |
 |---|---|
 | Backend | PHP ≥ 8.2, MVC próprio (sem framework), Composer |
-| Banco | MySQL / MariaDB via PDO, com triggers |
+| Banco | MySQL / MariaDB via PDO |
 | Frontend | Views PHP, Tailwind CSS (CDN), JavaScript, Chart.js |
 | Servidor | Apache com `mod_rewrite` (testado no XAMPP) |
 | Integrações | ViaCEP (preenchimento de endereço) |
@@ -32,16 +32,17 @@ sistema_ca_jesus/
 ├── app/
 │   ├── controllers/   # um controller por tela
 │   ├── core/          # Router, Controller base, Database
-│   ├── database/      # bancoInteiro.sql (criação do banco, triggers e dados iniciais)
 │   ├── helpers/       # autenticação, formatação, log
 │   ├── middleware/    # AuthMiddleware (login) e AdminMiddleware (perfil admin)
 │   ├── models/        # acesso ao banco
 │   └── views/         # layout e telas
 ├── armazenamento/
 │   └── logs/          # logs gerados pela aplicação (não versionados)
+├── backend/           # código novo, organizado por funcionalidade
 ├── config/
 │   ├── config.example.php  # modelo de configuração (versionado)
 │   └── config.php          # sua configuração local (não versionado)
+├── database/          # schema.sql (estrutura) e seed.sql (dados iniciais)
 ├── docs/              # documentação da refatoração
 ├── public/            # index.php (ponto de entrada) e assets
 ├── tests/             # testes PHPUnit
@@ -65,7 +66,12 @@ sistema_ca_jesus/
    ```bash
    composer install
    ```
-4. Importe `app/database/bancoInteiro.sql` no phpMyAdmin ou pelo cliente `mysql`. O script cria o banco `bd_sistema`, as tabelas, os triggers e os dados iniciais.
+4. Crie o banco e carregue a estrutura e os dados iniciais. Os mesmos comandos servem para recriar o banco do zero (**isso apaga todos os dados dele**):
+   ```bash
+   mysql -uroot -e "DROP DATABASE IF EXISTS bd_sistema; CREATE DATABASE bd_sistema CHARACTER SET utf8mb4"
+   mysql -uroot bd_sistema < database/schema.sql
+   mysql -uroot bd_sistema < database/seed.sql
+   ```
 5. Garanta que o `mod_rewrite` do Apache está ativo.
 6. Acesse `http://localhost/sistema_ca_jesus/public`.
 
@@ -77,7 +83,7 @@ Em produção, defina `ENVIRONMENT` com um valor diferente de `'development'` em
 composer test
 ```
 
-Os testes usam o banco `bd_sistema_teste`, separado do banco de desenvolvimento. Os testes que precisam de banco entram na etapa 8 da refatoração.
+Os testes usam o banco `bd_sistema_teste`, separado do banco de desenvolvimento. Ele é apagado e recriado a cada execução a partir de `database/schema.sql`; o usuário do banco precisa de permissão para isso.
 
 ## Autora
 

@@ -20,7 +20,7 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Nova Movimentação</h3>
 
-                <form action="<?= BASE_URL ?>/movimentacoes/registrar" method="POST" class="space-y-4" onsubmit="return handleFormSubmit(event)">
+                <form action="<?= BASE_URL ?>/movimentacoes/registrar" method="POST" class="space-y-4" onsubmit="registrarMovimentacao(event)">
                     <?= Session::campoCsrf() ?>
 
                     <div>
@@ -182,48 +182,33 @@
 
     <script>
 
-        // Validação rápida no navegador; a regra de verdade é verificada no servidor,
-        // que responde com redirect + mensagem (flash) exibida pelo layout.
-        function handleFormSubmit(event) {
+        // A regra fica no servidor: esta função só mostra o que ele responde.
+        async function registrarMovimentacao(event) {
+            event.preventDefault();
             const form = event.target;
+            const botao = form.querySelector('button[type="submit"]');
+            const textoDoBotao = botao.innerHTML;
+            botao.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Registrando...';
+            botao.disabled = true;
 
-            const produto = form.querySelector('[name="produto"]').value.trim();
-            const tipo = form.querySelector('[name="tipo"]').value.trim();
-            const quantidade = parseInt(form.querySelector('[name="quantidade"]').value || '0', 10);
-            const custo = parseFloat(form.querySelector('[name="preco_custo"]').value || '0');
-            const venda = parseFloat(form.querySelector('[name="preco_venda"]').value || '0');
+            const dados = new FormData(form);
+            const enviar = () => requisicaoJson(form.action, { method: 'POST', body: dados });
 
-            if (!produto || !tipo || quantidade <= 0 || custo < 0 || venda < 0) {
-                event.preventDefault();
-                alert('Preencha todos os campos obrigatórios corretamente.');
-                return false;
-            }
-            if (custo > venda) {
-                event.preventDefault();
-                alert('Preço de custo não pode ser maior que o preço de venda.');
-                return false;
+            let resposta = await enviar();
+            if (resposta.requer_confirmacao && confirm(resposta.mensagem)) {
+                dados.set('confirmar_custo_maior', '1');
+                resposta = await enviar();
             }
 
-            if (tipo === 'saida') {
-                const select = document.getElementById('produto-select');
-                const opt = select.options[select.selectedIndex];
-                const estoque = parseInt(opt.getAttribute('data-estoque') || '0', 10);
-                if (estoque <= 0) {
-                    event.preventDefault();
-                    alert('Estoque do produto está zerado. Não é possível registrar saída.');
-                    return false;
-                }
-                if (quantidade > estoque) {
-                    event.preventDefault();
-                    alert('Quantidade de saída maior que o estoque disponível (' + estoque + ').');
-                    return false;
-                }
+            if (resposta.sucesso) {
+                window.location.reload();
+                return;
             }
-
-            const submitBtn = form.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Registrando...';
-            submitBtn.disabled = true;
-            return true;
+            botao.innerHTML = textoDoBotao;
+            botao.disabled = false;
+            if (!resposta.requer_confirmacao) {
+                showToast(resposta.mensagem, 'error');
+            }
         }
 
         document.getElementById("produto-select").addEventListener("change", function() {

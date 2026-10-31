@@ -3,6 +3,8 @@ RewriteEngine On
 
 # Impedir acesso direto aos diretórios protegidos
 RewriteRule ^app/ - [F,L]
+RewriteRule ^backend/ - [F,L]
+RewriteRule ^database/ - [F,L]
 RewriteRule ^config/ - [F,L]
 RewriteRule ^vendor/ - [F,L]
 RewriteRule ^tests/ - [F,L]
