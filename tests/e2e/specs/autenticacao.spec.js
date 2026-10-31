@@ -43,6 +43,18 @@ test.describe('Autenticação', () => {
         await expect(page).toHaveURL(/\/produtos$/);
     });
 
+    test('um POST com a sessão perdida não vira o destino depois do login', async ({ page }) => {
+        await page.goto('login');
+        const token = await page.locator('input[name="csrf_token"]').getAttribute('value');
+        await page.request.post('produtos/salvar', { form: { csrf_token: token }, maxRedirects: 0 });
+
+        await page.goto('login');
+        await page.fill('input[name="email"]', 'e2e-admin@teste.com');
+        await page.fill('input[name="senha"]', SENHA);
+        await page.click('button[type="submit"]');
+        await expect(page).toHaveURL(/\/dashboard$/);
+    });
+
     test('quem já está logado e abre o login vai ao dashboard', async ({ page }) => {
         await entrarNoDashboard(page);
         await page.goto('login');

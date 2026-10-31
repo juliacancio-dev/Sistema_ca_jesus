@@ -62,4 +62,3 @@ Comportamento atual que difere do esperado, confirmado em execução na [auditor
 | `POST /usuarios/toggle-status/{id}` | Grava qualquer inteiro em `status`, e um corpo inválido desativa o usuário | I-003 |
 | `POST /login` e buscas, com parâmetro em array (`email[]=x`, `search[]=x`) | 500, não 422 | R-004 |
 | `GET /api/relatorios/dados` | Datas inválidas respondem `sucesso: true`, datas prevalecem sobre `periodo`, e um período enorme esgota a memória | I-006, R-006 |
-| Rotas protegidas na raiz do domínio, com `//outro-site/dashboard` | Depois do login, redireciona para o outro site | S-007 |

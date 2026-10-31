@@ -16,7 +16,10 @@ class AuthMiddleware
             if (RespostaJson::esperada()) {
                 RespostaJson::enviar(false, 'Sua sessão expirou. Faça login novamente.', status: 401);
             }
-            $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+            // Só GET: voltar para uma ação de formulário depois do login daria 404.
+            if ($_SERVER['REQUEST_METHOD'] === 'GET' && Auth::destinoLocal($_SERVER['REQUEST_URI'])) {
+                $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+            }
             header('Location: ' . BASE_URL . '/login');
             exit;
         }

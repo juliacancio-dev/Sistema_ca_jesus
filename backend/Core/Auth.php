@@ -49,6 +49,21 @@ class Auth
         $_SESSION['assinatura_senha'] = self::assinaturaDe($hashDaSenha);
     }
 
+    // O destino vem da URL pedida, que um link externo controla. "//site" e "/\site"
+    // parecem caminhos, mas no header Location levam a outro site.
+    public static function destinoLocal(string $destino): bool
+    {
+        if (!str_starts_with($destino, '/')) {
+            return false;
+        }
+        foreach ([$destino, rawurldecode($destino)] as $valor) {
+            if (str_starts_with($valor, '//') || str_contains($valor, '\\') || str_contains($valor, '://') || preg_match('/[\x00-\x1f\x7f]/', $valor)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static function sessaoExpirada(): bool
     {
         $agora = time();

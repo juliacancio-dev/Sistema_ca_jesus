@@ -219,6 +219,8 @@ O login copia `id`, `tipo`, `nome` e `email` para `$_SESSION`, mas essa cópia �
 - **Trocar ou redefinir a senha:** a sessão guarda uma assinatura da senha (`Auth::assinaturaDe`), e as sessões abertas antes da troca são encerradas. Quem trocou a própria senha continua logado, com um id de sessão novo.
 - **Expiração:** 2 horas sem requisições, ou 12 horas desde o login, mesmo em uso (`Auth::LIMITE_INATIVIDADE` e `LIMITE_ABSOLUTO`).
 
+**Depois do login**, a pessoa volta à página que pediu, se foi um GET e o destino é local (`Auth::destinoLocal`). Qualquer outro caso vai para o dashboard.
+
 **Limite de tentativas de login** (`LimiteDeLogin`, tabela `tb_tentativas_login`): 5 tentativas erradas por conta + IP e 50 por IP, em 15 minutos, bloqueiam por 15 minutos, mesmo com a senha certa. O bloqueio é temporário e por conta + IP, então não dá para trancar a conta de outra pessoa de outro lugar. A contagem acontece antes de verificar a senha, para valer também em paralelo, e um login certo zera a conta. A tabela guarda só hashes, sem e-mail nem IP legíveis. O IP vem de `REMOTE_ADDR`: atrás de um proxy reverso, é preciso configurar o IP real no servidor, ou todos contam como um só. A resposta leva o mesmo tempo com ou sem conta, porque a senha é verificada contra um hash fictício quando a conta não existe.
 
 ## Testes
