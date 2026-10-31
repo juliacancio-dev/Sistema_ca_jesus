@@ -85,7 +85,7 @@ composer.json  phpunit.xml            # vendor/ fica fora do git (composer insta
 
 **Por que existem três árvores:** sem uma etapa de build, o navegador só alcança o que está em `public/`. Por isso o JS, o CSS e as imagens ficam em `public/assets/`, enquanto os templates PHP, que não podem ser públicos, ficam em `frontend/views/`. O nome da feature é o mesmo nas três árvores: `Features/Produtos/`, `views/produtos/` e `js/produtos.js`.
 
-`backend/`, `frontend/`, `tests/` e `vendor/` são bloqueados pelo `.htaccess` da raiz. O servidor só precisa de permissão de escrita em `backend/storage/`, nunca no restante de `backend/`.
+`backend/`, `frontend/`, `tests/` e `vendor/` são bloqueados pelo `.htaccess` da raiz, e isso só vale se o Apache ler esse arquivo. Com `DocumentRoot` na raiz do projeto e `AllowOverride None`, esses arquivos ficam acessíveis. Com `DocumentRoot` em `public/`, eles ficam fora da raiz web, que é o modo mais seguro, mas hoje os cabeçalhos de segurança e o `Options -Indexes` estão só no `.htaccess` da raiz e se perdem (achado S-006 da [auditoria](auditoria-seguranca.md)). O servidor só precisa de permissão de escrita em `backend/storage/`, nunca no restante de `backend/`.
 
 ## Dentro de um slice
 
@@ -143,7 +143,7 @@ Toda resposta JSON, de qualquer slice e também do tratamento de erro em `public
 | 401 | Sessão expirada ou usuário não logado (o front leva ao login) |
 | 403 | Sem permissão ou token CSRF inválido |
 | 404 | Recurso ou rota não encontrados |
-| 405 | Método não permitido |
+| 405 | Método não permitido. Ainda não implementado: hoje, método errado responde 404 |
 | 409 | Conflito com dados vinculados (ex.: excluir fornecedor que tem produtos) |
 | 422 | Regra de negócio ou validação recusou (`ErroDeNegocio`) |
 | 500 | Erro inesperado (mensagem genérica, detalhe só no log) |
@@ -207,7 +207,11 @@ Toda requisição que não é GET precisa do token da sessão. O `Router` confer
 - **`fetch`:** usa `requisicaoJson()`, que manda o header `X-CSRF-Token` lido da meta tag do layout.
 - **Token recusado:** o `fetch` recebe 403 com a mensagem. O formulário volta para a página anterior com a mensagem, já com um token válido.
 
-O token é um por sessão, para funcionar com várias abas, e é trocado no login.
+O token é um por sessão, para funcionar com várias abas, e é trocado no login. O logout ainda é por GET e fica fora dessa proteção (achado S-013 da [auditoria](auditoria-seguranca.md)).
+
+## Autenticação e sessão
+
+O login copia `id`, `tipo`, `nome` e `email` para `$_SESSION`, e os middlewares decidem só com essa cópia, sem consultar o banco. Por isso, hoje, desativar, excluir ou rebaixar um usuário só tem efeito no próximo login, e trocar a senha não encerra outras sessões (achado S-001 da [auditoria](auditoria-seguranca.md)). A sessão expira depois de 2 horas sem requisições, e não há expiração absoluta.
 
 ## Testes
 
