@@ -75,7 +75,8 @@ $router->post('/usuarios/toggle-status/{id}', [UsuarioController::class, 'toggle
 $router->post('/usuarios/excluir/{id}', [UsuarioController::class, 'excluir'], $adminMiddleware);
 
 $router->get('/usuarios/perfil', [PerfilController::class, 'perfil'], $authMiddleware);
-$router->post('/usuarios/atualizarPerfil', [PerfilController::class, 'atualizarPerfil'], $authMiddleware);
+$router->post('/usuarios/atualizarDados', [PerfilController::class, 'atualizarDados'], $authMiddleware);
+$router->post('/usuarios/atualizarEndereco', [PerfilController::class, 'atualizarEndereco'], $authMiddleware);
 $router->post('/usuarios/alterarSenha', [PerfilController::class, 'alterarSenha'], $authMiddleware);
 
 $router->get('/fornecedores', [FornecedorController::class, 'index'], $adminMiddleware);

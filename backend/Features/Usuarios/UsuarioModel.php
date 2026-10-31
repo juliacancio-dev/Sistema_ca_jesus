@@ -315,14 +315,30 @@ class UsuarioModel
         }
     }
 
-    public function atualizarPerfil(array $dados): bool 
+    public function atualizarDadosPessoais(int $id, string $nome, string $telefone): bool
     {
         try {
             $stmt = $this->db->prepare("
-                UPDATE {$this->tableName} 
-                SET 
+                UPDATE {$this->tableName}
+                SET
                     nome_usuario = ?,
                     telefone_usuario = ?,
+                    data_atualizacao = NOW()
+                WHERE id_usuario = ?
+            ");
+            return $stmt->execute([$nome, $telefone, $id]);
+        } catch (PDOException $e) {
+            error_log("Erro ao atualizar dados pessoais: " . $e->getMessage());
+            throw new DatabaseException("Erro ao atualizar perfil");
+        }
+    }
+
+    public function atualizarEndereco(int $id, array $endereco): bool
+    {
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE {$this->tableName}
+                SET
                     endereco_usuario = ?,
                     cidade_usuario = ?,
                     estado_usuario = ?,
@@ -333,21 +349,18 @@ class UsuarioModel
                     data_atualizacao = NOW()
                 WHERE id_usuario = ?
             ");
-            
             return $stmt->execute([
-                $dados['nome'],
-                $dados['telefone'],
-                $dados['endereco'],
-                $dados['cidade'],
-                $dados['estado'],
-                $dados['cep'],
-                $dados['numero'],
-                $dados['complemento'],
-                $dados['bairro'],
-                $dados['id']
+                $endereco['endereco'],
+                $endereco['cidade'],
+                $endereco['estado'],
+                $endereco['cep'],
+                $endereco['numero'],
+                $endereco['complemento'],
+                $endereco['bairro'],
+                $id
             ]);
         } catch (PDOException $e) {
-            error_log("Erro ao atualizar perfil: " . $e->getMessage());
+            error_log("Erro ao atualizar endereço: " . $e->getMessage());
             throw new DatabaseException("Erro ao atualizar perfil");
         }
     }

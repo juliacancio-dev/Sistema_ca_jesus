@@ -172,6 +172,7 @@ test.describe('Perfil', () => {
         await page.click('#tab-dados button[type="submit"]');
         await expect(toast(page)).toContainText('Perfil atualizado com sucesso');
         await expect(page.locator('#nome')).toHaveValue('Perfil Atualizado');
+        await expect(page.locator('#user-menu-btn')).toContainText('Perfil Atualizado');
 
         await page.click(ABA('endereco'));
         await expect(page.locator('#endereco')).toHaveValue('Rua Original');
