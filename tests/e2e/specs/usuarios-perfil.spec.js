@@ -49,6 +49,18 @@ test.describe('Usuários', () => {
         await expect(page.locator('.error-message:visible').first()).toBeVisible();
     });
 
+    test('os campos aplicam as máscaras', async ({ page }) => {
+        await page.goto('usuarios');
+        await page.click('#new-usuario-btn');
+        await page.locator('#usuario-cpf').pressSequentially('52998224725');
+        await expect(page.locator('#usuario-cpf')).toHaveValue('529.982.247-25');
+        await page.locator('#usuario-telefone').pressSequentially('17999998888');
+        await expect(page.locator('#usuario-telefone')).toHaveValue('(17) 99999-8888');
+        await page.fill('#usuario-telefone', '');
+        await page.locator('#usuario-telefone').pressSequentially('1733334444');
+        await expect(page.locator('#usuario-telefone')).toHaveValue('(17) 3333-4444');
+    });
+
     test('criar pelo assistente, e o usuário novo consegue entrar', async ({ page, context }) => {
         const email = `${unico('novo').replace(' ', '-')}@teste.com`;
         await criarUsuario(page, 'Pessoa Nova', email);
@@ -198,6 +210,18 @@ test.describe('Perfil', () => {
         await page.click(ABA('endereco'));
         await expect(page.locator('#endereco')).toHaveValue('Rua do CEP');
         await expect(page.locator('#numero')).toHaveValue('99');
+    });
+
+    test('o botão do olho mostra e esconde a senha', async ({ page }) => {
+        await entrarNoDashboard(page, 'e2e-perfil@teste.com');
+        await page.goto('usuarios/perfil');
+        await page.click(ABA('senha'));
+        const campo = page.locator('#senha_atual');
+        await expect(campo).toHaveAttribute('type', 'password');
+        await page.locator('button:has(#senha_atual-eye)').click();
+        await expect(campo).toHaveAttribute('type', 'text');
+        await page.locator('button:has(#senha_atual-eye)').click();
+        await expect(campo).toHaveAttribute('type', 'password');
     });
 
     test('trocar a senha: recusa a atual errada e aceita a certa', async ({ page, context }) => {
