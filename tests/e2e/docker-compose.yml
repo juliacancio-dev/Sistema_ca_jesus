@@ -1,0 +1,36 @@
+# Ambiente dos testes E2E. O banco fica em memória e nasce limpo a cada subida.
+# E2E_DB_IMAGE escolhe o banco: mariadb:10.4 (igual ao XAMPP) ou mysql:8.0.
+name: sistema-ca-jesus-e2e
+
+services:
+  db:
+    image: ${E2E_DB_IMAGE:-mariadb:10.4}
+    environment:
+      MYSQL_ROOT_PASSWORD: e2e
+      MYSQL_DATABASE: bd_sistema
+    tmpfs:
+      - /var/lib/mysql
+    volumes:
+      - ../../database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ../../database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+      - ./docker/usuarios-e2e.sql:/docker-entrypoint-initdb.d/03-usuarios-e2e.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -uroot -pe2e bd_sistema -e 'SELECT COUNT(*) FROM tbusuarios WHERE email_usuario LIKE \"e2e-%\"' | grep -q 5 || mariadb -uroot -pe2e bd_sistema -e 'SELECT COUNT(*) FROM tbusuarios WHERE email_usuario LIKE \"e2e-%\"' | grep -q 5"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+
+  web:
+    build:
+      context: ../..
+      dockerfile: tests/e2e/docker/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8088:80"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost/sistema_ca_jesus/public/login > /dev/null"]
+      interval: 2s
+      timeout: 5s
+      retries: 20

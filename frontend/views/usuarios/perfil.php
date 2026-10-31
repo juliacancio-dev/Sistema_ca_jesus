@@ -68,7 +68,7 @@ use App\Shared\Formatacao;
                         Dados Pessoais
                     </h2>
 
-                    <form method="POST" action="<?= BASE_URL ?>/usuarios/atualizarPerfil">
+                    <form method="POST" action="<?= BASE_URL ?>/usuarios/atualizarDados">
                         <?= Session::campoCsrf() ?>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -130,7 +130,7 @@ use App\Shared\Formatacao;
                         Endereço
                     </h2>
 
-                    <form method="POST" action="<?= BASE_URL ?>/usuarios/atualizarPerfil">
+                    <form method="POST" action="<?= BASE_URL ?>/usuarios/atualizarEndereco">
                         <?= Session::campoCsrf() ?>
 
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
