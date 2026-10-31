@@ -7,6 +7,7 @@ use App\Core\Session;
 use App\Features\Fornecedores\FornecedorController;
 use App\Features\Movimentacoes\MovimentacaoController;
 use App\Features\Produtos\ProdutoController;
+use App\Features\Relatorios\RelatorioController;
 use App\Features\Usuarios\PerfilController;
 use App\Features\Usuarios\UsuarioController;
 
@@ -72,7 +73,7 @@ $router->delete('/produtos/excluir/{id}', [ProdutoController::class, 'excluir'],
 $router->get('/movimentacoes', [MovimentacaoController::class, 'index'], $authMiddleware);
 $router->post('/movimentacoes/registrar', [MovimentacaoController::class, 'registrar'], $authMiddleware);
 
-$router->get('/relatorios', ['RelatorioController', 'index'], $authMiddleware);
+$router->get('/relatorios', [RelatorioController::class, 'index'], $authMiddleware);
 
 $adminMiddleware = ['AuthMiddleware', 'AdminMiddleware'];
 
@@ -92,7 +93,7 @@ $router->post('/fornecedores/toggle-status/{id}', [FornecedorController::class, 
 $router->post('/fornecedores/excluir/{id}', [FornecedorController::class, 'excluir'], $adminMiddleware);
 
 $router->get('/api/produtos/buscar', [ProdutoController::class, 'buscar'], $authMiddleware);
-$router->get('/api/relatorios/dados', ['RelatorioController', 'getDados'], $authMiddleware);
+$router->get('/api/relatorios/dados', [RelatorioController::class, 'getDados'], $authMiddleware);
 $router->get('/api/estoque/atual', [MovimentacaoController::class, 'estoqueAtualJson'], $authMiddleware);
 
 // Único ponto de tratamento de erros não capturados.
