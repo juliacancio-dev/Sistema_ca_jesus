@@ -116,6 +116,7 @@ O caso de uso não conhece HTTP. Por isso ele pode ser testado chamando a classe
 6. **A regra de negócio fica em PHP, e o banco serve de rede de segurança.** O banco guarda constraints baratas (`CHECK`, `UNIQUE`, FK) e a auditoria (`tr_auditoria_estoque`). Triggers que decidem regra não entram.
 7. **Sem produção, o schema é editado direto em `backend/database/schema.sql`** e o banco local é recriado. As migrações (`database/migrations/NNN_*.sql`) só começam depois do primeiro deploy com dados reais.
 8. **Uma branch por mudança**, com um slice por commit. O merge na `main` só acontece depois de os testes passarem e o [roteiro manual](roteiro-de-testes.md) ser validado. O merge é feito com `--no-ff`.
+9. **O banco guarda o dado como foi digitado; o escape é só na saída.** No PHP, `htmlspecialchars()`. No JS, `escapeHtml()` ao montar HTML, ou `textContent`. Texto do usuário nunca entra direto no código de um atributo como `onclick`: vai num `data-*`, e o handler lê `this.dataset`.
 
 ## Contrato das respostas JSON
 

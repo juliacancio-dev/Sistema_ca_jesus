@@ -123,23 +123,23 @@ class FornecedorController extends Controller
     {
         return [
             'id' => !empty($_POST['id']) ? (int)$_POST['id'] : null,
-            'nome' => htmlspecialchars(trim($_POST['nome'] ?? ''), ENT_QUOTES, 'UTF-8'),
+            'nome' => trim($_POST['nome'] ?? ''),
             'cnpj' => preg_replace('/[^0-9]/', '', $_POST['cnpj'] ?? ''),
             'email' => filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL),
             'telefone' => preg_replace('/[^0-9]/', '', $_POST['telefone'] ?? ''),
             'cep' => preg_replace('/[^0-9]/', '', $_POST['cep'] ?? ''),
-            'endereco' => htmlspecialchars(trim($_POST['endereco'] ?? ''), ENT_QUOTES, 'UTF-8'),
-            'numero' => htmlspecialchars(trim($_POST['numero'] ?? ''), ENT_QUOTES, 'UTF-8'),
-            'complemento' => htmlspecialchars(trim($_POST['complemento'] ?? ''), ENT_QUOTES, 'UTF-8'),
-            'bairro' => htmlspecialchars(trim($_POST['bairro'] ?? ''), ENT_QUOTES, 'UTF-8'),
-            'cidade' => htmlspecialchars(trim($_POST['cidade'] ?? ''), ENT_QUOTES, 'UTF-8'),
-            'estado' => strtoupper(htmlspecialchars(trim($_POST['estado'] ?? ''), ENT_QUOTES, 'UTF-8'))
+            'endereco' => trim($_POST['endereco'] ?? ''),
+            'numero' => trim($_POST['numero'] ?? ''),
+            'complemento' => trim($_POST['complemento'] ?? ''),
+            'bairro' => trim($_POST['bairro'] ?? ''),
+            'cidade' => trim($_POST['cidade'] ?? ''),
+            'estado' => strtoupper(trim($_POST['estado'] ?? ''))
         ];
     }
     private function validarDados(array $dados): array
     {
         $erros = [];
-        if (empty($dados['nome']) || strlen($dados['nome']) < 3 || strlen($dados['nome']) > 100) {
+        if (empty($dados['nome']) || mb_strlen($dados['nome']) < 3 || mb_strlen($dados['nome']) > 100) {
             $erros[] = 'Nome é obrigatório e deve ter entre 3 e 100 caracteres.';
         }
         if (!$this->validarCNPJ($dados['cnpj'])) {
@@ -155,11 +155,11 @@ class FornecedorController extends Controller
         if (!empty($dados['cep']) && strlen($dados['cep']) !== 8) {
             $erros[] = 'CEP inválido. Deve conter 8 dígitos.';
         }
-        if (empty($dados['endereco']) || strlen($dados['endereco']) > 200) {
+        if (empty($dados['endereco']) || mb_strlen($dados['endereco']) > 200) {
             $erros[] = 'Endereço é obrigatório e deve ter no máximo 200 caracteres.';
         }
 
-        if (empty($dados['cidade']) || strlen($dados['cidade']) > 100) {
+        if (empty($dados['cidade']) || mb_strlen($dados['cidade']) > 100) {
             $erros[] = 'Cidade é obrigatória e deve ter no máximo 100 caracteres.';
         }
 
@@ -167,7 +167,7 @@ class FornecedorController extends Controller
             $erros[] = 'Estado é obrigatório e deve ter 2 caracteres.';
         }
 
-        if (empty($dados['bairro']) || strlen($dados['bairro']) > 100) {
+        if (empty($dados['bairro']) || mb_strlen($dados['bairro']) > 100) {
             $erros[] = 'Bairro é obrigatório e deve ter no máximo 100 caracteres.';
         }
 
