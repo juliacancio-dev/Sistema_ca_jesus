@@ -9,6 +9,7 @@
 | Testar o sistema antes de um merge | [Roteiro de testes](roteiro-de-testes.md) |
 | Saber por que uma decisão foi tomada | [Diagnóstico](historico/diagnostico-fase-a.md) |
 | Ver os problemas de desempenho e segurança encontrados | [Diagnóstico de desempenho e segurança](diagnostico-desempenho-seguranca.md) |
+| Ver as métricas, as notas e as medições de performance e boas práticas | [Avaliação técnica](avaliacao-tecnica.md) |
 
 ## Histórico
 
