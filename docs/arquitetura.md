@@ -46,6 +46,7 @@ flowchart TD
 ```
 backend/                              # namespace App\ → backend/ (PSR-4 via Composer)
   config/       config.example.php      # config.php fica fora do git
+  storage/logs/                       # logs gerados pela aplicação, fora do git
   database/
     schema.sql                        # estrutura; não cria nem seleciona o banco
     seed.sql                          # dados iniciais de desenvolvimento
@@ -78,14 +79,13 @@ tests/
   bootstrap.php  BancoDeTeste.php
   Core/  Shared/  Features/<Feature>/  # testes PHPUnit (...Test.php)
   e2e/                                # testes no navegador (Playwright + Docker)
-armazenamento/logs/
 docs/
 composer.json  phpunit.xml            # vendor/ fica fora do git (composer install)
 ```
 
 **Por que existem três árvores:** sem uma etapa de build, o navegador só alcança o que está em `public/`. Por isso o JS, o CSS e as imagens ficam em `public/assets/`, enquanto os templates PHP, que não podem ser públicos, ficam em `frontend/views/`. O nome da feature é o mesmo nas três árvores: `Features/Produtos/`, `views/produtos/` e `js/produtos.js`.
 
-`backend/`, `frontend/`, `armazenamento/`, `tests/` e `vendor/` são bloqueados pelo `.htaccess` da raiz.
+`backend/`, `frontend/`, `tests/` e `vendor/` são bloqueados pelo `.htaccess` da raiz. O servidor só precisa de permissão de escrita em `backend/storage/`, nunca no restante de `backend/`.
 
 ## Dentro de um slice
 
@@ -196,7 +196,7 @@ As rotas e o que cada uma devolve estão em [`rotas.md`](rotas.md).
 ## Erros e mensagens
 
 - **`ErroDeNegocio`** é uma mensagem para o usuário ("Saída maior que o estoque disponível"). Ela vira 422 em JSON, ou flash + redirect numa tela.
-- **Qualquer outra exceção** vai para o log (`armazenamento/logs/php-erros.log`), e o usuário vê só a mensagem genérica. O detalhe aparece na tela apenas com `ENVIRONMENT = 'development'`.
+- **Qualquer outra exceção** vai para o log (`backend/storage/logs/php-erros.log`), e o usuário vê só a mensagem genérica. O detalhe aparece na tela apenas com `ENVIRONMENT = 'development'`.
 - Existe **um único mecanismo de mensagem** entre requisições: `Session::flash()`.
 
 ## CSRF

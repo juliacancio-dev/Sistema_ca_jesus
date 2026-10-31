@@ -11,8 +11,8 @@ services:
     tmpfs:
       - /var/lib/mysql
     volumes:
-      - ../../database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-      - ../../database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+      - ../../backend/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ../../backend/database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
       - ./docker/usuarios-e2e.sql:/docker-entrypoint-initdb.d/03-usuarios-e2e.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysql -uroot -pe2e bd_sistema -e 'SELECT COUNT(*) FROM tbusuarios WHERE email_usuario LIKE \"e2e-%\"' | grep -q 5 || mariadb -uroot -pe2e bd_sistema -e 'SELECT COUNT(*) FROM tbusuarios WHERE email_usuario LIKE \"e2e-%\"' | grep -q 5"]

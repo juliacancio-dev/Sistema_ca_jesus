@@ -15,7 +15,11 @@ use App\Features\Relatorios\RelatorioController;
 use App\Features\Usuarios\PerfilController;
 use App\Features\Usuarios\UsuarioController;
 
-require_once __DIR__ . '/../config/config.php';
+if (!file_exists(__DIR__ . '/../backend/config/config.php')) {
+    http_response_code(500);
+    exit('Configuração não encontrada: copie backend/config/config.example.php para backend/config/config.php.');
+}
+require_once __DIR__ . '/../backend/config/config.php';
 
 if (!defined('ENVIRONMENT')) {
     define('ENVIRONMENT', 'production');
@@ -28,7 +32,7 @@ date_default_timezone_set('America/Sao_Paulo');
 error_reporting(E_ALL);
 ini_set('display_errors', ENVIRONMENT === 'development' ? '1' : '0');
 ini_set('log_errors', '1');
-ini_set('error_log', __DIR__ . '/../armazenamento/logs/php-erros.log');
+ini_set('error_log', __DIR__ . '/../backend/storage/logs/php-erros.log');
 
 // URL da pasta public, derivada de onde o index.php está publicado
 // (ex.: "/sistema_ca_jesus/public" no XAMPP, "" se o DocumentRoot for a própria public).

@@ -180,8 +180,8 @@ test.describe('Segurança e sessão', () => {
 
     test('arquivos internos não são servidos', async ({ request }) => {
         for (const caminho of [
-            '../backend/Core/Auth.php', '../frontend/views/layout.php', '../database/schema.sql', '../database/seed.sql',
-            '../config/config.php', '../vendor/autoload.php', '../tests/bootstrap.php', '../composer.json', '../README.md',
+            '../backend/Core/Auth.php', '../frontend/views/layout.php', '../backend/database/schema.sql', '../backend/database/seed.sql',
+            '../backend/config/config.php', '../backend/storage/logs/php-erros.log', '../vendor/autoload.php', '../tests/bootstrap.php', '../composer.json', '../README.md',
         ]) {
             const r = await request.get(caminho);
             expect([403, 404], caminho).toContain(r.status());
