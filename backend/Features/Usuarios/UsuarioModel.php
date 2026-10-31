@@ -1,7 +1,12 @@
 <?php
 
+namespace App\Features\Usuarios;
+
 use App\Core\Database;
 use App\Core\DatabaseException;
+use Exception;
+use PDO;
+use PDOException;
 
 class UsuarioModel 
 {
@@ -10,13 +15,16 @@ class UsuarioModel
     
     public function __construct() 
     {
-        try {
-            $this->db = Database::getInstance();
-            error_log("[UsuarioModel] Instância do banco criada com sucesso");
-        } catch (Exception $e) {
-            error_log("[UsuarioModel] Erro ao criar instância do banco: " . $e->getMessage());
-            throw $e;
-        }
+        $this->db = Database::getInstance();
+    }
+
+    public static function gerarHashDeSenha(string $senha): string
+    {
+        return password_hash($senha, PASSWORD_ARGON2ID, [
+            'memory_cost' => 65536,
+            'time_cost' => 4,
+            'threads' => 3
+        ]);
     }
 
     public function listarTodosComPaginacao(int $pagina = 1, int $itensPorPagina = 10): array 
@@ -204,7 +212,7 @@ class UsuarioModel
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
             return $resultado ?: null;
         } catch (PDOException $e) {
-            error_log("Erro ao buscar usu��rio por email: " . $e->getMessage());
+            error_log("Erro ao buscar usuário por email: " . $e->getMessage());
             throw new DatabaseException("Erro ao buscar usuário");
         }
     }
