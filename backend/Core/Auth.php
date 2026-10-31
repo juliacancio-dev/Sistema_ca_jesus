@@ -23,23 +23,10 @@ class Auth
 
         $_SESSION['user'] = $user;
         $_SESSION['last_activity'] = time();
-
-        error_log("[AuthHelper] Login realizado: " . json_encode([
-            'user_id' => $user['id'],
-            'session_id' => session_id(),
-            'timestamp' => date('Y-m-d H:i:s')
-        ]));
     }
 
     public static function logout()
     {
-        if (isset($_SESSION['user'])) {
-            error_log("[AuthHelper] Logout realizado: " . json_encode([
-                'user_id' => $_SESSION['user']['id'] ?? 'não definido',
-                'session_id' => session_id(),
-                'timestamp' => date('Y-m-d H:i:s')
-            ]));
-        }
         $_SESSION = [];
 
         if (ini_get("session.use_cookies")) {

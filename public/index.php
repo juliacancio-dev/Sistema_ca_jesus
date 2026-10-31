@@ -4,6 +4,9 @@ use App\Core\ErroDeNegocio;
 use App\Core\RespostaJson;
 use App\Core\Router;
 use App\Core\Session;
+use App\Features\Autenticacao\AdminMiddleware;
+use App\Features\Autenticacao\AuthController;
+use App\Features\Autenticacao\AuthMiddleware;
 use App\Features\Dashboard\DashboardController;
 use App\Features\Fornecedores\FornecedorController;
 use App\Features\Movimentacoes\MovimentacaoController;
@@ -17,6 +20,9 @@ require_once __DIR__ . '/../config/config.php';
 if (!defined('ENVIRONMENT')) {
     define('ENVIRONMENT', 'production');
 }
+
+// Antes de qualquer data: o php.ini do XAMPP vem com outro fuso, e o banco usa o do sistema.
+date_default_timezone_set('America/Sao_Paulo');
 
 // Erros sempre vão para o log; só aparecem na tela em desenvolvimento.
 error_reporting(E_ALL);
@@ -39,30 +45,14 @@ if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
 }
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// Classes antigas, sem namespace. Sai na etapa 9, quando todas estiverem em backend/.
-spl_autoload_register(function ($className) {
-    $paths = [
-        __DIR__ . '/../app/controllers/' . $className . '.php',
-        __DIR__ . '/../app/models/' . $className . '.php',
-        __DIR__ . '/../app/helpers/' . $className . '.php',
-        __DIR__ . '/../app/middleware/' . $className . '.php'
-    ];
-    foreach ($paths as $file) {
-        if (file_exists($file)) {
-            require_once $file;
-            return;
-        }
-    }
-});
-
 $router = new Router();
 
-$router->get('/', ['AuthController', 'loginForm']);
-$router->get('/login', ['AuthController', 'loginForm']);
-$router->post('/login', ['AuthController', 'login']);
-$router->get('/logout', ['AuthController', 'logout']);
+$router->get('/', [AuthController::class, 'loginForm']);
+$router->get('/login', [AuthController::class, 'loginForm']);
+$router->post('/login', [AuthController::class, 'login']);
+$router->get('/logout', [AuthController::class, 'logout']);
 
-$authMiddleware = ['AuthMiddleware']; 
+$authMiddleware = [AuthMiddleware::class]; 
 
 $router->get('/dashboard', [DashboardController::class, 'index'], $authMiddleware);
 
@@ -76,7 +66,7 @@ $router->post('/movimentacoes/registrar', [MovimentacaoController::class, 'regis
 
 $router->get('/relatorios', [RelatorioController::class, 'index'], $authMiddleware);
 
-$adminMiddleware = ['AuthMiddleware', 'AdminMiddleware'];
+$adminMiddleware = [AuthMiddleware::class, AdminMiddleware::class];
 
 $router->get('/usuarios', [UsuarioController::class, 'index'], $adminMiddleware);
 $router->get('/usuarios/buscar/{id}', [UsuarioController::class, 'buscar'], $adminMiddleware);

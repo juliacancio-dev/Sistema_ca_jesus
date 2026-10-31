@@ -19,7 +19,7 @@ Sistema web para controle de estoque de uma distribuidora: cadastro de produtos 
 
 | Camada | Tecnologia |
 |---|---|
-| Backend | PHP ≥ 8.2, MVC próprio (sem framework), Composer |
+| Backend | PHP ≥ 8.2, sem framework, organizado por funcionalidade (Vertical Slice), Composer |
 | Banco | MySQL / MariaDB via PDO |
 | Frontend | Views PHP, Tailwind CSS (CDN), JavaScript, Chart.js |
 | Servidor | Apache com `mod_rewrite` (testado no XAMPP) |
@@ -29,14 +29,12 @@ Sistema web para controle de estoque de uma distribuidora: cadastro de produtos 
 
 ```
 sistema_ca_jesus/
-├── app/
-│   ├── controllers/   # um controller por tela
-│   ├── helpers/       # log
-│   ├── middleware/    # AuthMiddleware (login) e AdminMiddleware (perfil admin)
-│   └── models/        # acesso ao banco
 ├── armazenamento/
 │   └── logs/          # logs gerados pela aplicação (não versionados)
-├── backend/           # Core (Router, Controller, Database, sessão), Shared e funcionalidades
+├── backend/
+│   ├── Core/          # Router, Controller base, Database, sessão, autenticação
+│   ├── Features/      # uma pasta por funcionalidade
+│   └── Shared/        # formatação
 ├── frontend/views/    # layout e telas
 ├── config/
 │   ├── config.example.php  # modelo de configuração (versionado)
@@ -52,7 +50,7 @@ sistema_ca_jesus/
 
 ## Como executar (XAMPP)
 
-1. Clone o projeto dentro de `htdocs` com o nome `sistema_ca_jesus`. O caminho `/sistema_ca_jesus/public` ainda está fixo no código:
+1. Clone o projeto dentro de `htdocs`:
    ```bash
    cd C:/xampp/htdocs
    git clone https://github.com/juliacancio-dev/Sistema_ca_jesus.git sistema_ca_jesus

@@ -4,7 +4,6 @@ namespace App\Features\Usuarios;
 
 use App\Core\Database;
 use App\Core\DatabaseException;
-use Exception;
 use PDO;
 use PDOException;
 
@@ -190,30 +189,6 @@ class UsuarioModel
         } catch (PDOException $e) {
             error_log("Erro ao buscar usuário por ID: " . $e->getMessage());
             throw new DatabaseException("Erro ao carregar usuário");
-        }
-    }
-
-    public function buscarPorEmail(string $email): ?array 
-    {
-        try {
-            $stmt = $this->db->prepare("
-                SELECT 
-                    id_usuario AS id,
-                    tipo_usuario AS tipo,
-                    nome_usuario AS nome,
-                    email_usuario AS email,
-                    senha_usuario AS senha,
-                    COALESCE(ativo_usuario, 1) AS ativo,
-                    ultimo_login
-                FROM {$this->tableName} 
-                WHERE email_usuario = ? AND deletado_em IS NULL
-            ");
-            $stmt->execute([$email]);
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $resultado ?: null;
-        } catch (PDOException $e) {
-            error_log("Erro ao buscar usuário por email: " . $e->getMessage());
-            throw new DatabaseException("Erro ao buscar usuário");
         }
     }
 
@@ -461,68 +436,4 @@ class UsuarioModel
             return true;
         }
     }
-
-    public function autenticar(string $email, string $senha): ?array 
-    {
-        try {
-            $stmt = $this->db->prepare("
-                SELECT 
-                    id_usuario AS id,
-                    tipo_usuario AS tipo,
-                    nome_usuario AS nome,
-                    email_usuario AS email,
-                    senha_usuario AS senha,
-                    COALESCE(ativo_usuario, 1) AS ativo
-                FROM {$this->tableName} 
-                WHERE email_usuario = ?
-            ");
-            $stmt->execute([$email]);
-            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            error_log("[UsuarioModel] Usuário encontrado: " . ($usuario ? 'Sim' : 'Não'));
-            
-            if ($usuario && password_verify($senha, $usuario['senha'])) {
-                error_log("[UsuarioModel] Senha verificada com sucesso");
-                
-                unset($usuario['senha']);
-
-                $ativoFlag = (int)($usuario['ativo'] ?? 1);
-                if ($ativoFlag !== 1) {
-                    error_log("[UsuarioModel] Usuário inativo tentou login: " . $email);
-                    return null;
-                }
-                
-                try {
-                    $this->atualizarUltimoLogin($usuario['id']);
-                } catch (Exception $e) {
-                    error_log("[UsuarioModel] Erro ao atualizar último login (ignorado): " . $e->getMessage());
-                }
-                
-                error_log("[UsuarioModel] Autenticação bem-sucedida para usuário ID: " . $usuario['id']);
-                return $usuario;
-            }
-            
-            error_log("[UsuarioModel] Falha na autenticação - senha incorreta ou usuário não encontrado");
-            return null;
-        } catch (PDOException $e) {
-            error_log("[UsuarioModel] Erro PDO na autenticação: " . $e->getMessage());
-            throw new DatabaseException("Erro no processo de autenticação");
-        }
-    }
-
-    public function atualizarUltimoLogin(int $id): bool 
-    {
-        try {
-            $stmt = $this->db->prepare("
-                UPDATE {$this->tableName} 
-                SET ultimo_login = NOW() 
-                WHERE id_usuario = ?
-            ");
-            return $stmt->execute([$id]);
-        } catch (PDOException $e) {
-            error_log("Erro ao atualizar último login: " . $e->getMessage());
-            return false;
-        }
-    }
-
 }

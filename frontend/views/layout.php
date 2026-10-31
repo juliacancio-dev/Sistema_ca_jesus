@@ -3,7 +3,6 @@
 use App\Core\Auth;
 use App\Core\Session;
 
-@date_default_timezone_set('America/Sao_Paulo');
 
 if (!Auth::isLoggedIn()) {
     header('Location: ' . BASE_URL . '/login');
