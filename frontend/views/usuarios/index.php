@@ -158,7 +158,7 @@ use App\Shared\Formatacao;
                                                     </button>
 
                                                     <?php if ($_SESSION['user']['id'] != $usuario['id']): ?>
-                                                        <button onclick="deleteUsuario(<?= $usuario['id'] ?>, '<?= htmlspecialchars($usuario['nome']) ?>')"
+                                                        <button data-nome="<?= htmlspecialchars($usuario['nome']) ?>" onclick="deleteUsuario(<?= $usuario['id'] ?>, this.dataset.nome)"
                                                             class="p-2 rounded-full bg-red-50 text-red-600 hover:bg-red-100 hover:scale-110 transition"
                                                             title="Excluir">
                                                             <i class="fas fa-trash text-xs"></i>

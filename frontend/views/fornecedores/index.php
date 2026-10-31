@@ -93,7 +93,7 @@ use App\Shared\Formatacao;
                                             <div class="flex items-center space-x-3">
                                                 <div class="flex-shrink-0">
                                                     <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                                                        <?= strtoupper(substr($fornecedor["nome"] ?? '', 0, 1)) ?>
+                                                        <?= htmlspecialchars(mb_strtoupper(mb_substr($fornecedor["nome"] ?? '', 0, 1))) ?>
                                                     </div>
                                                 </div>
                                                 <div>
@@ -145,7 +145,7 @@ use App\Shared\Formatacao;
                                                     <i class="fas <?= ($fornecedor['ativo'] ?? 1) ? 'fa-pause' : 'fa-play' ?> text-xs"></i>
                                                 </button>
 
-                                                <button onclick="deleteFornecedor(<?= $fornecedor['id'] ?>, '<?= htmlspecialchars($fornecedor['nome'] ?? '') ?>')"
+                                                <button data-nome="<?= htmlspecialchars($fornecedor['nome'] ?? '') ?>" onclick="deleteFornecedor(<?= $fornecedor['id'] ?>, this.dataset.nome)"
                                                     class="p-2 rounded-full bg-red-50 text-red-600 hover:bg-red-100 hover:scale-110 transition"
                                                     title="Excluir">
                                                     <i class="fas fa-trash text-xs"></i>
