@@ -1,6 +1,9 @@
 <?php
 
-require_once __DIR__ . '/../core/Exceptions.php';
+use App\Core\Controller;
+use App\Core\ForbiddenException;
+use App\Core\MethodNotAllowedException;
+use App\Core\Session;
 
 class UsuarioController extends Controller
 {
@@ -28,7 +31,7 @@ class UsuarioController extends Controller
                 $resultado = $this->usuarioModel->listarTodosComPaginacao($pagina, $itensPorPagina);
             }
 
-            $this->renderView('layouts/usuario/index', [
+            $this->render('usuarios/index', [
                 'usuarios' => $resultado['dados'],
                 'termoBusca' => $termoBusca,
                 'paginacao' => $resultado['paginacao']
@@ -179,7 +182,7 @@ class UsuarioController extends Controller
                 $this->redirect('/dashboard');
             }
 
-            $this->renderView('layouts/usuario/perfil', [
+            $this->render('usuarios/perfil', [
                 'usuario' => $usuario
             ]);
         } catch (Exception $e) {

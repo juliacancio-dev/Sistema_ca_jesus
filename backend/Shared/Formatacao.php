@@ -1,6 +1,8 @@
 <?php
 
-class FormatHelper
+namespace App\Shared;
+
+class Formatacao
 {
     public static function currency($value, $currency = 'R$ ')
     {

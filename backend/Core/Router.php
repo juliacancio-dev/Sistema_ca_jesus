@@ -1,6 +1,6 @@
 <?php
 
-use App\Core\RespostaJson;
+namespace App\Core;
 
 class Router {
     private $routes = [];

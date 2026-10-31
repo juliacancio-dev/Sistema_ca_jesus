@@ -3,8 +3,8 @@
 namespace App\Tests\Core;
 
 use App\Core\ErroDeNegocio;
+use App\Core\Session;
 use PHPUnit\Framework\TestCase;
-use Session;
 
 final class SessionCsrfTest extends TestCase
 {

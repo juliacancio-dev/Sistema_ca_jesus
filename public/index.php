@@ -2,6 +2,8 @@
 use App\Core\ConfirmacaoNecessaria;
 use App\Core\ErroDeNegocio;
 use App\Core\RespostaJson;
+use App\Core\Router;
+use App\Core\Session;
 
 require_once __DIR__ . '/../config/config.php';
 
@@ -30,22 +32,13 @@ if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
 }
 require_once __DIR__ . '/../vendor/autoload.php';
 
-require_once __DIR__ . '/../app/core/Database.php';
-require_once __DIR__ . '/../app/core/Router.php';
-require_once __DIR__ . '/../app/core/Controller.php';
-require_once __DIR__ . '/../app/core/Exceptions.php';
-require_once __DIR__ . '/../app/helpers/AuthHelper.php';
-require_once __DIR__ . '/../app/helpers/ErrorHelper.php';
-require_once __DIR__ . '/../app/helpers/functions.php';
-
 // Classes antigas, sem namespace. Sai na etapa 9, quando todas estiverem em backend/.
 spl_autoload_register(function ($className) {
     $paths = [
         __DIR__ . '/../app/controllers/' . $className . '.php',
         __DIR__ . '/../app/models/' . $className . '.php',
         __DIR__ . '/../app/helpers/' . $className . '.php',
-        __DIR__ . '/../app/middleware/' . $className . '.php',
-        __DIR__ . '/../app/core/' . $className . '.php'
+        __DIR__ . '/../app/middleware/' . $className . '.php'
     ];
     foreach ($paths as $file) {
         if (file_exists($file)) {

@@ -1,5 +1,7 @@
 <?php
 
+use App\Core\Controller;
+
 class RelatorioController extends Controller
 {
     public function index()
@@ -7,7 +9,7 @@ class RelatorioController extends Controller
         $title = "Relatórios - Sistema de Gestão de Estoque";
         $pageTitle = "Relatórios";
 
-        $this->renderView('layouts/relatorio/index', [
+        $this->render('relatorios/index', [
             'title' => $title,
             'pageTitle' => $pageTitle
         ]);

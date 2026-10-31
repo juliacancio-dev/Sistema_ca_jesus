@@ -1,3 +1,6 @@
+<?php
+use App\Core\Session;
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 

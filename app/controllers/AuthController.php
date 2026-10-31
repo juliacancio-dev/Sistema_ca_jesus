@@ -1,6 +1,9 @@
 <?php
 
-require_once __DIR__ . '/../core/Exceptions.php';
+use App\Core\Auth;
+use App\Core\Controller;
+use App\Core\DatabaseException;
+use App\Core\Session;
 
 class AuthController extends Controller
 {
@@ -13,11 +16,11 @@ class AuthController extends Controller
 
     public function loginForm()
     {
-        if (AuthHelper::isLoggedIn()) {
+        if (Auth::isLoggedIn()) {
             header('Location: ' . BASE_URL . '/dashboard');
             exit;
         }
-        $this->renderView('layouts/auth/login');
+        $this->render('autenticacao/login', [], false);
     }
 
     public function login()
@@ -52,7 +55,7 @@ class AuthController extends Controller
             $usuario = $this->usuarioModel->autenticar($email, $senha);
 
             if ($usuario) {
-                AuthHelper::login($usuario);
+                Auth::login($usuario);
                 $redirect = $_SESSION['redirect_after_login'] ?? BASE_URL . '/dashboard';
                 unset($_SESSION['redirect_after_login']);
                 header('Location: ' . $redirect);
@@ -78,7 +81,7 @@ class AuthController extends Controller
 
     public function logout()
     {
-        AuthHelper::logout();
+        Auth::logout();
         header('Location: ' . BASE_URL . '/login');
         exit;
     }

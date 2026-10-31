@@ -1,5 +1,8 @@
 <?php
 
+use App\Core\Controller;
+use App\Core\Database;
+use App\Core\Session;
 use App\Features\Movimentacoes\RegistrarMovimentacao;
 
 class MovimentacaoController extends Controller
@@ -14,7 +17,7 @@ class MovimentacaoController extends Controller
         $movimentacoes = $movimentacaoModel->listarTodas();
         $estoqueAtual = $produtoModel->listarTodos();
 
-        $this->renderView('layouts/movimentacao/index', [
+        $this->render('movimentacoes/index', [
             'produtos' => $produtos,
             'movimentacoes' => $movimentacoes,
             'estoqueAtual' => $estoqueAtual,

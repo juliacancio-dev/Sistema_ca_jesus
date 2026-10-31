@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../core/Exceptions.php';
+use App\Core\Database;
+use App\Core\DatabaseException;
 
 class FornecedorModel
 {

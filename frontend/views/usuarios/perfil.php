@@ -1,3 +1,7 @@
+<?php
+use App\Core\Session;
+use App\Shared\Formatacao;
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -94,7 +98,7 @@
                                     CPF
                                 </label>
                                 <input type="text" id="cpf-display"
-                                    value="<?= formatCpf($usuario['cpf']) ?>"
+                                    value="<?= Formatacao::cpf($usuario['cpf']) ?>"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
                                     disabled>
                                 <p class="text-xs text-gray-500 mt-1">O CPF não pode ser alterado</p>

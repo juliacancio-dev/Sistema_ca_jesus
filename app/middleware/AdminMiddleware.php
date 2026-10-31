@@ -1,12 +1,14 @@
 <?php
 
+use App\Core\Auth;
 use App\Core\RespostaJson;
+use App\Core\Session;
 
 class AdminMiddleware
 {
     public function handle()
     {
-        if (!AuthHelper::isAdmin()) {
+        if (!Auth::isAdmin()) {
             error_log("[AdminMiddleware] Acesso de administrador negado.");
             if (RespostaJson::esperada()) {
                 RespostaJson::enviar(false, 'Acesso restrito a administradores.', status: 403);
