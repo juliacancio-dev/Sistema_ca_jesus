@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Features\Autenticacao;
+
 use App\Core\Auth;
 use App\Core\RespostaJson;
 use App\Core\Session;

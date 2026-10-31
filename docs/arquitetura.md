@@ -34,7 +34,7 @@ backend/                              # namespace App\ → backend/ (PSR-4 via C
     ConfirmacaoNecessaria.php         # a operação depende de o usuário confirmar
     DatabaseException.php             # falha de banco já registrada, com mensagem genérica
   Features/
-    Autenticacao/   AuthController.php  AuthMiddleware.php  AdminMiddleware.php
+    Autenticacao/   AuthController.php  AuthMiddleware.php  AdminMiddleware.php  AutenticacaoConsultas.php
     Dashboard/      DashboardController.php  DashboardConsultas.php
     Produtos/       ProdutoController.php  ProdutoModel.php
     Movimentacoes/  MovimentacaoController.php  RegistrarMovimentacao.php  MovimentacaoModel.php
