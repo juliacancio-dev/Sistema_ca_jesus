@@ -8,6 +8,7 @@
 | Ver o que já foi feito e o que falta na refatoração | [Plano](plano.md) |
 | Testar o sistema antes de um merge | [Roteiro de testes](roteiro-de-testes.md) |
 | Saber por que uma decisão foi tomada | [Diagnóstico](historico/diagnostico-fase-a.md) |
+| Ver os problemas de desempenho e segurança encontrados | [Diagnóstico de desempenho e segurança](diagnostico-desempenho-seguranca.md) |
 
 ## Histórico
 
