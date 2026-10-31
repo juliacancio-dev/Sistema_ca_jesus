@@ -139,6 +139,16 @@ As rotas e o que cada uma devolve estão em [`rotas.md`](rotas.md).
 - **Qualquer outra exceção** vai para o log (`armazenamento/logs/php-erros.log`), e o usuário vê só a mensagem genérica. O detalhe aparece na tela apenas com `ENVIRONMENT = 'development'`.
 - Existe **um único mecanismo de mensagem** entre requisições: `Session::flash()`.
 
+## CSRF
+
+Toda requisição que não é GET precisa do token da sessão. O `Router` confere depois dos middlewares, então nenhum controller precisa cuidar disso.
+
+- **Formulário:** inclui `<?= Session::campoCsrf() ?>`.
+- **`fetch`:** usa `requisicaoJson()`, que manda o header `X-CSRF-Token` lido da meta tag do layout.
+- **Token recusado:** o `fetch` recebe 403 com a mensagem. O formulário volta para a página anterior com a mensagem, já com um token válido.
+
+O token é um por sessão, para funcionar com várias abas, e é trocado no login.
+
 ## Testes
 
 - **PHPUnit**, instalado com `composer install`, roda com `vendor/bin/phpunit`.

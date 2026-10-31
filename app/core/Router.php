@@ -42,6 +42,11 @@ class Router {
                     $middlewareInstance->handle();
                 }
 
+                // Depois dos middlewares: sessão expirada leva ao login, não ao erro de CSRF.
+                if ($requestMethod !== 'GET') {
+                    Session::exigirCsrf();
+                }
+
                 $controller = new $route['handler'][0]();
                 call_user_func_array([$controller, $route['handler'][1]], $matches);
                 return;

@@ -206,7 +206,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
 
                     <form id="fornecedor-form" method="POST" action="<?= BASE_URL ?>/fornecedores/salvar" class="space-y-8" novalidate>
                         <input type="hidden" id="fornecedor-id" name="id">
-                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+                        <?= Session::campoCsrf() ?>
 
                         <div>
                             <h4 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
