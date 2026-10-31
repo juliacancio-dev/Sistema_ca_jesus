@@ -167,7 +167,7 @@ test.describe('Segurança e sessão', () => {
         await criarProduto(page, marca);
         await registrarMovimentacao(page, marca, 'entrada', 2);
         await context.clearCookies();
-        await page.selectOption('#produto-select', marca);
+        await page.selectOption('#produto-select', { label: marca });
         await page.selectOption('select[name="tipo"]', 'saida');
         await page.fill('input[name="quantidade"]', '1');
         await page.click('form[onsubmit] button[type="submit"]');

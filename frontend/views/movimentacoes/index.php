@@ -33,7 +33,7 @@ use App\Core\Session;
                             <?php if (!empty($produtos)): ?>
                                 <?php foreach ($produtos as $p): ?>
                                     <option
-                                        value="<?= htmlspecialchars($p['marca']) ?>"
+                                        value="<?= (int)$p['id'] ?>"
                                         data-custo="<?= htmlspecialchars($p['preco_custo']) ?>"
                                         data-venda="<?= htmlspecialchars($p['preco_venda']) ?>"
                                         data-estoque="<?= (int)$p['estoque'] ?>">

@@ -102,7 +102,7 @@ export async function criarProduto(page, marca, custo = '10', venda = '20', forn
 
 export async function preencherMovimentacao(page, marca, tipo, quantidade, custo, venda) {
     await page.goto('movimentacoes');
-    await page.selectOption('#produto-select', marca);
+    await page.selectOption('#produto-select', { label: marca });
     await page.selectOption('select[name="tipo"]', tipo);
     await page.fill('input[name="quantidade"]', String(quantidade));
     if (custo !== undefined) await page.fill('#preco-custo', String(custo));

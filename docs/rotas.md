@@ -36,7 +36,7 @@ Todo POST e DELETE exige o token CSRF (ver [`arquitetura.md`](arquitetura.md#csr
 |---|---|---|---|---|---|
 | GET | `/api/produtos/buscar` | login | `?id=` | produto (`id`, `marca`, `preco_custo`, `preco_venda`, `estoque`, `fornecedor_id`) | 404, 500 |
 | DELETE | `/produtos/excluir/{id}` | login | — | `null` | 404; 409 com movimentações; 500 |
-| POST | `/movimentacoes/registrar` | login | form: `produto`, `tipo`, `quantidade`, `preco_custo`, `preco_venda`, `observacao`, `confirmar_custo_maior` | `null` | `requer_confirmacao` se custo > venda sem confirmar; 404 produto; 422 regra de estoque ou campos; 500 |
+| POST | `/movimentacoes/registrar` | login | form: `produto` (id), `tipo`, `quantidade`, `preco_custo`, `preco_venda`, `observacao`, `confirmar_custo_maior` | `null` | `requer_confirmacao` se custo > venda sem confirmar; 404 produto; 422 regra de estoque ou campos; 500 |
 | GET | `/api/estoque/atual` | login | — | lista de produtos com `estoque` | 500 |
 | GET | `/api/relatorios/dados` | login | `?tipo=financeiro\|estoque&periodo=diario\|semanal\|mensal\|anual` ou `data_inicio`/`data_fim` | relatório (ver `RelatorioController`) | 422 tipo inválido; 500 |
 | GET | `/usuarios/buscar/{id}` | admin | — | usuário, sem a senha | 404, 500 |

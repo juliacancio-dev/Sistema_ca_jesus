@@ -32,7 +32,7 @@ class MovimentacaoModel {
         $stmt = $this->db->prepare("
             SELECT 
                 m.id_movimentacao AS id,
-                m.marca_produto AS produto,
+                p.marca_produto AS produto,
                 m.data_movimentacao AS data,
                 m.acao_movimentacao AS acao,
                 m.quantidade_movimentacao AS quantidade,
@@ -42,6 +42,7 @@ class MovimentacaoModel {
                 m.observacao_movimentacao AS observacao,
                 u.nome_usuario AS usuario
             FROM tbmovimentacoes m
+            JOIN tbprodutos p ON m.produto_id = p.id_produto
             LEFT JOIN tbusuarios u ON m.usuario_id = u.id_usuario
             ORDER BY m.data_movimentacao DESC
         ");

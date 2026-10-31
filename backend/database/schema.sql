@@ -62,7 +62,7 @@ CREATE TABLE tbprodutos (
 
 CREATE TABLE tbmovimentacoes (
     id_movimentacao INT AUTO_INCREMENT PRIMARY KEY,
-    marca_produto VARCHAR(100) NOT NULL,
+    produto_id INT NOT NULL,
     data_movimentacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     acao_movimentacao ENUM('entrada', 'saida') NOT NULL,
     quantidade_movimentacao INT NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE tbmovimentacoes (
     ) VIRTUAL,
     observacao_movimentacao TEXT,
     usuario_id INT,
-    FOREIGN KEY (marca_produto) REFERENCES tbprodutos(marca_produto) ON DELETE RESTRICT,
+    FOREIGN KEY (produto_id) REFERENCES tbprodutos(id_produto) ON DELETE RESTRICT,
     FOREIGN KEY (usuario_id) REFERENCES tbusuarios(id_usuario) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -96,7 +96,6 @@ CREATE TABLE tb_auditoria (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Auditoria de todas as operações críticas do sistema';
 
 CREATE INDEX idx_produto_fornecedor ON tbprodutos(fornecedor_id);
-CREATE INDEX idx_movimentacao_marca ON tbmovimentacoes(marca_produto);
 CREATE INDEX idx_movimentacao_data ON tbmovimentacoes(data_movimentacao);
 CREATE INDEX idx_movimentacao_acao ON tbmovimentacoes(acao_movimentacao);
 CREATE INDEX idx_usuario_email ON tbusuarios(email_usuario);
