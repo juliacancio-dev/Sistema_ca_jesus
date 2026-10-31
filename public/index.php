@@ -4,6 +4,7 @@ use App\Core\ErroDeNegocio;
 use App\Core\RespostaJson;
 use App\Core\Router;
 use App\Core\Session;
+use App\Features\Fornecedores\FornecedorController;
 
 require_once __DIR__ . '/../config/config.php';
 
@@ -81,10 +82,10 @@ $router->get('/usuarios/perfil', ['UsuarioController', 'perfil'], $authMiddlewar
 $router->post('/usuarios/atualizarPerfil', ['UsuarioController', 'atualizarPerfil'], $authMiddleware);
 $router->post('/usuarios/alterarSenha', ['UsuarioController', 'alterarSenha'], $authMiddleware);
 
-$router->get('/fornecedores', ['FornecedorController', 'index'], $adminMiddleware);
-$router->post('/fornecedores/salvar', ['FornecedorController', 'salvar'], $adminMiddleware);
-$router->post('/fornecedores/toggle-status/{id}', ['FornecedorController', 'toggleStatus'], $adminMiddleware);
-$router->post('/fornecedores/excluir/{id}', ['FornecedorController', 'excluir'], $adminMiddleware);
+$router->get('/fornecedores', [FornecedorController::class, 'index'], $adminMiddleware);
+$router->post('/fornecedores/salvar', [FornecedorController::class, 'salvar'], $adminMiddleware);
+$router->post('/fornecedores/toggle-status/{id}', [FornecedorController::class, 'toggleStatus'], $adminMiddleware);
+$router->post('/fornecedores/excluir/{id}', [FornecedorController::class, 'excluir'], $adminMiddleware);
 
 $router->get('/api/produtos/buscar', ['ProdutoController', 'buscar'], $authMiddleware);
 $router->get('/api/relatorios/dados', ['RelatorioController', 'getDados'], $authMiddleware);

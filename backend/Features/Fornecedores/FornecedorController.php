@@ -1,8 +1,13 @@
 <?php
 
+namespace App\Features\Fornecedores;
+
 use App\Core\Controller;
 use App\Core\DatabaseException;
+use App\Core\ErroDeNegocio;
 use App\Core\Session;
+use Exception;
+use Throwable;
 
 class FornecedorController extends Controller
 {
@@ -40,16 +45,14 @@ class FornecedorController extends Controller
             $resultado = $model->salvar($dados);
 
             if ($resultado) {
-                ErrorHelper::logSuccess('Fornecedor salvo com sucesso', 'Teste de Sistema', json_encode($dados));
                 Session::flash('success', $dados['id'] ? 'Fornecedor atualizado com sucesso.' : 'Fornecedor criado com sucesso.');
             } else {
                 Session::flash('error', 'Erro ao salvar fornecedor.');
             }
-        } catch (DomainException | DatabaseException $e) {
-            ErrorHelper::handle($e, 'Erro ao salvar fornecedor', 'Teste de Sistema');
+        } catch (ErroDeNegocio | DatabaseException $e) {
             Session::flash('error', $e->getMessage());
         } catch (Exception $e) {
-            ErrorHelper::handle($e, 'Erro ao salvar fornecedor', 'Teste de Sistema');
+            error_log('[fornecedores] ' . $e);
             Session::flash('error', 'Erro ao salvar fornecedor.');
         }
         header('Location: ' . BASE_URL . '/fornecedores');
@@ -67,7 +70,7 @@ class FornecedorController extends Controller
             }
             $ok = $model->deletar((int)$id);
         } catch (Throwable $e) {
-            ErrorHelper::handle($e, 'Erro ao excluir fornecedor', 'Teste de Sistema');
+            error_log('[fornecedores] ' . $e);
             $this->json(false, 'Erro ao excluir fornecedor.', status: 500);
         }
         if (!$ok) {
@@ -105,7 +108,7 @@ class FornecedorController extends Controller
 
             $ok = $model->alternarStatus((int)$id, $novoStatus);
         } catch (Exception $e) {
-            ErrorHelper::handle($e, 'Erro ao alterar status do fornecedor', 'Teste de Sistema');
+            error_log('[fornecedores] ' . $e);
             $this->json(false, 'Erro ao alterar status do fornecedor.', status: 500);
         }
         if (!$ok) {
