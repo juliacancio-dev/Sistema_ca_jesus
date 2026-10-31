@@ -154,6 +154,7 @@
         </div>
 
         <form id="produto-form" action="<?= BASE_URL ?>/produtos/salvar" method="POST" class="p-6 space-y-4">
+            <?= Session::campoCsrf() ?>
             <input type="hidden" id="produto-id" name="id">
 
             <div>

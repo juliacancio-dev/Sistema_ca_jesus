@@ -1,5 +1,7 @@
 <?php
 
+use App\Core\RespostaJson;
+
 class AuthHelper
 {
 
@@ -17,6 +19,7 @@ class AuthHelper
     public static function login($user)
     {
         session_regenerate_id(true);
+        unset($_SESSION['csrf_token']);
 
         $_SESSION['user'] = $user;
         $_SESSION['last_activity'] = time();
@@ -69,6 +72,9 @@ class AuthHelper
                 // logout() destrói a sessão; abre uma nova só para levar a mensagem até o login.
                 session_start();
                 Session::flash('error', 'Sua sessão expirou por inatividade. Por favor, faça login novamente.');
+                if (RespostaJson::esperada()) {
+                    RespostaJson::enviar(false, 'Sua sessão expirou. Faça login novamente.', status: 401);
+                }
                 header('Location: ' . BASE_URL . '/login');
                 exit;
             }

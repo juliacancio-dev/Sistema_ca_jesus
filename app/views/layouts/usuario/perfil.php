@@ -65,7 +65,7 @@
                     </h2>
 
                     <form method="POST" action="<?= BASE_URL ?>/usuarios/atualizarPerfil">
-                        <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+                        <?= Session::campoCsrf() ?>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="form-group">
@@ -127,7 +127,7 @@
                     </h2>
 
                     <form method="POST" action="<?= BASE_URL ?>/usuarios/atualizarPerfil">
-                        <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+                        <?= Session::campoCsrf() ?>
 
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <div class="form-group">
@@ -226,7 +226,7 @@
                     </h2>
 
                     <form method="POST" action="<?= BASE_URL ?>/usuarios/alterarSenha">
-                        <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+                        <?= Session::campoCsrf() ?>
 
                         <div class="space-y-6">
                             <div class="form-group">

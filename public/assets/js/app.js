@@ -69,6 +69,10 @@ window.escapeHtml = function(valor) {
 // Sessão expirada (401) leva ao login.
 window.requisicaoJson = async function(url, opcoes = {}) {
     const headers = Object.assign({ 'Accept': 'application/json' }, opcoes.headers || {});
+    const metaCsrf = document.querySelector('meta[name="csrf-token"]');
+    if (metaCsrf && (opcoes.method || 'GET').toUpperCase() !== 'GET') {
+        headers['X-CSRF-Token'] = metaCsrf.content;
+    }
     try {
         const res = await fetch(url, Object.assign({}, opcoes, { headers }));
         if (res.status === 401) {

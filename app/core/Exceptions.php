@@ -27,10 +27,3 @@ class MethodNotAllowedException extends Exception
         parent::__construct($message, $code);
     }
 }
-class SecurityException extends Exception
-{
-    public function __construct($message = "Erro de segurança", $code = 0)
-    {
-        parent::__construct($message, $code);
-    }
-}

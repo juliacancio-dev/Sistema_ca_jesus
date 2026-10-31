@@ -6,6 +6,8 @@ Permissão: **pública**, **login** (`AuthMiddleware`) ou **admin** (`AuthMiddle
 
 Rota não cadastrada: 404 em JSON (se a requisição espera JSON) ou página HTML.
 
+Todo POST e DELETE exige o token CSRF (ver [`arquitetura.md`](arquitetura.md#csrf)). Sem token válido, uma rota JSON responde 403; um formulário volta para a página anterior com mensagem.
+
 ## Telas e formulários (HTML / redirect)
 
 | Método | Rota | Permissão | Faz |
