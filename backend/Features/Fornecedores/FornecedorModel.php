@@ -1,7 +1,12 @@
 <?php
 
+namespace App\Features\Fornecedores;
+
 use App\Core\Database;
 use App\Core\DatabaseException;
+use App\Core\ErroDeNegocio;
+use PDO;
+use PDOException;
 
 class FornecedorModel
 {
@@ -10,13 +15,7 @@ class FornecedorModel
 
     public function __construct()
     {
-        try {
-            $this->db = Database::getInstance();
-            error_log("[FornecedorModel] Instância do banco criada com sucesso");
-        } catch (Exception $e) {
-            error_log("[FornecedorModel] Erro ao criar instância do banco: " . $e->getMessage());
-            throw $e;
-        }
+        $this->db = Database::getInstance();
     }
 
     public function listarTodos(): array
@@ -186,7 +185,7 @@ class FornecedorModel
     private function lancarSeDuplicado(PDOException $e): void
     {
         if (($e->errorInfo[1] ?? null) === 1062) {
-            throw new DomainException("Já existe um fornecedor com este CNPJ ou e-mail.");
+            throw new ErroDeNegocio("Já existe um fornecedor com este CNPJ ou e-mail.", 409);
         }
     }
 

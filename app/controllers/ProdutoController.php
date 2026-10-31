@@ -2,6 +2,7 @@
 
 use App\Core\Controller;
 use App\Core\Session;
+use App\Features\Fornecedores\FornecedorModel;
 
 class ProdutoController extends Controller
 {
