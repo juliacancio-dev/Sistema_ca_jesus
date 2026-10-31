@@ -82,6 +82,15 @@ composer test
 
 Os testes usam o banco `bd_sistema_teste`, separado do banco de desenvolvimento. Ele é apagado e recriado a cada execução a partir de `database/schema.sql`; o usuário do banco precisa de permissão para isso.
 
+### Testes no navegador (E2E)
+
+Requer Docker e Node. Sobem Apache e PHP em Linux, com o banco em memória, e usam o Chromium pelo Playwright. O banco de desenvolvimento não é tocado.
+
+```bash
+tests/e2e/rodar.sh                # MariaDB 10.4 e MySQL 8.0
+tests/e2e/rodar.sh mariadb:10.4   # só um banco
+```
+
 ## Autora
 
 **Julia Cancio** — [GitHub](https://github.com/juliacancio-dev)

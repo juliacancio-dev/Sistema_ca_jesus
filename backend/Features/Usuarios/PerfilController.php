@@ -30,13 +30,37 @@ class PerfilController extends Controller
         ]);
     }
 
-    public function atualizarPerfil()
+    public function atualizarDados()
     {
         try {
-            $dados = [
-                'id' => $_SESSION['user']['id'],
-                'nome' => $this->sanitizarInput($_POST['nome'] ?? ''),
-                'telefone' => preg_replace('/[^0-9\s\-\(\)]/', '', $_POST['telefone'] ?? ''),
+            $nome = $this->sanitizarInput($_POST['nome'] ?? '');
+            $telefone = preg_replace('/[^0-9\s\-\(\)]/', '', $_POST['telefone'] ?? '');
+
+            if (empty($nome) || strlen($nome) < 3 || strlen($nome) > 100) {
+                Session::flash('error', 'Nome é obrigatório e deve ter entre 3 e 100 caracteres.');
+                $this->redirect('/usuarios/perfil');
+            }
+
+            if ($this->usuarioModel->atualizarDadosPessoais($_SESSION['user']['id'], $nome, $telefone)) {
+                // O cabeçalho mostra o nome guardado na sessão.
+                $_SESSION['user']['nome'] = $nome;
+                Session::flash('success', 'Perfil atualizado com sucesso.');
+                $this->registrarAcao('dados_atualizados');
+            } else {
+                Session::flash('error', 'Erro ao atualizar perfil.');
+            }
+        } catch (Exception $e) {
+            error_log('[perfil] ' . $e);
+            Session::flash('error', 'Erro ao atualizar perfil.');
+        }
+
+        $this->redirect('/usuarios/perfil');
+    }
+
+    public function atualizarEndereco()
+    {
+        try {
+            $endereco = [
                 'endereco' => $this->sanitizarInput($_POST['endereco'] ?? ''),
                 'cidade' => $this->sanitizarInput($_POST['cidade'] ?? ''),
                 'estado' => strtoupper($this->sanitizarInput($_POST['estado'] ?? '')),
@@ -46,14 +70,9 @@ class PerfilController extends Controller
                 'bairro' => $this->sanitizarInput($_POST['bairro'] ?? '')
             ];
 
-            if (empty($dados['nome']) || strlen($dados['nome']) < 3 || strlen($dados['nome']) > 100) {
-                Session::flash('error', 'Nome é obrigatório e deve ter entre 3 e 100 caracteres.');
-                $this->redirect('/usuarios/perfil');
-            }
-
-            if ($this->usuarioModel->atualizarPerfil($dados)) {
+            if ($this->usuarioModel->atualizarEndereco($_SESSION['user']['id'], $endereco)) {
                 Session::flash('success', 'Perfil atualizado com sucesso.');
-                $this->registrarAcao('perfil_atualizado');
+                $this->registrarAcao('endereco_atualizado');
             } else {
                 Session::flash('error', 'Erro ao atualizar perfil.');
             }
