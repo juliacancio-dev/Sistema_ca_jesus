@@ -109,7 +109,7 @@ try {
     }
     Session::flash('error', $e->getMessage());
     $voltar = $_SERVER['HTTP_REFERER'] ?? '';
-    $mesmoSite = parse_url($voltar, PHP_URL_HOST) === ($_SERVER['HTTP_HOST'] ?? null);
+    $mesmoSite = $voltar !== '' && parse_url($voltar, PHP_URL_HOST) === parse_url('http://' . ($_SERVER['HTTP_HOST'] ?? ''), PHP_URL_HOST);
     header('Location: ' . ($mesmoSite ? $voltar : BASE_URL . '/dashboard'));
     exit;
 } catch (Throwable $e) {
