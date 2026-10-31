@@ -27,15 +27,14 @@ Detalhes, evidências e testes de cada ID estão na [auditoria](auditoria-segura
 
 | # | Item | IDs |
 |---|---|---|
-| 1 | Limite de tentativas no login e hash fictício para conta inexistente | S-002, S-012 |
-| 2 | Validar o destino do redirecionamento pós-login | S-007 |
-| 3 | Regra de último admin, 404 para id inexistente, validação estrita no servidor | I-003, I-002, I-005 |
-| 4 | Relatório respeita o período escolhido, e falha aparece como falha na tela | I-006, R-001 |
-| 5 | Uma só fonte de data entre PHP e banco | R-002 |
-| 6 | Logs sem CPF, RG e e-mail | S-009 |
-| 7 | Implementar as decisões sobre o funcionário | S-008, I-001 |
-| 8 | CSS gerado e bibliotecas servidas localmente | S-004, P-002, S-015 |
-| 9 | Pacote de implantação: `DocumentRoot` em `public/`, HTTPS, cabeçalhos, usuário de banco restrito, retenção e backup | S-005, S-006, S-016, L-001 |
+| 1 | Validar o destino do redirecionamento pós-login | S-007 |
+| 2 | Regra de último admin, 404 para id inexistente, validação estrita no servidor | I-003, I-002, I-005 |
+| 3 | Relatório respeita o período escolhido, e falha aparece como falha na tela | I-006, R-001 |
+| 4 | Uma só fonte de data entre PHP e banco | R-002 |
+| 5 | Logs sem CPF, RG e e-mail | S-009 |
+| 6 | Implementar as decisões sobre o funcionário | S-008, I-001 |
+| 7 | CSS gerado e bibliotecas servidas localmente | S-004, P-002, S-015 |
+| 8 | Pacote de implantação: `DocumentRoot` em `public/`, HTTPS, cabeçalhos, usuário de banco restrito, retenção e backup | S-005, S-006, S-016, L-001 |
 
 **Recomendadas:** CSP em bloqueio, depois de remover os `onclick` (S-004); testes dos cenários sem cobertura (M-001); chave de idempotência nas movimentações (I-007); auditoria de operações administrativas (I-012); ciclo de vida da senha (S-014); logout por POST (S-013); paginar movimentações (P-001); fornecedor inativo (I-009); CPF e RG de excluídos (I-011); ViaCEP (R-003); parâmetros malformados (R-004); busca de usuários (R-005); limite do período do relatório (R-006); restringir o Apache local (S-011), que leva minutos.
 
@@ -60,7 +59,8 @@ Detalhes, evidências e testes de cada ID estão na [auditoria](auditoria-segura
 | 11. Escape na entrada | O banco guarda o dado como foi digitado; escape só na saída, modais e botões de excluir incluídos (S-003, I-004) | `d3b76e5` |
 | 12. Movimentação por id | `tbmovimentacoes.produto_id`; renomear produto com histórico funciona e o nome novo aparece em todo lugar | `87035c8` |
 | Pastas | `config/`, `database/` e `storage/` (antiga `armazenamento/`) dentro de `backend/`; `public/` continua na raiz | `e16b77d` |
-| S-001 | Sessão conferida no banco a cada requisição; troca de senha encerra as outras sessões; expiração absoluta de 12 h | `fix/s001-revalidar-sessao` |
+| S-001 | Sessão conferida no banco a cada requisição; troca de senha encerra as outras sessões; expiração absoluta de 12 h | `fe4af37` |
+| S-002, S-012 | Limite de tentativas de login por conta e IP; tempo de resposta igual com ou sem conta | `fix/s002-limite-login` |
 
 ## Como cada etapa é entregue
 

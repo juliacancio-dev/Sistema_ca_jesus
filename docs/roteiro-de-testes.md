@@ -6,6 +6,7 @@ Os usuários e a senha estão no [README](../README.md#usuários-de-desenvolvime
 
 ## Login
 - [ ] Senha errada: aparece uma mensagem.
+- [ ] Errar a senha 5 vezes: na sexta, nem a senha certa entra por 15 minutos, e outra conta não é afetada.
 - [ ] Usuário inativo: aparece uma mensagem específica.
 - [ ] Login correto: abre o dashboard.
 
@@ -62,7 +63,6 @@ Os usuários e a senha estão no [README](../README.md#usuários-de-desenvolvime
 
 Estes itens falham hoje. Passe a exigi-los quando o achado correspondente da [auditoria](auditoria-seguranca.md) for corrigido.
 
-- [ ] Errar a senha várias vezes seguidas: o login é bloqueado por um tempo, e outra conta não é afetada (S-002).
 - [ ] Editar o próprio usuário sem marcar "ativo" ou mudando o tipo: recusado (I-003).
 - [ ] No relatório, escolher "Anual" e aplicar: vêm as movimentações do ano todo (I-006).
 - [ ] Com a API fora do ar, o sino e o relatório mostram erro, não "Tudo ok" nem "R$ 0,00" (R-001).

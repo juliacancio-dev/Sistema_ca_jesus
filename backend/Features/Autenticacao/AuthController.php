@@ -4,6 +4,7 @@ namespace App\Features\Autenticacao;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Core\Database;
 use App\Core\Session;
 use Exception;
 
@@ -23,17 +24,31 @@ class AuthController extends Controller
         $email = $_POST['email'] ?? '';
         $senha = $_POST['senha'] ?? '';
 
-        if (empty($email) || empty($senha)) {
+        if (!is_string($email) || !is_string($senha) || $email === '' || $senha === '') {
             $this->voltarAoLogin('Email e senha são obrigatórios');
         }
 
         try {
+            $conexao = Database::getInstance()->getConnection();
+            $limite = new LimiteDeLogin($conexao);
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+
+            $espera = $limite->consumir($email, $ip);
+            if ($espera > 0) {
+                $minutos = (int)ceil($espera / 60);
+                $this->voltarAoLogin("Muitas tentativas. Tente novamente em $minutos " . ($minutos === 1 ? 'minuto.' : 'minutos.'));
+            }
+
             $consultas = new AutenticacaoConsultas();
             $usuario = $consultas->buscarPorEmail($email);
 
-            if (!$usuario || !password_verify($senha, $usuario['senha'])) {
+            // Verifica mesmo sem conta, para o tempo de resposta não revelar quais e-mails existem.
+            $senhaConfere = password_verify($senha, $usuario['senha'] ?? LimiteDeLogin::HASH_FICTICIO);
+            if (!$usuario || !$senhaConfere) {
                 $this->voltarAoLogin('Email ou senha incorretos');
             }
+            $limite->registrarSucesso($email, $ip);
+
             // Só depois da senha: quem não a conhece não descobre que a conta existe.
             if ((int)$usuario['ativo'] !== 1) {
                 $this->voltarAoLogin('Seu usuário está inativo. Contate o administrador.');

@@ -95,6 +95,15 @@ CREATE TABLE tb_auditoria (
     FOREIGN KEY (usuario_id) REFERENCES tbusuarios(id_usuario) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Auditoria de todas as operações críticas do sistema';
 
+-- Limite de tentativas de login. Os horários são Unix timestamps gerados no PHP.
+CREATE TABLE tb_tentativas_login (
+    chave CHAR(64) PRIMARY KEY,
+    tentativas INT NOT NULL,
+    janela_inicio BIGINT NOT NULL,
+    bloqueado_ate BIGINT NOT NULL,
+    INDEX idx_tentativas_janela (janela_inicio)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE INDEX idx_produto_fornecedor ON tbprodutos(fornecedor_id);
 CREATE INDEX idx_movimentacao_data ON tbmovimentacoes(data_movimentacao);
 CREATE INDEX idx_movimentacao_acao ON tbmovimentacoes(acao_movimentacao);
