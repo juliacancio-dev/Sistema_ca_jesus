@@ -63,9 +63,9 @@ class AuthController extends Controller
         }
 
         Auth::login($usuario, $hashDaSenha);
-        $redirect = $_SESSION['redirect_after_login'] ?? BASE_URL . '/dashboard';
+        $destino = $_SESSION['redirect_after_login'] ?? '';
         unset($_SESSION['redirect_after_login']);
-        header('Location: ' . $redirect);
+        header('Location: ' . (Auth::destinoLocal($destino) ? $destino : BASE_URL . '/dashboard'));
         exit;
     }
 
