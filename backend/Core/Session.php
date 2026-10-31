@@ -1,6 +1,6 @@
 <?php
 
-use App\Core\ErroDeNegocio;
+namespace App\Core;
 
 // Mensagem de uma requisição para a próxima (ex.: depois de um redirect).
 // É o único mecanismo de feedback ao usuário: o layout e a tela de login exibem.

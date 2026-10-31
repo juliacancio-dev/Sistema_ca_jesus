@@ -8,7 +8,3 @@ define('DB_NAME', 'bd_sistema_teste');
 
 $config = __DIR__ . '/../config/config.php';
 require_once file_exists($config) ? $config : __DIR__ . '/../config/config.example.php';
-
-// Classes antigas, sem namespace: carregadas à mão até a etapa 9 (slices).
-require_once __DIR__ . '/../app/helpers/FormatHelper.php';
-require_once __DIR__ . '/../app/core/Session.php';

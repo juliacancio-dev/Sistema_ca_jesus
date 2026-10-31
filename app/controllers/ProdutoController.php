@@ -1,5 +1,8 @@
 <?php
 
+use App\Core\Controller;
+use App\Core\Session;
+
 class ProdutoController extends Controller
 {
     private $produtoModel;
@@ -19,7 +22,7 @@ class ProdutoController extends Controller
         $title = "Produtos - Sistema de Gestão de Estoque";
         $pageTitle = "Produtos";
 
-        $this->renderView('layouts/produto/index', [
+        $this->render('produtos/index', [
             'produtos' => $produtos,
             'fornecedores' => $fornecedores,
             'title' => $title,

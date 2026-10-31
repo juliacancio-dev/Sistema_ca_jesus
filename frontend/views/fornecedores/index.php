@@ -1,5 +1,6 @@
 <?php
-require __DIR__ . '/../../../helpers/FormatHelper.php';
+use App\Core\Session;
+use App\Shared\Formatacao;
 ?>
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -111,12 +112,12 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
                                         <td class="px-4 py-3 whitespace-nowrap">
                                             <div class="text-sm text-gray-900"><?= htmlspecialchars($fornecedor["email"]) ?></div>
                                             <div class="text-xs text-gray-500">
-                                                CNPJ: <?= FormatHelper::cnpj($fornecedor["cnpj"] ?? '') ?>
+                                                CNPJ: <?= Formatacao::cnpj($fornecedor["cnpj"] ?? '') ?>
                                             </div>
                                         </td>
 
                                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                                            <?= htmlspecialchars(FormatHelper::phone($fornecedor["telefone"] ?? '')) ?>
+                                            <?= htmlspecialchars(Formatacao::phone($fornecedor["telefone"] ?? '')) ?>
                                         </td>
 
                                         <td class="px-4 py-3 whitespace-nowrap">

@@ -1,5 +1,7 @@
 <?php
 
+use App\Core\Database;
+
 class ProdutoModel {
     private $db;
 

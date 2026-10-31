@@ -1,8 +1,8 @@
 <?php
 
-use App\Core\RespostaJson;
+namespace App\Core;
 
-class AuthHelper
+class Auth
 {
 
     public static function isLoggedIn()

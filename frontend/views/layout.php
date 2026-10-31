@@ -1,19 +1,17 @@
 <?php
 
-if (!defined('ROOT_DIR')) {
-    define('ROOT_DIR', dirname(__DIR__, 3));
-}
+use App\Core\Auth;
+use App\Core\Session;
 
-require_once __DIR__ . '/../../helpers/AuthHelper.php';
 @date_default_timezone_set('America/Sao_Paulo');
 
-if (!AuthHelper::isLoggedIn()) {
+if (!Auth::isLoggedIn()) {
     header('Location: ' . BASE_URL . '/login');
     exit;
 }
 
 try {
-    $usuarioLogado = AuthHelper::getUser();
+    $usuarioLogado = Auth::getUser();
 } catch (Throwable $e) {
     echo '<div style="background:#fee;color:#900;padding:16px;margin:16px 0;border:2px solid #900;">';
     echo '<strong>Erro ao obter usuário logado:</strong><br>';
@@ -196,7 +194,7 @@ if (isActive('/dashboard', $currentUri)) {
                     <span>Relatórios</span>
                 </a>
 
-                <?php if (AuthHelper::isAdmin()): ?>
+                <?php if (Auth::isAdmin()): ?>
                     <div class="px-6 py-2 mt-4">
                         <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Administração</p>
                     </div>

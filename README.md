@@ -31,14 +31,13 @@ Sistema web para controle de estoque de uma distribuidora: cadastro de produtos 
 sistema_ca_jesus/
 ├── app/
 │   ├── controllers/   # um controller por tela
-│   ├── core/          # Router, Controller base, Database
-│   ├── helpers/       # autenticação, formatação, log
+│   ├── helpers/       # log
 │   ├── middleware/    # AuthMiddleware (login) e AdminMiddleware (perfil admin)
-│   ├── models/        # acesso ao banco
-│   └── views/         # layout e telas
+│   └── models/        # acesso ao banco
 ├── armazenamento/
 │   └── logs/          # logs gerados pela aplicação (não versionados)
-├── backend/           # código novo, organizado por funcionalidade
+├── backend/           # Core (Router, Controller, Database, sessão), Shared e funcionalidades
+├── frontend/views/    # layout e telas
 ├── config/
 │   ├── config.example.php  # modelo de configuração (versionado)
 │   └── config.php          # sua configuração local (não versionado)

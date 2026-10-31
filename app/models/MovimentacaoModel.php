@@ -1,5 +1,7 @@
 <?php
 
+use App\Core\Database;
+
 class MovimentacaoModel {
     private $db;
 

@@ -1,4 +1,7 @@
 <?php
+
+use App\Core\Auth;
+
 class LogHelper
 {
     public static function registrar($status, $mensagem, $categoria, $detalhes = null, $contexto = [])
@@ -7,12 +10,10 @@ class LogHelper
         if (!is_dir($logDir)) {
             mkdir($logDir, 0777, true);
         }
-        if (class_exists('AuthHelper') && method_exists('AuthHelper', 'getUser')) {
-            $usuario = AuthHelper::getUser();
-            if ($usuario) {
-                $contexto['usuario_id'] = $usuario['id'] ?? null;
-                $contexto['usuario_nome'] = $usuario['nome'] ?? null;
-            }
+        $usuario = Auth::getUser();
+        if ($usuario) {
+            $contexto['usuario_id'] = $usuario['id'] ?? null;
+            $contexto['usuario_nome'] = $usuario['nome'] ?? null;
         }
         if (isset($_SERVER['REMOTE_ADDR'])) {
             $contexto['ip'] = $_SERVER['REMOTE_ADDR'];

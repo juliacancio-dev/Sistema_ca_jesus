@@ -1,5 +1,9 @@
 <?php
 
+use App\Core\Controller;
+use App\Core\DatabaseException;
+use App\Core\Session;
+
 class FornecedorController extends Controller
 {
     public function index()
@@ -14,7 +18,7 @@ class FornecedorController extends Controller
             $fornecedores = $model->listarTodos();
         }
 
-        $this->renderView('layouts/fornecedor/index', [
+        $this->render('fornecedores/index', [
             'fornecedores' => $fornecedores,
             'termoBusca' => $termoBusca
         ]);

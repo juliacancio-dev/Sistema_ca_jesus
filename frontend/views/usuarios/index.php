@@ -1,5 +1,6 @@
 <?php
-require __DIR__ . '/../../../helpers/FormatHelper.php';
+use App\Core\Session;
+use App\Shared\Formatacao;
 ?>
 
 <!DOCTYPE html>
@@ -122,7 +123,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
                                         <td class="px-4 py-3 whitespace-nowrap">
                                             <div class="text-sm text-gray-900"><?= htmlspecialchars($usuario["email"]) ?></div>
                                             <div class="text-xs text-gray-500">
-                                                CPF: <?= FormatHelper::cpf($usuario["cpf"] ?? '') ?>
+                                                CPF: <?= Formatacao::cpf($usuario["cpf"] ?? '') ?>
                                             </div>
                                         </td>
 
@@ -133,7 +134,7 @@ require __DIR__ . '/../../../helpers/FormatHelper.php';
                                         </td>
 
                                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                                            <?= htmlspecialchars(FormatHelper::phone($usuario["telefone"] ?? '')) ?>
+                                            <?= htmlspecialchars(Formatacao::phone($usuario["telefone"] ?? '')) ?>
                                         </td>
 
                                         <td class="px-4 py-3 whitespace-nowrap">

@@ -1,5 +1,8 @@
 <?php
 
+use App\Core\Auth;
+use App\Core\Controller;
+
 class DashboardController extends Controller
 {
     private $produtoModel;
@@ -13,7 +16,7 @@ class DashboardController extends Controller
 
     public function index()
     {
-        $user = AuthHelper::getUser();
+        $user = Auth::getUser();
 
         $stats = [
             "total_produtos" => $this->produtoModel->contarTotal(),
@@ -33,7 +36,7 @@ class DashboardController extends Controller
         $title = "Dashboard - Sistema de Gestão de Estoque";
         $pageTitle = "Dashboard";
 
-        $this->renderView('layouts/dashboard/index', [
+        $this->render('dashboard/index', [
             'stats' => $stats,
             'atividades' => $atividades,
             'dadosGraficos' => $dadosGraficos,

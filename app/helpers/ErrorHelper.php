@@ -1,4 +1,7 @@
 <?php
+
+use App\Core\Session;
+
 class ErrorHelper
 {
     // Registra o erro no log. A mensagem ao usuário é responsabilidade de quem chamou (Session::flash ou JSON).

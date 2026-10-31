@@ -1,12 +1,14 @@
 <?php
 
+use App\Core\Auth;
 use App\Core\RespostaJson;
+use App\Core\Session;
 
 class AuthMiddleware
 {
     public function handle()
     {
-        if (!AuthHelper::isLoggedIn()) {
+        if (!Auth::isLoggedIn()) {
             Session::flash('error', 'ATENÇÃO: Usuário logado não encontrado ou sessão expirada. Faça login novamente.');
             // Numa chamada fetch, o front recebe 401 e leva o usuário ao login.
             if (RespostaJson::esperada()) {
@@ -16,6 +18,6 @@ class AuthMiddleware
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
-        AuthHelper::checkSessionTimeout();
+        Auth::checkSessionTimeout();
     }
 }
