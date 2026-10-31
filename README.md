@@ -2,12 +2,12 @@
 
 Sistema web para controle de estoque de uma distribuidora: cadastro de produtos e fornecedores, registro de entradas e saídas, relatórios financeiros e de estoque, e gestão de usuários.
 
-> Este projeto está passando por uma refatoração. Veja a [documentação](docs/README.md): arquitetura, rotas, plano e roteiro de testes.
+> Veja a [documentação](docs/README.md): arquitetura, rotas, plano e roteiro de testes. Ainda há correções de segurança a fazer antes de publicar (ver o [plano](docs/plano.md)).
 
 ## Funcionalidades
 
-- **Autenticação**: login e logout, expiração da sessão por inatividade (2 h), perfis Administrador e Funcionário.
-- **Dashboard**: indicadores (produtos, estoque total, movimentações do dia, lucro, saldo) e gráficos.
+- **Autenticação**: login e logout, expiração da sessão (2 h sem uso ou 12 h desde o login), acesso revogado na hora, perfis Administrador e Funcionário.
+- **Dashboard**: indicadores (produtos, estoque total, movimentações do dia, saldo) e gráficos.
 - **Produtos**: cadastro, edição, exclusão e busca.
 - **Movimentações**: registro de entrada e saída; uma saída não pode ser maior que o estoque disponível, e custo maior que venda pede confirmação.
 - **Relatórios**: financeiro e de estoque por período, com exportação para PDF e Excel.

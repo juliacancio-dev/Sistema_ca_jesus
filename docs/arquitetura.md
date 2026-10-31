@@ -212,7 +212,12 @@ O token é um por sessão, para funcionar com várias abas, e é trocado no logi
 
 ## Autenticação e sessão
 
-O login copia `id`, `tipo`, `nome` e `email` para `$_SESSION`, e os middlewares decidem só com essa cópia, sem consultar o banco. Por isso, hoje, desativar, excluir ou rebaixar um usuário só tem efeito no próximo login, e trocar a senha não encerra outras sessões (achado S-001 da [auditoria](auditoria-seguranca.md)). A sessão expira depois de 2 horas sem requisições, e não há expiração absoluta.
+O login copia `id`, `tipo`, `nome` e `email` para `$_SESSION`, mas essa cópia é só um cache: o `AuthMiddleware` consulta `tbusuarios` por chave primária a cada requisição autenticada.
+
+- **Desativar ou excluir:** a próxima requisição encerra a sessão (401, ou login com mensagem).
+- **Mudar o tipo ou o nome:** vale na próxima requisição, inclusive para quem já estava logado.
+- **Trocar ou redefinir a senha:** a sessão guarda uma assinatura da senha (`Auth::assinaturaDe`), e as sessões abertas antes da troca são encerradas. Quem trocou a própria senha continua logado, com um id de sessão novo.
+- **Expiração:** 2 horas sem requisições, ou 12 horas desde o login, mesmo em uso (`Auth::LIMITE_INATIVIDADE` e `LIMITE_ABSOLUTO`).
 
 ## Testes
 
