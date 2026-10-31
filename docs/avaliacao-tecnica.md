@@ -2,6 +2,8 @@
 
 Situação em 2026-10-31, no commit `7db37b0` da `main`. Este documento registra uma avaliação pontual e não é atualizado conforme os itens são resolvidos. Ele complementa o [Diagnóstico de desempenho e segurança](diagnostico-desempenho-seguranca.md): aqui estão as métricas, as notas e as medições em execução; lá está a lista completa de problemas, com os IDs `S` e `D` citados abaixo.
 
+> A [auditoria de segurança](auditoria-seguranca.md), mais recente, traz novos achados que não entraram nesta nota.
+
 ## Resultado
 
 **Nota geral: 5,1 de 10**, com o critério de pronto para produção. O sistema atende ao uso local atual, mas ainda não deve ir para a internet.
