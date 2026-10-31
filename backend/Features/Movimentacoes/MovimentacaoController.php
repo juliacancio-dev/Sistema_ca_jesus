@@ -1,27 +1,20 @@
 <?php
 
+namespace App\Features\Movimentacoes;
+
 use App\Core\Controller;
-use App\Features\Produtos\ProdutoModel;
 use App\Core\Database;
 use App\Core\Session;
-use App\Features\Movimentacoes\RegistrarMovimentacao;
 
 class MovimentacaoController extends Controller
 {
     public function index()
     {
-
-        $movimentacaoModel = new MovimentacaoModel();
-        $produtoModel = new ProdutoModel();
-
-        $produtos = $produtoModel->listarTodos();
-        $movimentacoes = $movimentacaoModel->listarTodas();
-        $estoqueAtual = $produtoModel->listarTodos();
+        $model = new MovimentacaoModel();
 
         $this->render('movimentacoes/index', [
-            'produtos' => $produtos,
-            'movimentacoes' => $movimentacoes,
-            'estoqueAtual' => $estoqueAtual,
+            'produtos' => $model->listarProdutos(),
+            'movimentacoes' => $model->listarTodas(),
             'pageTitle' => 'Movimentações'
         ]);
     }
@@ -48,7 +41,6 @@ class MovimentacaoController extends Controller
 
     public function estoqueAtualJson()
     {
-        $produtoModel = new ProdutoModel();
-        $this->json(true, dados: $produtoModel->listarTodos());
+        $this->json(true, dados: (new MovimentacaoModel())->listarProdutos());
     }
 }

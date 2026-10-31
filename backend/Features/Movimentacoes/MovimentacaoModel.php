@@ -1,12 +1,31 @@
 <?php
 
+namespace App\Features\Movimentacoes;
+
 use App\Core\Database;
+use PDO;
 
 class MovimentacaoModel {
     private $db;
 
     public function __construct() {
         $this->db = Database::getInstance();
+    }
+
+    // Leitura própria: quem escreve no cadastro de tbprodutos é Produtos.
+    public function listarProdutos() {
+        $stmt = $this->db->prepare("
+            SELECT
+                id_produto AS id,
+                marca_produto AS marca,
+                preco_custo_produto AS preco_custo,
+                preco_venda_produto AS preco_venda,
+                estoque_produto AS estoque
+            FROM tbprodutos
+            ORDER BY marca_produto ASC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function listarTodas() {

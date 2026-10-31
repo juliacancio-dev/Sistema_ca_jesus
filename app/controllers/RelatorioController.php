@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Controller;
+use App\Features\Movimentacoes\MovimentacaoModel;
 use App\Features\Produtos\ProdutoModel;
 
 class RelatorioController extends Controller
