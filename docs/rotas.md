@@ -13,7 +13,7 @@ Todo POST e DELETE exige o token CSRF (ver [`arquitetura.md`](arquitetura.md#csr
 | Método | Rota | Permissão | Faz |
 |---|---|---|---|
 | GET | `/`, `/login` | pública | Tela de login |
-| POST | `/login` | pública | Autentica; redireciona ao dashboard ou de volta com mensagem |
+| POST | `/login` | pública | Autentica; redireciona ao dashboard ou de volta com mensagem. 5 erros por conta e IP bloqueiam por 15 minutos |
 | GET | `/logout` | pública | Encerra a sessão |
 | GET | `/dashboard` | login | Indicadores e gráficos |
 | GET | `/produtos` | login | Lista e modal de cadastro |
