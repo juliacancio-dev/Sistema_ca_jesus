@@ -1,6 +1,6 @@
 # Arquitetura — Sistema CA Jesus
 
-Este documento descreve a arquitetura-alvo e as regras que a sustentam. O diagnóstico e o histórico das decisões estão em [`diagnostico-fase-a.md`](diagnostico-fase-a.md). Quando os dois documentos divergirem, vale este.
+Este documento descreve a arquitetura e as regras que a sustentam. O que falta fazer está em [`plano.md`](plano.md), e o motivo das decisões, no [diagnóstico](historico/diagnostico-fase-a.md). Quando este documento e o diagnóstico divergirem, vale este.
 
 ## Visão geral
 
@@ -12,6 +12,25 @@ Não fazem parte da arquitetura:
 - **framework, microserviços e SPA:** o tamanho do sistema não justifica;
 - **CQRS e Mediator:** não há necessidade;
 - **interfaces "por via das dúvidas":** só entram quando houver mais de uma implementação real.
+
+## Caminho de uma requisição
+
+```mermaid
+flowchart TD
+    A[Navegador] --> B[public/index.php]
+    B --> C{Router: a rota existe?}
+    C -- não --> C1[404]
+    C -- sim --> D{Middlewares: login e admin}
+    D -- recusado --> D1[401 ou 403, ou redirect com mensagem]
+    D -- ok --> E{CSRF, se não for GET}
+    E -- token inválido --> E1[403, ou volta com mensagem]
+    E -- ok --> F[Controller]
+    F --> G[Caso de uso ou Model]
+    G --> H[(Banco)]
+    F --> I[Resposta: HTML, JSON ou redirect]
+    G -. ErroDeNegocio .-> J[index.php: 422, ou flash + redirect]
+    G -. outra exceção .-> K[index.php: 500 genérico e log]
+```
 
 ## Requisitos
 
@@ -26,6 +45,10 @@ Não fazem parte da arquitetura:
 
 ```
 backend/                              # namespace App\ → backend/ (PSR-4 via Composer)
+  config/       config.example.php      # config.php fica fora do git
+  database/
+    schema.sql                        # estrutura; não cria nem seleciona o banco
+    seed.sql                          # dados iniciais de desenvolvimento
   Core/
     Database.php  Router.php  Session.php  Auth.php
     Controller.php                    # render(), json() e redirect()
@@ -51,14 +74,10 @@ public/                               # única pasta servida pelo Apache
   index.php  .htaccess
   assets/css/  assets/img/
   assets/js/app.js  layout.js  formatacao.js  cep.js  charts.js  <feature>.js
-database/
-  schema.sql                          # estrutura; não cria nem seleciona o banco
-  seed.sql                            # dados iniciais de desenvolvimento
 tests/
   bootstrap.php  BancoDeTeste.php
   Core/  Shared/  Features/<Feature>/  # testes PHPUnit (...Test.php)
   e2e/                                # testes no navegador (Playwright + Docker)
-config/       config.example.php      # config.php fica fora do git
 armazenamento/logs/
 docs/
 composer.json  phpunit.xml            # vendor/ fica fora do git (composer install)
@@ -66,7 +85,7 @@ composer.json  phpunit.xml            # vendor/ fica fora do git (composer insta
 
 **Por que existem três árvores:** sem uma etapa de build, o navegador só alcança o que está em `public/`. Por isso o JS, o CSS e as imagens ficam em `public/assets/`, enquanto os templates PHP, que não podem ser públicos, ficam em `frontend/views/`. O nome da feature é o mesmo nas três árvores: `Features/Produtos/`, `views/produtos/` e `js/produtos.js`.
 
-`backend/`, `frontend/`, `database/`, `config/`, `armazenamento/`, `tests/` e `vendor/` são bloqueados pelo `.htaccess` da raiz.
+`backend/`, `frontend/`, `armazenamento/`, `tests/` e `vendor/` são bloqueados pelo `.htaccess` da raiz.
 
 ## Dentro de um slice
 
@@ -95,8 +114,8 @@ O caso de uso não conhece HTTP. Por isso ele pode ser testado chamando a classe
 4. **Um slice não chama o controller nem o caso de uso de outro slice.** Se precisar de um dado, faz a própria leitura (regra 2).
 5. **Funcionalidade nova tem o mesmo nome nas três árvores:** `backend/Features/<Nome>/`, `frontend/views/<nome>/` e `public/assets/js/<nome>.js`. O JS só existe se a tela precisar (o login não tem). Exceções: `layout.js` é do layout, e `perfil.js` é a segunda tela do slice de Usuários.
 6. **A regra de negócio fica em PHP, e o banco serve de rede de segurança.** O banco guarda constraints baratas (`CHECK`, `UNIQUE`, FK) e a auditoria (`tr_auditoria_estoque`). Triggers que decidem regra não entram.
-7. **Sem produção, o schema é editado direto em `database/schema.sql`** e o banco local é recriado. As migrações (`database/migrations/NNN_*.sql`) só começam depois do primeiro deploy com dados reais.
-8. **Uma branch por mudança**, com um slice por commit. O merge na `main` só acontece depois de os testes passarem e o roteiro manual (seção 10 do diagnóstico) ser validado.
+7. **Sem produção, o schema é editado direto em `backend/database/schema.sql`** e o banco local é recriado. As migrações (`database/migrations/NNN_*.sql`) só começam depois do primeiro deploy com dados reais.
+8. **Uma branch por mudança**, com um slice por commit. O merge na `main` só acontece depois de os testes passarem e o [roteiro manual](roteiro-de-testes.md) ser validado. O merge é feito com `--no-ff`.
 
 ## Contrato das respostas JSON
 
@@ -135,6 +154,43 @@ Nos erros tratados fora do controller (`RespostaJson::esperada()`), a resposta �
 
 **Exemplo: custo maior que venda numa movimentação.** O caso de uso lança `ConfirmacaoNecessaria`. O primeiro envio vem sem `confirmar_custo_maior` e recebe `200 { sucesso: false, requer_confirmacao: true, mensagem: "O preço de custo é maior que o preço de venda. Tem certeza de que deseja registrar?" }`. Se o usuário confirmar, o front reenvia com `confirmar_custo_maior=1`.
 
+O fluxo completo de uma movimentação, incluindo essa confirmação:
+
+```mermaid
+sequenceDiagram
+    actor U as Usuário
+    participant T as movimentacoes.js
+    participant C as MovimentacaoController
+    participant R as RegistrarMovimentacao
+    participant B as Banco
+    participant I as public/index.php
+
+    U->>T: envia o formulário
+    T->>C: POST /movimentacoes/registrar
+    C->>R: executar(...)
+    R->>B: BEGIN e SELECT saldo FOR UPDATE
+
+    alt saída maior que o saldo
+        R->>B: ROLLBACK
+        R-->>I: ErroDeNegocio
+        I-->>T: 422 com a mensagem
+        T-->>U: toast de erro
+    else custo maior que venda, sem confirmação
+        R->>B: ROLLBACK
+        R-->>I: ConfirmacaoNecessaria
+        I-->>T: 200 com requer_confirmacao
+        T->>U: "Tem certeza?"
+        U->>T: confirma
+        T->>C: reenvia com confirmar_custo_maior=1
+        Note over T,C: o fluxo recomeça, agora confirmado
+    else tudo certo
+        R->>B: INSERT da movimentação, UPDATE do saldo, COMMIT
+        R-->>C: novo saldo
+        C-->>T: 200 com sucesso e flash gravado
+        T-->>U: recarrega a tela e mostra o flash
+    end
+```
+
 As rotas e o que cada uma devolve estão em [`rotas.md`](rotas.md).
 
 ## Erros e mensagens
@@ -157,6 +213,6 @@ O token é um por sessão, para funcionar com várias abas, e é trocado no logi
 
 - **PHPUnit**, instalado com `composer install`, roda com `vendor/bin/phpunit`.
 - **Testa-se primeiro o que mexe com dinheiro e saldo:** `RegistrarMovimentacao` (com banco de teste) e `RelatorioFinanceiro`/`RelatorioEstoque` (cálculos puros).
-- O banco de teste se chama `bd_sistema_teste` e é criado a partir de `database/schema.sql`. O `tests/bootstrap.php` define `DB_NAME` antes de carregar a configuração, e `BancoDeTeste` recusa recriar qualquer outro banco.
+- O banco de teste se chama `bd_sistema_teste` e é criado a partir de `backend/database/schema.sql`. O `tests/bootstrap.php` define `DB_NAME` antes de carregar a configuração, e `BancoDeTeste` recusa recriar qualquer outro banco.
 - CRUDs simples não precisam de teste PHPUnit. Eles são cobertos pelos testes E2E e pelo roteiro manual.
 - **E2E (`tests/e2e/`):** Playwright com Chromium, em Apache e PHP no Docker, com o banco em memória. O `rodar.sh` executa em MariaDB 10.4 (igual ao XAMPP) e MySQL 8.0, sem tocar no banco de desenvolvimento. Cobrem o que só aparece no navegador: telas, `fetch`, mensagens, permissões e CSRF.

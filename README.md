@@ -2,7 +2,7 @@
 
 Sistema web para controle de estoque de uma distribuidora: cadastro de produtos e fornecedores, registro de entradas e saídas, relatórios financeiros e de estoque, e gestão de usuários.
 
-> Este projeto está passando por uma refatoração. Arquitetura-alvo e regras: [`docs/arquitetura.md`](docs/arquitetura.md). Diagnóstico e plano: [`docs/diagnostico-fase-a.md`](docs/diagnostico-fase-a.md).
+> Este projeto está passando por uma refatoração. Veja a [documentação](docs/README.md): arquitetura, rotas, plano e roteiro de testes.
 
 ## Funcionalidades
 
@@ -32,15 +32,15 @@ sistema_ca_jesus/
 ├── armazenamento/
 │   └── logs/          # logs gerados pela aplicação (não versionados)
 ├── backend/
+│   ├── config/
+│   │   ├── config.example.php  # modelo de configuração (versionado)
+│   │   └── config.php          # sua configuração local (não versionado)
 │   ├── Core/          # Router, Controller base, Database, sessão, autenticação
+│   ├── database/      # schema.sql (estrutura) e seed.sql (dados iniciais)
 │   ├── Features/      # uma pasta por funcionalidade
 │   └── Shared/        # formatação
 ├── frontend/views/    # layout e telas
-├── config/
-│   ├── config.example.php  # modelo de configuração (versionado)
-│   └── config.php          # sua configuração local (não versionado)
-├── database/          # schema.sql (estrutura) e seed.sql (dados iniciais)
-├── docs/              # documentação da refatoração
+├── docs/              # documentação (comece por docs/README.md)
 ├── public/            # index.php (ponto de entrada) e assets
 ├── tests/             # testes PHPUnit e, em tests/e2e/, testes no navegador
 ├── .htaccess          # redireciona para public/ e bloqueia pastas internas
@@ -64,7 +64,7 @@ export PATH="$PATH:/c/xampp/php:/c/xampp/mysql/bin"
    ```
 2. Crie a configuração local e ajuste as credenciais do banco:
    ```bash
-   cp config/config.example.php config/config.php
+   cp backend/config/config.example.php backend/config/config.php
    ```
 3. Instale as dependências (requer o [Composer](https://getcomposer.org/download/)):
    ```bash
@@ -73,15 +73,15 @@ export PATH="$PATH:/c/xampp/php:/c/xampp/mysql/bin"
 4. Crie o banco e carregue a estrutura e os dados iniciais. Os mesmos comandos servem para recriar o banco do zero (**isso apaga todos os dados dele**):
    ```bash
    mysql -uroot -e "DROP DATABASE IF EXISTS bd_sistema; CREATE DATABASE bd_sistema CHARACTER SET utf8mb4"
-   mysql -uroot bd_sistema < database/schema.sql
-   mysql -uroot bd_sistema < database/seed.sql
+   mysql -uroot bd_sistema < backend/database/schema.sql
+   mysql -uroot bd_sistema < backend/database/seed.sql
    ```
 5. Garanta que o `mod_rewrite` do Apache está ativo.
 6. Acesse `http://localhost/sistema_ca_jesus/public`.
 
 ### Usuários de desenvolvimento
 
-O `database/seed.sql` cria estes usuários, todos com a senha `123456789`:
+O `backend/database/seed.sql` cria estes usuários, todos com a senha `123456789`:
 
 | E-mail | Perfil |
 |---|---|
@@ -94,7 +94,7 @@ Essa senha é só para desenvolvimento: não carregue o `seed.sql` em produção
 
 ### Produção
 
-Em produção, defina `ENVIRONMENT` com um valor diferente de `'development'` em `config/config.php`, para que os erros não apareçam na tela.
+Em produção, defina `ENVIRONMENT` com um valor diferente de `'development'` em `backend/config/config.php`, para que os erros não apareçam na tela.
 
 ## Testes
 
@@ -102,7 +102,7 @@ Em produção, defina `ENVIRONMENT` com um valor diferente de `'development'` em
 composer test
 ```
 
-Os testes usam o banco `bd_sistema_teste`, separado do banco de desenvolvimento. Ele é apagado e recriado a cada execução a partir de `database/schema.sql`; o usuário do banco precisa de permissão para isso.
+Os testes usam o banco `bd_sistema_teste`, separado do banco de desenvolvimento. Ele é apagado e recriado a cada execução a partir de `backend/database/schema.sql`; o usuário do banco precisa de permissão para isso.
 
 ### Testes no navegador (E2E)
 
