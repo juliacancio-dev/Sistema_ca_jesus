@@ -17,6 +17,7 @@ Os usuários e a senha estão no [README](../README.md#usuários-de-desenvolvime
 - [ ] Cadastrar um produto.
 - [ ] Cadastrar com venda menor que custo: recusado.
 - [ ] Editar um produto.
+- [ ] Renomear um produto com movimentações: salva, e o nome novo aparece no histórico e nos relatórios.
 - [ ] Excluir um produto sem movimentação: excluído.
 - [ ] Excluir um produto com movimentação: recusado, com mensagem clara.
 

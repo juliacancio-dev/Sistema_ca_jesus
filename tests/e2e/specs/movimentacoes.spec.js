@@ -14,7 +14,7 @@ test.describe('Movimentações', () => {
 
     test('escolher o produto preenche os preços e mostra o saldo', async ({ page }) => {
         await page.goto('movimentacoes');
-        await page.selectOption('#produto-select', marca);
+        await page.selectOption('#produto-select', { label: marca });
         await expect(page.locator('#preco-custo')).toHaveValue('100.00');
         await expect(page.locator('#preco-venda')).toHaveValue('130.00');
         await expect(page.locator('#estoque-badge')).toContainText('Estoque atual: 0');

@@ -9,18 +9,10 @@ Situação em 2026-10-31. As regras que este plano segue estão em [`arquitetura
 | 1 a 10 | Concluídas |
 | `config/`, `database/` e `storage/` em `backend/` | Concluída |
 | 11. Escape na entrada | Concluída |
-| 12. `marca_produto` → `id_produto` | Pendente |
+| 12. `marca_produto` → `produto_id` | Concluída |
 | Correções da [auditoria de segurança](auditoria-seguranca.md) | Pendentes |
 
 ## O que falta
-
-### Etapa 12: `marca_produto` → `id_produto`
-
-Movimentações passam a referenciar o produto pelo id, editando `backend/database/schema.sql`. Resolve o erro ao renomear um produto que já tem movimentações. **É preciso recriar o banco.**
-
-- **Afeta:** Movimentações, Relatórios e Dashboard.
-- **Risco:** médio.
-- **Como validar:** `composer test`; renomear um produto com histórico; os relatórios mostram o nome novo.
 
 ### Correções da auditoria de segurança
 
@@ -67,6 +59,7 @@ Detalhes, evidências e testes de cada ID estão na [auditoria](auditoria-segura
 | Perfil | Cada formulário grava só os próprios campos | `70a5d7d` |
 | 10. Views | JS em `public/assets/js/`; bibliotecas com versão fixa só no layout; XSS do dashboard corrigido | `15d2888` |
 | 11. Escape na entrada | O banco guarda o dado como foi digitado; escape só na saída, modais e botões de excluir incluídos (S-003, I-004) | `fix/11-escape-na-entrada` |
+| 12. Movimentação por id | `tbmovimentacoes.produto_id`; renomear produto com histórico funciona e o nome novo aparece em todo lugar | `schema/12-movimentacao-id-produto` |
 | Pastas | `config/`, `database/` e `storage/` (antiga `armazenamento/`) dentro de `backend/`; `public/` continua na raiz | `refactor/config-database-no-backend` |
 
 ## Como cada etapa é entregue

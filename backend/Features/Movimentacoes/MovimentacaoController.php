@@ -25,7 +25,7 @@ class MovimentacaoController extends Controller
 
         // ErroDeNegocio e ConfirmacaoNecessaria são respondidas por public/index.php.
         $registrar->executar(
-            trim($_POST['produto'] ?? ''),
+            (int)($_POST['produto'] ?? 0),
             trim($_POST['tipo'] ?? ''),
             (int)($_POST['quantidade'] ?? 0),
             (float)($_POST['preco_custo'] ?? 0),
