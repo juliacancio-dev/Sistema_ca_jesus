@@ -345,9 +345,9 @@
         <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-4">
-                    <div><label class="block text-sm font-medium text-gray-600">Nome / Razão Social</label><p class="text-gray-900">${fornecedor.nome || '-'}</p></div>
+                    <div><label class="block text-sm font-medium text-gray-600">Nome / Razão Social</label><p class="text-gray-900">${escapeHtml(fornecedor.nome || '-')}</p></div>
                     <div><label class="block text-sm font-medium text-gray-600">CNPJ</label><p class="text-gray-900">${formatCnpj(fornecedor.cnpj || '')}</p></div>
-                    <div><label class="block text-sm font-medium text-gray-600">Email</label><p class="text-gray-900">${fornecedor.email || '-'}</p></div>
+                    <div><label class="block text-sm font-medium text-gray-600">Email</label><p class="text-gray-900">${escapeHtml(fornecedor.email || '-')}</p></div>
                     <div><label class="block text-sm font-medium text-gray-600">Telefone</label><p class="text-gray-900">${formatTelefone(fornecedor.telefone || '')}</p></div>
                 </div>
                 <div class="space-y-4">
@@ -358,12 +358,12 @@
             <div class="mt-6 pt-6 border-t border-gray-200">
                 <h4 class="text-md font-semibold text-gray-800 mb-4">Endereço</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-600">CEP</label><p class="text-gray-900">${fornecedor.cep || '-'}</p></div>
-                    <div><label class="block text-sm font-medium text-gray-600">Endereço</label><p class="text-gray-900">${fornecedor.endereco || '-'}</p></div>
-                    <div><label class="block text-sm font-medium text-gray-600">Número</label><p class="text-gray-900">${fornecedor.numero || '-'}</p></div>
-                    <div><label class="block text-sm font-medium text-gray-600">Bairro</label><p class="text-gray-900">${fornecedor.bairro || '-'}</p></div>
-                    <div><label class="block text-sm font-medium text-gray-600">Cidade</label><p class="text-gray-900">${fornecedor.cidade || '-'}</p></div>
-                    <div><label class="block text-sm font-medium text-gray-600">Estado</label><p class="text-gray-900">${fornecedor.estado || '-'}</p></div>
+                    <div><label class="block text-sm font-medium text-gray-600">CEP</label><p class="text-gray-900">${escapeHtml(fornecedor.cep || '-')}</p></div>
+                    <div><label class="block text-sm font-medium text-gray-600">Endereço</label><p class="text-gray-900">${escapeHtml(fornecedor.endereco || '-')}</p></div>
+                    <div><label class="block text-sm font-medium text-gray-600">Número</label><p class="text-gray-900">${escapeHtml(fornecedor.numero || '-')}</p></div>
+                    <div><label class="block text-sm font-medium text-gray-600">Bairro</label><p class="text-gray-900">${escapeHtml(fornecedor.bairro || '-')}</p></div>
+                    <div><label class="block text-sm font-medium text-gray-600">Cidade</label><p class="text-gray-900">${escapeHtml(fornecedor.cidade || '-')}</p></div>
+                    <div><label class="block text-sm font-medium text-gray-600">Estado</label><p class="text-gray-900">${escapeHtml(fornecedor.estado || '-')}</p></div>
                 </div>
             </div>
         </div>
