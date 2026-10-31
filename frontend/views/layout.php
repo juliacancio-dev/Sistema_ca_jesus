@@ -59,12 +59,14 @@ if (isActive('/dashboard', $currentUri)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?= Session::csrfToken() ?>">
     <title><?= $title ?? 'Sistema de Gestão de Estoque - C.A de Jesus' ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/app.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.6.1"></script>
     <script>window.APP_BASE_URL = <?= json_encode(BASE_URL) ?>;</script>
     <script src="<?= BASE_URL ?>/assets/js/app.js" defer></script>
+    <script src="<?= BASE_URL ?>/assets/js/formatacao.js" defer></script>
+    <script src="<?= BASE_URL ?>/assets/js/cep.js" defer></script>
     <script src="<?= BASE_URL ?>/assets/js/charts.js" defer></script>
     <style>
         .sidebar-transition {
@@ -151,11 +153,7 @@ if (isActive('/dashboard', $currentUri)) {
 
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
     <?php $flash = Session::pullFlash(); if ($flash): ?>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                showToast(<?= json_encode($flash['message']) ?>, <?= json_encode($flash['type']) ?>, 6000);
-            });
-        </script>
+        <div id="flash" hidden data-tipo="<?= htmlspecialchars($flash['type']) ?>" data-mensagem="<?= htmlspecialchars($flash['message']) ?>"></div>
     <?php endif; ?>
 
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 sidebar-transition">
@@ -290,181 +288,7 @@ if (isActive('/dashboard', $currentUri)) {
         </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/js/all.min.js"></script>
-    <script>
-
-        (function() {
-            const sidebar = document.getElementById('sidebar');
-            const btn = document.getElementById('sidebar-toggle');
-            if (!sidebar || !btn) return;
-
-            const isLg = () => window.matchMedia('(min-width: 1024px)').matches;
-
-            function addBackdrop() {
-                if (document.getElementById('sidebar-backdrop') || isLg()) return;
-                const backdrop = document.createElement('div');
-                backdrop.id = 'sidebar-backdrop';
-                backdrop.className = 'fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden';
-                backdrop.addEventListener('click', closeSidebar);
-                document.body.appendChild(backdrop);
-                document.body.style.overflow = 'hidden';
-            }
-
-            function removeBackdrop() {
-                const backdrop = document.getElementById('sidebar-backdrop');
-                if (backdrop) backdrop.remove();
-                document.body.style.overflow = '';
-            }
-
-            function openSidebar() {
-                sidebar.classList.remove('-translate-x-full');
-                sidebar.classList.add('translate-x-0');
-                addBackdrop();
-                btn.setAttribute('aria-expanded', 'true');
-            }
-
-            function closeSidebar() {
-                sidebar.classList.add('-translate-x-full');
-                sidebar.classList.remove('translate-x-0');
-                removeBackdrop();
-                btn.setAttribute('aria-expanded', 'false');
-            }
-
-            function toggleSidebar(e) {
-                if (e) e.stopPropagation();
-                if (sidebar.classList.contains('-translate-x-full')) {
-                    openSidebar();
-                } else {
-                    closeSidebar();
-                }
-            }
-
-            btn.addEventListener('click', toggleSidebar);
-            btn.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                toggleSidebar(e);
-            }, {
-                passive: false
-            });
-       
-            btn.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    toggleSidebar(e);
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                const t = e.target.closest('#sidebar-toggle');
-                if (t) {
-                    e.preventDefault();
-                    toggleSidebar(e);
-                }
-            });
-            document.addEventListener('touchstart', (e) => {
-                const t = e.target.closest('#sidebar-toggle');
-                if (t) {
-                    e.preventDefault();
-                    toggleSidebar(e);
-                }
-            }, {
-                passive: false
-            });
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !isLg()) {
-                    closeSidebar();
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                if (isLg()) return;
-                if (!sidebar.classList.contains('-translate-x-full')) {
-                    if (!sidebar.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
-                        closeSidebar();
-                    }
-                }
-            });
-
-            function ensureState() {
-                if (isLg()) {
-                    removeBackdrop();
-                    sidebar.classList.remove('-translate-x-full');
-                    sidebar.classList.remove('translate-x-0');
-                    document.body.style.overflow = '';
-                } else {
-                    if (!sidebar.classList.contains('translate-x-0')) {
-                        sidebar.classList.add('-translate-x-full');
-                    }
-                }
-            }
-            window.addEventListener('resize', ensureState);
-            ensureState();
-        })();
-
-        const bellBtn = document.getElementById('btn-bell');
-        const bellMenu = document.getElementById('bell-menu');
-        const bellList = document.getElementById('bell-list');
-        const bellBadge = document.getElementById('bell-badge');
-        let bellLoaded = false;
-        if (bellBtn && bellMenu) {
-            bellBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                bellMenu.classList.toggle('hidden');
-                if (!bellLoaded) {
-                    try {
-                        const res = await fetch('<?= BASE_URL ?>/api/estoque/atual');
-                        const data = (await res.json()).dados;
-                        const low = (data || []).filter(p => (parseInt(p.estoque || p.estoque_produto || 0, 10)) < 5);
-                        bellList.innerHTML = '';
-                        if (low.length === 0) {
-                            bellList.innerHTML = '<div class="px-4 py-3 text-sm text-gray-600">Tudo ok no estoque.</div>';
-                            if (bellBadge) bellBadge.style.display = 'none';
-                        } else {
-                            if (bellBadge) bellBadge.style.display = '';
-                            low.slice(0, 10).forEach(p => {
-                                const nome = p.marca || p.marca_produto || 'Produto';
-                                const estq = p.estoque || p.estoque_produto || 0;
-                                const row = document.createElement('div');
-                                row.className = 'px-4 py-2 text-sm flex items-center justify-between hover:bg-gray-50';
-                                row.innerHTML = `<div class="flex items-center"><i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i><span class="text-gray-800 truncate pr-2">${escapeHtml(nome)}</span></div><span class="text-red-600 font-semibold">${escapeHtml(estq)}</span>`;
-                                bellList.appendChild(row);
-                            });
-                        }
-                    } catch (err) {
-                        bellList.innerHTML = '<div class="px-4 py-3 text-sm text-red-600">Falha ao carregar alertas.</div>';
-                    }
-                    bellLoaded = true;
-                }
-            });
-            document.addEventListener('click', () => bellMenu.classList.add('hidden'));
-
-            (async () => {
-                try {
-                    const res = await fetch('<?= BASE_URL ?>/api/estoque/atual');
-                    const data = (await res.json()).dados;
-                    const low = (data || []).filter(p => (parseInt(p.estoque || p.estoque_produto || 0, 10)) < 5);
-                    if (low.length > 0 && bellBadge) {
-                        bellBadge.style.display = '';
-                    } else if (bellBadge) {
-                        bellBadge.style.display = 'none';
-                    }
-                } catch (err) {
-                    console.warn('Erro ao carregar notificações iniciais:', err);
-                }
-            })();
-        }
-
-        const userBtn = document.getElementById('user-menu-btn');
-        const userMenu = document.getElementById('user-menu');
-        if (userBtn && userMenu) {
-            userBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                userMenu.classList.toggle('hidden');
-            });
-            document.addEventListener('click', () => userMenu.classList.add('hidden'));
-        }
-    </script>
+    <script src="<?= BASE_URL ?>/assets/js/layout.js" defer></script>
 </body>
 
 </html>

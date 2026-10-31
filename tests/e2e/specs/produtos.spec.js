@@ -119,4 +119,12 @@ test.describe('Produtos', () => {
         await page.goto('movimentacoes');
         expect(await page.evaluate(() => window.__xss)).toBeUndefined();
     });
+
+    test('nome com </script> não quebra o dashboard', async ({ page }) => {
+        const marca = `</script><img src=x onerror="window.__xss=1"> ${unico('Fecha')}`;
+        await criarProduto(page, marca);
+        await page.goto('dashboard');
+        await expect.poll(() => page.evaluate(() => !!(window.Chart && window.Chart.getChart('estoque-chart')))).toBe(true);
+        expect(await page.evaluate(() => window.__xss)).toBeUndefined();
+    });
 });

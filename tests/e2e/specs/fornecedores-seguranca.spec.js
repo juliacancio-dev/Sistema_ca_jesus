@@ -37,6 +37,13 @@ test.describe('Fornecedores', () => {
         await expect(linha(page, nome)).toContainText('Ativo');
     });
 
+    test('o CNPJ aplica a máscara', async ({ page }) => {
+        await page.goto('fornecedores');
+        await page.click('#new-fornecedor-btn');
+        await page.locator('#fornecedor-cnpj').pressSequentially('11222333000181');
+        await expect(page.locator('#fornecedor-cnpj')).toHaveValue('11.222.333/0001-81');
+    });
+
     test('formulário vazio não envia', async ({ page }) => {
         await page.goto('fornecedores');
         await page.click('#new-fornecedor-btn');
