@@ -90,6 +90,22 @@ window.requisicaoJson = async function(url, opcoes = {}) {
     }
 };
 
+// Mostra ou esconde a senha no campo; o ícone tem o id "<campo>-eye".
+window.togglePassword = function(fieldId) {
+    const field = document.getElementById(fieldId);
+    const eye = document.getElementById(fieldId + '-eye');
+
+    if (field.type === 'password') {
+        field.type = 'text';
+        eye.classList.remove('fa-eye');
+        eye.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        eye.classList.remove('fa-eye-slash');
+        eye.classList.add('fa-eye');
+    }
+};
+
 window.openModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -110,6 +126,12 @@ window.closeModal = function(modal) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Mensagem da requisição anterior (Session::flash), escrita pelo layout.
+    const flash = document.getElementById('flash');
+    if (flash) {
+        window.showToast(flash.dataset.mensagem, flash.dataset.tipo, 6000);
+    }
+
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
 
