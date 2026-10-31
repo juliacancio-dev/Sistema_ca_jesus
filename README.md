@@ -9,7 +9,7 @@ Sistema web para controle de estoque de uma distribuidora: cadastro de produtos 
 - **Autenticação**: login e logout, expiração da sessão por inatividade (2 h), perfis Administrador e Funcionário.
 - **Dashboard**: indicadores (produtos, estoque total, movimentações do dia, lucro, saldo) e gráficos.
 - **Produtos**: cadastro, edição, exclusão e busca.
-- **Movimentações**: registro de entrada e saída; uma saída não pode ser maior que o estoque disponível.
+- **Movimentações**: registro de entrada e saída; uma saída não pode ser maior que o estoque disponível, e custo maior que venda pede confirmação.
 - **Relatórios**: financeiro e de estoque por período, com exportação para PDF e Excel.
 - **Usuários** (admin): cadastro, edição, ativação e inativação, exclusão.
 - **Perfil** (todos os usuários): edição dos próprios dados e troca de senha.
@@ -42,7 +42,7 @@ sistema_ca_jesus/
 ├── database/          # schema.sql (estrutura) e seed.sql (dados iniciais)
 ├── docs/              # documentação da refatoração
 ├── public/            # index.php (ponto de entrada) e assets
-├── tests/             # testes PHPUnit
+├── tests/             # testes PHPUnit e, em tests/e2e/, testes no navegador
 ├── .htaccess          # redireciona para public/ e bloqueia pastas internas
 ├── composer.json
 └── phpunit.xml
@@ -50,10 +50,17 @@ sistema_ca_jesus/
 
 ## Como executar (XAMPP)
 
-1. Clone o projeto dentro de `htdocs`:
+Os comandos abaixo são para o Git Bash. Se `php`, `composer` ou `mysql` não forem encontrados, coloque as pastas do XAMPP no PATH:
+
+```bash
+export PATH="$PATH:/c/xampp/php:/c/xampp/mysql/bin"
+```
+
+1. Clone o projeto dentro de `htdocs` e entre na pasta:
    ```bash
    cd C:/xampp/htdocs
    git clone https://github.com/juliacancio-dev/Sistema_ca_jesus.git sistema_ca_jesus
+   cd sistema_ca_jesus
    ```
 2. Crie a configuração local e ajuste as credenciais do banco:
    ```bash
@@ -71,6 +78,21 @@ sistema_ca_jesus/
    ```
 5. Garanta que o `mod_rewrite` do Apache está ativo.
 6. Acesse `http://localhost/sistema_ca_jesus/public`.
+
+### Usuários de desenvolvimento
+
+O `database/seed.sql` cria estes usuários, todos com a senha `123456789`:
+
+| E-mail | Perfil |
+|---|---|
+| `ana.souza@gmail.com` | Administrador |
+| `jonathan@gmail.com` | Funcionário |
+| `maria@gmail.com` | Funcionário |
+| `ana@gmail.com` | Funcionário |
+
+Essa senha é só para desenvolvimento: não carregue o `seed.sql` em produção.
+
+### Produção
 
 Em produção, defina `ENVIRONMENT` com um valor diferente de `'development'` em `config/config.php`, para que os erros não apareçam na tela.
 

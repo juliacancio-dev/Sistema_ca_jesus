@@ -28,7 +28,7 @@ Não fazem parte da arquitetura:
 backend/                              # namespace App\ → backend/ (PSR-4 via Composer)
   Core/
     Database.php  Router.php  Session.php  Auth.php
-    Controller.php                    # render() e json()
+    Controller.php                    # render(), json() e redirect()
     RespostaJson.php                  # formato único das respostas JSON
     ErroDeNegocio.php                 # exceção com mensagem que pode ir ao usuário
     ConfirmacaoNecessaria.php         # a operação depende de o usuário confirmar
@@ -50,13 +50,14 @@ frontend/                             # templates PHP (não públicos)
 public/                               # única pasta servida pelo Apache
   index.php  .htaccess
   assets/css/  assets/img/
-  assets/js/app.js  formatacao.js  cep.js  <feature>.js
+  assets/js/app.js  layout.js  formatacao.js  cep.js  charts.js  <feature>.js
 database/
   schema.sql                          # estrutura; não cria nem seleciona o banco
   seed.sql                            # dados iniciais de desenvolvimento
 tests/
   bootstrap.php  BancoDeTeste.php
-  Features/<Feature>/...Test.php
+  Core/  Shared/  Features/<Feature>/  # testes PHPUnit (...Test.php)
+  e2e/                                # testes no navegador (Playwright + Docker)
 config/       config.example.php      # config.php fica fora do git
 armazenamento/logs/
 docs/
@@ -65,7 +66,7 @@ composer.json  phpunit.xml            # vendor/ fica fora do git (composer insta
 
 **Por que existem três árvores:** sem uma etapa de build, o navegador só alcança o que está em `public/`. Por isso o JS, o CSS e as imagens ficam em `public/assets/`, enquanto os templates PHP, que não podem ser públicos, ficam em `frontend/views/`. O nome da feature é o mesmo nas três árvores: `Features/Produtos/`, `views/produtos/` e `js/produtos.js`.
 
-`backend/`, `frontend/`, `database/`, `tests/` e `vendor/` são bloqueados pelo `.htaccess` da raiz.
+`backend/`, `frontend/`, `database/`, `config/`, `armazenamento/`, `tests/` e `vendor/` são bloqueados pelo `.htaccess` da raiz.
 
 ## Dentro de um slice
 
@@ -92,7 +93,7 @@ O caso de uso não conhece HTTP. Por isso ele pode ser testado chamando a classe
 
 3. **`Shared/` só recebe o que pelo menos dois slices usam.** Código usado por um slice só fica nele.
 4. **Um slice não chama o controller nem o caso de uso de outro slice.** Se precisar de um dado, faz a própria leitura (regra 2).
-5. **Funcionalidade nova tem o mesmo nome nas três árvores:** `backend/Features/<Nome>/`, `frontend/views/<nome>/` e `public/assets/js/<nome>.js`.
+5. **Funcionalidade nova tem o mesmo nome nas três árvores:** `backend/Features/<Nome>/`, `frontend/views/<nome>/` e `public/assets/js/<nome>.js`. O JS só existe se a tela precisar (o login não tem). Exceções: `layout.js` é do layout, e `perfil.js` é a segunda tela do slice de Usuários.
 6. **A regra de negócio fica em PHP, e o banco serve de rede de segurança.** O banco guarda constraints baratas (`CHECK`, `UNIQUE`, FK) e a auditoria (`tr_auditoria_estoque`). Triggers que decidem regra não entram.
 7. **Sem produção, o schema é editado direto em `database/schema.sql`** e o banco local é recriado. As migrações (`database/migrations/NNN_*.sql`) só começam depois do primeiro deploy com dados reais.
 8. **Uma branch por mudança**, com um slice por commit. O merge na `main` só acontece depois de os testes passarem e o roteiro manual (seção 10 do diagnóstico) ser validado.
@@ -130,7 +131,7 @@ Toda resposta JSON, de qualquer slice e também do tratamento de erro em `public
 
 O controller nunca monta o array à mão: ele usa `$this->json(...)`. Fora de um controller (Router, middlewares, `index.php`), usa-se `RespostaJson::enviar(...)`. Uma `ErroDeNegocio` não capturada vira 422 com a mensagem dela. Qualquer outra exceção vira 500 com a mensagem genérica.
 
-A resposta é JSON quando a rota começa com `/api/` ou quando a requisição manda `Accept: application/json`. No front, toda chamada usa `requisicaoJson(url, opcoes)` (`public/assets/js/app.js`), que manda esse header, sempre devolve o objeto do contrato (inclusive em falha de rede) e leva ao login quando recebe 401.
+Nos erros tratados fora do controller (`RespostaJson::esperada()`), a resposta é JSON quando o caminho contém `/api/` ou quando a requisição manda `Accept: application/json` ou `X-Requested-With: XMLHttpRequest`. No front, toda chamada usa `requisicaoJson(url, opcoes)` (`public/assets/js/app.js`), que manda esse header, sempre devolve o objeto do contrato (inclusive em falha de rede) e leva ao login quando recebe 401.
 
 **Exemplo: custo maior que venda numa movimentação.** O caso de uso lança `ConfirmacaoNecessaria`. O primeiro envio vem sem `confirmar_custo_maior` e recebe `200 { sucesso: false, requer_confirmacao: true, mensagem: "O preço de custo é maior que o preço de venda. Tem certeza de que deseja registrar?" }`. Se o usuário confirmar, o front reenvia com `confirmar_custo_maior=1`.
 
@@ -157,4 +158,5 @@ O token é um por sessão, para funcionar com várias abas, e é trocado no logi
 - **PHPUnit**, instalado com `composer install`, roda com `vendor/bin/phpunit`.
 - **Testa-se primeiro o que mexe com dinheiro e saldo:** `RegistrarMovimentacao` (com banco de teste) e `RelatorioFinanceiro`/`RelatorioEstoque` (cálculos puros).
 - O banco de teste se chama `bd_sistema_teste` e é criado a partir de `database/schema.sql`. O `tests/bootstrap.php` define `DB_NAME` antes de carregar a configuração, e `BancoDeTeste` recusa recriar qualquer outro banco.
-- CRUDs simples não precisam de teste automatizado. O roteiro manual cobre esses casos.
+- CRUDs simples não precisam de teste PHPUnit. Eles são cobertos pelos testes E2E e pelo roteiro manual.
+- **E2E (`tests/e2e/`):** Playwright com Chromium, em Apache e PHP no Docker, com o banco em memória. O `rodar.sh` executa em MariaDB 10.4 (igual ao XAMPP) e MySQL 8.0, sem tocar no banco de desenvolvimento. Cobrem o que só aparece no navegador: telas, `fetch`, mensagens, permissões e CSRF.
