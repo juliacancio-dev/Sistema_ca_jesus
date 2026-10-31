@@ -2,6 +2,7 @@
 
 namespace App\Features\Usuarios;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Session;
 use Exception;
@@ -72,6 +73,9 @@ class UsuarioController extends Controller
             $resultado = $this->usuarioModel->salvar($dados);
 
             if ($resultado) {
+                if (isset($dados['senha']) && $dados['id'] == $_SESSION['user']['id']) {
+                    Auth::renovarSessaoAposTrocaDeSenha($dados['senha']);
+                }
                 $mensagem = $dados['id'] ? 'Usuário atualizado com sucesso.' : 'Usuário criado com sucesso.';
                 Session::flash('success', $mensagem);
                 $this->registrarAcao($dados['id'] ? 'usuario_editado' : 'usuario_criado', ['id' => $dados['id'], 'email' => $dados['email']]);

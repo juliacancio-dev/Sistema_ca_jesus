@@ -41,6 +41,8 @@ define('BASE_URL', rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])
 ini_set('session.use_strict_mode', '1');
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Lax');
+// Igual a Auth::LIMITE_INATIVIDADE: o padrão do PHP (24 min) encerraria a sessão antes.
+ini_set('session.gc_maxlifetime', '7200');
 session_start();
 
 if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {

@@ -32,6 +32,22 @@ class AutenticacaoConsultas
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
+    // Chamada a cada requisição autenticada: busca por chave primária.
+    public function estadoDaSessao(int $id): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT
+                tipo_usuario AS tipo,
+                nome_usuario AS nome,
+                senha_usuario AS senha,
+                COALESCE(ativo_usuario, 1) AS ativo
+            FROM tbusuarios
+            WHERE id_usuario = ? AND deletado_em IS NULL
+        ");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
     public function registrarLogin(int $id): void
     {
         $this->db->prepare('UPDATE tbusuarios SET ultimo_login = NOW() WHERE id_usuario = ?')->execute([$id]);
