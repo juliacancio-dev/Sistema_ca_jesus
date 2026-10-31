@@ -2,7 +2,7 @@
 
 Data: 2026-10-23 · Base: `main` @ `fff3403`.
 
-> **Este documento é o registro histórico do diagnóstico.** As seções 1 a 9 descrevem o projeto como ele estava em 2026-10-23 e citam caminhos que já não existem (`app/`, `bancoInteiro.sql`...). A arquitetura atual está em [`arquitetura.md`](arquitetura.md). As decisões que mudaram e o plano em vigor estão em [Revisão de arquitetura](#revisão-de-arquitetura-2026-10-24), no fim deste documento.
+> **Este documento é um registro histórico e não é atualizado.** Ele descreve o projeto como estava em 2026-10-23 e cita caminhos que já não existem (`app/`, `bancoInteiro.sql`...). O estado atual está em [`arquitetura.md`](../arquitetura.md), e o que falta fazer, em [`plano.md`](../plano.md). As decisões que mudaram depois do diagnóstico estão em [Revisão de arquitetura](#revisão-de-arquitetura-2026-10-24), no fim deste documento.
 
 Ambiente na data do diagnóstico: PHP 8.2.12 e **MariaDB 10.4.32** (XAMPP), sem Composer (instalado depois, na etapa 5). `php -l` passava em todos os 47 arquivos `.php` versionados.
 
@@ -391,7 +391,7 @@ MOTIVO: sobra / arquivo gerado
 
 ## 10. Plano de execução (Fase B)
 
-> As etapas 1–4 foram concluídas como descritas abaixo. A partir da etapa 5, vale o [plano revisado](#plano-revisado-a-partir-da-etapa-5).
+> Plano original. As etapas 1–4 foram concluídas como descritas abaixo; a partir da etapa 5, ele foi substituído pelo [plano revisado](#plano-revisado-a-partir-da-etapa-5). A situação atual está em [`plano.md`](../plano.md).
 
 Mudei duas coisas na ordem sugerida, ambas para que cada etapa possa ser validada:
 - As **correções de feedback ao usuário (C1)** vêm cedo (etapa 4). Sem elas, o roteiro de teste manual das etapas seguintes não consegue ver erros como “saída acima do estoque”.
@@ -411,17 +411,9 @@ Mudei duas coisas na ordem sugerida, ambas para que cada etapa possa ser validad
 | 10 | **`marca_produto` → `id_produto` em movimentações** (opcional, separado): migração que adiciona `produto_id`, preenche pela marca, cria FK e remove a FK por texto. Resolve A9. | **MUDANÇA DE SCHEMA** | `database/migrations/002_...sql`, Movimentações, Relatórios, Dashboard | Alto | Contagem de linhas antes = depois; renomear produto com histórico; relatórios mostram o nome novo. |
 | 11 | **PHPUnit** (opcional): exige instalar o Composer. Começar por `RegistrarMovimentacao` (com banco de teste) e `RelatorioFinanceiro`/`RelatorioEstoque` (funções puras, custo baixo). | MELHORIA | `tests/`, `composer.json` | Baixo | `vendor/bin/phpunit` verde. |
 
-### Roteiro de teste manual (base para todas as etapas)
+### Roteiro de teste manual
 
-1. Login com senha errada → mensagem visível. Login com usuário inativo → mensagem específica. Login correto → dashboard.
-2. Dashboard: os cards e os 2 gráficos carregam; o sino mostra os produtos com estoque baixo.
-3. Produtos: cadastrar (venda < custo é recusado); editar; excluir um produto sem movimentação (ok) e um com movimentação (mensagem clara).
-4. Movimentações: entrada de 10 → saldo +10; saída de 5 → saldo −5; **saída acima do saldo → recusada com mensagem e saldo inalterado**. Custo maior que venda → o sistema pede confirmação: cancelar não registra nada; confirmar registra.
-5. Relatórios: financeiro e estoque no período mensal e num intervalo personalizado; exportar PDF e Excel.
-6. Usuários (admin): criar, editar, inativar e reativar, tentar inativar a si mesmo (recusado), excluir. Como funcionário, acessar `/usuarios` → redirecionado com mensagem.
-7. Perfil: salvar os dados pessoais e o endereço, cada um no seu formulário, sem que um altere o outro (CEP preenche o endereço); trocar a senha com a senha atual errada (recusado) e com a correta.
-8. Fornecedores: criar, editar (**continua ativo**), inativar com produtos vinculados (recusado), excluir com produtos (mensagem clara).
-9. Logout e voltar → tela de login.
+Movido para [`roteiro-de-testes.md`](../roteiro-de-testes.md).
 
 ---
 
@@ -485,7 +477,7 @@ Consequências:
 
 ## Revisão de arquitetura (2026-10-24)
 
-Feita depois das etapas 1–4 (`main` @ `61ba78c`). A divisão entre `backend/` e `frontend/` continua valendo; a árvore detalhada em vigor é a de [`arquitetura.md`](arquitetura.md#estrutura). O que mudou foram as premissas: **o sistema ainda não tem produção**, ou seja, não há servidor de deploy nem dados reais a preservar. A arquitetura completa, com as regras, o contrato JSON e a estratégia de testes, está em [`arquitetura.md`](arquitetura.md).
+Feita depois das etapas 1–4 (`main` @ `61ba78c`). A divisão entre `backend/` e `frontend/` continua valendo; a árvore detalhada em vigor é a de [`arquitetura.md`](../arquitetura.md#estrutura). O que mudou foram as premissas: **o sistema ainda não tem produção**, ou seja, não há servidor de deploy nem dados reais a preservar. A arquitetura completa, com as regras, o contrato JSON e a estratégia de testes, está em [`arquitetura.md`](../arquitetura.md).
 
 ### Decisões revisadas
 
@@ -500,17 +492,9 @@ Feita depois das etapas 1–4 (`main` @ `61ba78c`). A divisão entre `backend/` 
 
 Continuam valendo: D1 (estoque em PHP + `CHECK`), D3 revisada (`frontend/views/`), D4, D5, D6 e as decisões 3 a 7 da tabela de 2026-10-23.
 
-### Situação do plano (2026-10-31)
-
-| Etapa | Situação |
-|---|---|
-| 1 a 9 | Concluídas, na `main` |
-| Fora do plano | Testes E2E no navegador com Docker (`test/e2e-docker`) e formulários do perfil gravando só os próprios campos (`fix/perfil-formularios`): concluídos, na `main` |
-| 10 — Views | Em andamento (`refactor/10-views`) |
-| 11 — Escape na entrada | Pendente |
-| 12 — `marca_produto` → `id_produto` | Pendente |
-
 ### Plano revisado (a partir da etapa 5)
+
+Como foi escrito em 2026-10-24. A situação atual está em [`plano.md`](../plano.md).
 
 | # | Etapa | Tipo | Arquivos principais | Risco | Validação |
 |---|---|---|---|---|---|
