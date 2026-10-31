@@ -4,6 +4,7 @@ use App\Core\ErroDeNegocio;
 use App\Core\RespostaJson;
 use App\Core\Router;
 use App\Core\Session;
+use App\Features\Dashboard\DashboardController;
 use App\Features\Fornecedores\FornecedorController;
 use App\Features\Movimentacoes\MovimentacaoController;
 use App\Features\Produtos\ProdutoController;
@@ -63,7 +64,7 @@ $router->get('/logout', ['AuthController', 'logout']);
 
 $authMiddleware = ['AuthMiddleware']; 
 
-$router->get('/dashboard', ['DashboardController', 'index'], $authMiddleware);
+$router->get('/dashboard', [DashboardController::class, 'index'], $authMiddleware);
 
 $router->get('/produtos', [ProdutoController::class, 'index'], $authMiddleware);
 $router->post('/produtos/salvar', [ProdutoController::class, 'salvar'], $authMiddleware);

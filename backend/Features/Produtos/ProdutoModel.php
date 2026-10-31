@@ -110,26 +110,4 @@ class ProdutoModel {
         $stmt->execute([$id]);
         return $stmt->rowCount() > 0;
     }
-
-    public function listarTodos() {
-        $stmt = $this->db->prepare("
-            SELECT 
-                id_produto AS id,
-                marca_produto AS marca,
-                preco_custo_produto AS preco_custo,
-                preco_venda_produto AS preco_venda,
-                estoque_produto AS estoque
-            FROM tbprodutos 
-            ORDER BY marca_produto ASC
-        ");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function contarTotal() {
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM tbprodutos");
-        $stmt->execute();
-        return $stmt->fetchColumn();
-    }
-
 }
