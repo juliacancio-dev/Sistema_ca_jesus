@@ -5,6 +5,7 @@ use App\Core\RespostaJson;
 use App\Core\Router;
 use App\Core\Session;
 use App\Features\Fornecedores\FornecedorController;
+use App\Features\Movimentacoes\MovimentacaoController;
 use App\Features\Produtos\ProdutoController;
 
 require_once __DIR__ . '/../config/config.php';
@@ -66,8 +67,8 @@ $router->post('/produtos/salvar', [ProdutoController::class, 'salvar'], $authMid
 $router->post('/produtos/atualizar/{id}', [ProdutoController::class, 'atualizar'], $authMiddleware);
 $router->delete('/produtos/excluir/{id}', [ProdutoController::class, 'excluir'], $authMiddleware);
 
-$router->get('/movimentacoes', ['MovimentacaoController', 'index'], $authMiddleware);
-$router->post('/movimentacoes/registrar', ['MovimentacaoController', 'registrar'], $authMiddleware);
+$router->get('/movimentacoes', [MovimentacaoController::class, 'index'], $authMiddleware);
+$router->post('/movimentacoes/registrar', [MovimentacaoController::class, 'registrar'], $authMiddleware);
 
 $router->get('/relatorios', ['RelatorioController', 'index'], $authMiddleware);
 
@@ -90,7 +91,7 @@ $router->post('/fornecedores/excluir/{id}', [FornecedorController::class, 'exclu
 
 $router->get('/api/produtos/buscar', [ProdutoController::class, 'buscar'], $authMiddleware);
 $router->get('/api/relatorios/dados', ['RelatorioController', 'getDados'], $authMiddleware);
-$router->get('/api/estoque/atual', ['MovimentacaoController', 'estoqueAtualJson'], $authMiddleware);
+$router->get('/api/estoque/atual', [MovimentacaoController::class, 'estoqueAtualJson'], $authMiddleware);
 
 // Único ponto de tratamento de erros não capturados.
 try {

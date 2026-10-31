@@ -2,6 +2,7 @@
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Features\Movimentacoes\MovimentacaoModel;
 use App\Features\Produtos\ProdutoModel;
 
 class DashboardController extends Controller
