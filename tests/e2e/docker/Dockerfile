@@ -15,5 +15,5 @@ RUN docker-php-ext-install pdo_mysql \
 WORKDIR /var/www/html/sistema_ca_jesus
 COPY . .
 COPY --from=dependencias /app/vendor ./vendor
-COPY tests/e2e/docker/config.php ./config/config.php
-RUN mkdir -p armazenamento/logs && chown -R www-data:www-data armazenamento
+COPY tests/e2e/docker/config.php ./backend/config/config.php
+RUN mkdir -p backend/storage/logs && chown -R www-data:www-data backend/storage
