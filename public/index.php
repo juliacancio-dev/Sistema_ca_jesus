@@ -5,6 +5,7 @@ use App\Core\RespostaJson;
 use App\Core\Router;
 use App\Core\Session;
 use App\Features\Fornecedores\FornecedorController;
+use App\Features\Produtos\ProdutoController;
 
 require_once __DIR__ . '/../config/config.php';
 
@@ -60,10 +61,10 @@ $authMiddleware = ['AuthMiddleware'];
 
 $router->get('/dashboard', ['DashboardController', 'index'], $authMiddleware);
 
-$router->get('/produtos', ['ProdutoController', 'index'], $authMiddleware);
-$router->post('/produtos/salvar', ['ProdutoController', 'salvar'], $authMiddleware);
-$router->post('/produtos/atualizar/{id}', ['ProdutoController', 'atualizar'], $authMiddleware);
-$router->delete('/produtos/excluir/{id}', ['ProdutoController', 'excluir'], $authMiddleware);
+$router->get('/produtos', [ProdutoController::class, 'index'], $authMiddleware);
+$router->post('/produtos/salvar', [ProdutoController::class, 'salvar'], $authMiddleware);
+$router->post('/produtos/atualizar/{id}', [ProdutoController::class, 'atualizar'], $authMiddleware);
+$router->delete('/produtos/excluir/{id}', [ProdutoController::class, 'excluir'], $authMiddleware);
 
 $router->get('/movimentacoes', ['MovimentacaoController', 'index'], $authMiddleware);
 $router->post('/movimentacoes/registrar', ['MovimentacaoController', 'registrar'], $authMiddleware);
@@ -87,7 +88,7 @@ $router->post('/fornecedores/salvar', [FornecedorController::class, 'salvar'], $
 $router->post('/fornecedores/toggle-status/{id}', [FornecedorController::class, 'toggleStatus'], $adminMiddleware);
 $router->post('/fornecedores/excluir/{id}', [FornecedorController::class, 'excluir'], $adminMiddleware);
 
-$router->get('/api/produtos/buscar', ['ProdutoController', 'buscar'], $authMiddleware);
+$router->get('/api/produtos/buscar', [ProdutoController::class, 'buscar'], $authMiddleware);
 $router->get('/api/relatorios/dados', ['RelatorioController', 'getDados'], $authMiddleware);
 $router->get('/api/estoque/atual', ['MovimentacaoController', 'estoqueAtualJson'], $authMiddleware);
 

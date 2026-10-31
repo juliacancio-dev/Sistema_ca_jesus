@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Controller;
+use App\Features\Produtos\ProdutoModel;
 use App\Core\Database;
 use App\Core\Session;
 use App\Features\Movimentacoes\RegistrarMovimentacao;

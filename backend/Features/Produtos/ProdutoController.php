@@ -1,24 +1,25 @@
 <?php
 
+namespace App\Features\Produtos;
+
 use App\Core\Controller;
 use App\Core\Session;
-use App\Features\Fornecedores\FornecedorModel;
+use Exception;
+use PDOException;
 
 class ProdutoController extends Controller
 {
     private $produtoModel;
-    private $fornecedorModel;
 
     public function __construct()
     {
         $this->produtoModel = new ProdutoModel();
-        $this->fornecedorModel = new FornecedorModel();
     }
 
     public function index()
     {
         $produtos = $this->produtoModel->listarComFornecedor();
-        $fornecedores = $this->fornecedorModel->listarTodos();
+        $fornecedores = $this->produtoModel->listarFornecedores();
 
         $title = "Produtos - Sistema de Gestão de Estoque";
         $pageTitle = "Produtos";
@@ -41,28 +42,17 @@ class ProdutoController extends Controller
             "estoque" => 0
         ];
 
-        if (empty($dados["marca"]) || $dados["preco_custo"] < 0 || $dados["preco_venda"] < 0 || $dados["fornecedor_id"] <= 0) {
-            Session::flash('error', "Todos os campos são obrigatórios e devem ser válidos");
-            header('Location: ' . BASE_URL . '/produtos');
-            exit;
-        }
-
-        if ($dados["preco_venda"] < $dados["preco_custo"]) {
-            Session::flash('error', "Preço de venda não pode ser menor que o preço de custo.");
-            header('Location: ' . BASE_URL . '/produtos');
-            exit;
-        }
+        $this->exigirDadosValidos($dados);
 
         try {
             $result = $this->produtoModel->salvar($dados);
             if ($result) {
-                ErrorHelper::logSuccess('Produto cadastrado com sucesso', 'Cadastro de Produto', json_encode($dados));
                 Session::flash('success', "Produto cadastrado com sucesso!");
             } else {
                 Session::flash('error', "Erro ao salvar produto no banco de dados");
             }
         } catch (Exception $e) {
-            ErrorHelper::handle($e, 'Erro ao cadastrar produto', 'Cadastro de Produto');
+            error_log('[produtos] ' . $e);
             Session::flash('error', $this->mensagemDeErro($e, "Erro ao cadastrar produto."));
         }
 
@@ -72,11 +62,6 @@ class ProdutoController extends Controller
 
     public function atualizar($id)
     {
-        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-            header('Location: ' . BASE_URL . '/produtos');
-            exit;
-        }
-
         $dados = [
             "id" => $id,
             "marca" => $_POST["marca"] ?? "",
@@ -85,17 +70,7 @@ class ProdutoController extends Controller
             "fornecedor_id" => intval($_POST["fornecedor_id"] ?? 0)
         ];
 
-        if (empty($dados["marca"]) || $dados["preco_custo"] < 0 || $dados["preco_venda"] < 0 || $dados["fornecedor_id"] <= 0) {
-            Session::flash('error', "Todos os campos são obrigatórios e devem ser válidos");
-            header('Location: ' . BASE_URL . '/produtos');
-            exit;
-        }
-
-        if ($dados["preco_venda"] < $dados["preco_custo"]) {
-            Session::flash('error', "Preço de venda não pode ser menor que o preço de custo.");
-            header('Location: ' . BASE_URL . '/produtos');
-            exit;
-        }
+        $this->exigirDadosValidos($dados);
 
         try {
             $result = $this->produtoModel->salvar($dados);
@@ -105,7 +80,7 @@ class ProdutoController extends Controller
                 Session::flash('error', "Erro ao salvar produto no banco de dados");
             }
         } catch (Exception $e) {
-            ErrorHelper::handle($e, 'Erro ao atualizar produto', 'Cadastro de Produto');
+            error_log('[produtos] ' . $e);
             Session::flash('error', $this->mensagemDeErro($e, "Erro ao atualizar produto."));
         }
 
@@ -119,7 +94,7 @@ class ProdutoController extends Controller
         try {
             $produto = $this->produtoModel->buscarPorId($id);
         } catch (Exception $e) {
-            ErrorHelper::handle($e, 'Erro ao buscar produto', 'Cadastro de Produto');
+            error_log('[produtos] ' . $e);
             $this->json(false, "Erro ao buscar produto.", status: 500);
         }
         if (!$produto) {
@@ -136,10 +111,10 @@ class ProdutoController extends Controller
             if ($e->getCode() === '23000') {
                 $this->json(false, "Não é possível excluir este produto porque há movimentações associadas.", status: 409);
             }
-            ErrorHelper::handle($e, 'Erro ao excluir produto', 'Cadastro de Produto');
+            error_log('[produtos] ' . $e);
             $this->json(false, "Erro ao excluir produto.", status: 500);
         } catch (Exception $e) {
-            ErrorHelper::handle($e, 'Erro ao excluir produto', 'Cadastro de Produto');
+            error_log('[produtos] ' . $e);
             $this->json(false, "Erro ao excluir produto.", status: 500);
         }
         if (!$ok) {
@@ -147,6 +122,21 @@ class ProdutoController extends Controller
         }
         Session::flash('success', "Produto excluído com sucesso!");
         $this->json(true, "Produto excluído com sucesso!");
+    }
+
+    private function exigirDadosValidos(array $dados): void
+    {
+        if (empty($dados["marca"]) || $dados["preco_custo"] < 0 || $dados["preco_venda"] < 0 || $dados["fornecedor_id"] <= 0) {
+            Session::flash('error', "Todos os campos são obrigatórios e devem ser válidos");
+            header('Location: ' . BASE_URL . '/produtos');
+            exit;
+        }
+
+        if ($dados["preco_venda"] < $dados["preco_custo"]) {
+            Session::flash('error', "Preço de venda não pode ser menor que o preço de custo.");
+            header('Location: ' . BASE_URL . '/produtos');
+            exit;
+        }
     }
 
     // Traduz erros de banco conhecidos em mensagem para o usuário; o detalhe técnico fica no log.

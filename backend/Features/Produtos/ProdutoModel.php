@@ -1,6 +1,9 @@
 <?php
 
+namespace App\Features\Produtos;
+
 use App\Core\Database;
+use PDO;
 
 class ProdutoModel {
     private $db;
@@ -22,6 +25,19 @@ class ProdutoModel {
             FROM tbprodutos p
             LEFT JOIN tbfornecedores f ON p.fornecedor_id = f.id_fornecedor
             ORDER BY p.marca_produto ASC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Leitura própria para o <select> do cadastro; quem escreve em tbfornecedores é Fornecedores.
+    public function listarFornecedores() {
+        $stmt = $this->db->prepare("
+            SELECT
+                id_fornecedor AS id,
+                nome_fornecedor AS nome
+            FROM tbfornecedores
+            ORDER BY nome_fornecedor ASC
         ");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
