@@ -33,22 +33,22 @@ INSERT INTO tbfornecedores (
     estado_fornecedor
 ) VALUES (
     'Distribuidora Alfa',
-    '11990000001',
-    '12.123.123/0001-07',
+    '12991234567',
+    '12.123.123/0001-20',
     'contato@alfa.example',
     '01001-000',
     'Rua Exemplo',
     '26',
     'Galpão 1',
     'Centro',
-    'Mirassol',
-    'SP'
+    'Ourinhos',
+    'MG'
 ), (
     'Distribuidora Beta',
-    '11990000002',
-    '12.123.123/0002-80',
+    '17998765432',
+    '12.123.123/0001-30',
     'contato@beta.example',
-    '01002-000',
+    '13034-000',
     'Avenida Exemplo',
     '820',
     '-',
@@ -57,15 +57,15 @@ INSERT INTO tbfornecedores (
     'SP'
 ), (
     'Comercial Gama',
-    '11990000003',
-    '12.123.123/0003-60',
+    '11992345678',
+    '12.123.123/0001-10',
     'contato@gama.example',
-    '01003-000',
+    '12130-123',
     'Travessa Exemplo',
     '2280',
     '-',
     'Centro',
-    'Mirassol',
+    'São Paulo',
     'SP'
 );
 
