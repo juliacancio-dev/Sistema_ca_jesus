@@ -54,7 +54,7 @@ test.describe('Fornecedores', () => {
 
     test('visualizar mostra os dados', async ({ page }) => {
         await page.goto('fornecedores');
-        await linha(page, 'Talismã').locator('button[onclick^="viewFornecedor"]').click();
+        await linha(page, 'Distribuidora Alfa').locator('button[onclick^="viewFornecedor"]').click();
         await expect(page.locator('.fixed', { hasText: 'contato@alfa.example' }).first()).toBeVisible();
     });
 
@@ -83,13 +83,13 @@ test.describe('Fornecedores', () => {
     test('inativar e excluir com produtos são recusados com o motivo', async ({ page }) => {
         const dialogos = aceitarDialogos(page);
         await page.goto('fornecedores');
-        await linha(page, 'Talismã').locator('button[onclick^="toggleFornecedorStatus"]').click();
+        await linha(page, 'Distribuidora Alfa').locator('button[onclick^="toggleFornecedorStatus"]').click();
         await expect.poll(() => dialogos.join(' ')).toContain('produtos vinculados');
 
         dialogos.length = 0;
-        await linha(page, 'Talismã').locator('button[onclick^="deleteFornecedor"]').click();
+        await linha(page, 'Distribuidora Alfa').locator('button[onclick^="deleteFornecedor"]').click();
         await expect.poll(() => dialogos.join(' ')).toContain('produtos vinculados');
-        await expect(linha(page, 'Talismã')).toBeVisible();
+        await expect(linha(page, 'Distribuidora Alfa')).toBeVisible();
     });
 
     test('excluir sem produtos remove da lista', async ({ page }) => {

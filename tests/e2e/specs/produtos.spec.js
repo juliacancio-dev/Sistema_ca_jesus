@@ -11,7 +11,7 @@ test.describe('Produtos', () => {
         await expect(linha(page, marca)).toBeVisible();
         await expect(linha(page, marca)).toContainText('10,50');
         await expect(linha(page, marca)).toContainText('20,75');
-        await expect(linha(page, marca)).toContainText('Ibirá');
+        await expect(linha(page, marca)).toContainText('Distribuidora Beta');
     });
 
     test('venda menor que custo é barrada', async ({ page }) => {
