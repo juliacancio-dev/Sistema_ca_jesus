@@ -84,7 +84,9 @@ class Router {
     }
 
     private function createPatternFromPath($path) {
-        $pattern = preg_replace('/{([^\/]+)}/', '([^\/]+)', $path);
+        // Toda rota com parâmetro recebe um id. Sem isto, "/excluir/2abc" apagaria o id 2,
+        // porque o banco converte o texto para número.
+        $pattern = preg_replace('/{([^\/]+)}/', '([1-9][0-9]{0,9})', $path);
         return "#^{$pattern}$#";
     }
 }

@@ -4,7 +4,9 @@ namespace App\Features\Movimentacoes;
 
 use App\Core\Controller;
 use App\Core\Database;
+use App\Core\ErroDeNegocio;
 use App\Core\Session;
+use App\Shared\Entrada;
 
 class MovimentacaoController extends Controller
 {
@@ -21,16 +23,25 @@ class MovimentacaoController extends Controller
 
     public function registrar()
     {
+        $produto = Entrada::inteiro($_POST['produto'] ?? null);
+        $quantidade = Entrada::inteiro($_POST['quantidade'] ?? null);
+        $precoCusto = Entrada::preco($_POST['preco_custo'] ?? null);
+        $precoVenda = Entrada::preco($_POST['preco_venda'] ?? null);
+
+        if ($produto === null || $quantidade === null || $precoCusto === null || $precoVenda === null) {
+            throw new ErroDeNegocio('Preencha todos os campos obrigatórios corretamente.');
+        }
+
         $registrar = new RegistrarMovimentacao(Database::getInstance()->getConnection());
 
         // ErroDeNegocio e ConfirmacaoNecessaria são respondidas por public/index.php.
         $registrar->executar(
-            (int)($_POST['produto'] ?? 0),
-            trim($_POST['tipo'] ?? ''),
-            (int)($_POST['quantidade'] ?? 0),
-            (float)($_POST['preco_custo'] ?? 0),
-            (float)($_POST['preco_venda'] ?? 0),
-            $_POST['observacao'] ?? '',
+            $produto,
+            Entrada::texto($_POST['tipo'] ?? ''),
+            $quantidade,
+            $precoCusto,
+            $precoVenda,
+            Entrada::texto($_POST['observacao'] ?? ''),
             $_SESSION['user']['id'] ?? null,
             ($_POST['confirmar_custo_maior'] ?? '') === '1'
         );

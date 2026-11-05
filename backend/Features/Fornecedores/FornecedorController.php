@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Core\DatabaseException;
 use App\Core\ErroDeNegocio;
 use App\Core\Session;
+use App\Shared\Entrada;
 use Exception;
 use Throwable;
 
@@ -47,7 +48,7 @@ class FornecedorController extends Controller
             if ($resultado) {
                 Session::flash('success', $dados['id'] ? 'Fornecedor atualizado com sucesso.' : 'Fornecedor criado com sucesso.');
             } else {
-                Session::flash('error', 'Erro ao salvar fornecedor.');
+                Session::flash('error', 'Fornecedor não encontrado.');
             }
         } catch (ErroDeNegocio | DatabaseException $e) {
             Session::flash('error', $e->getMessage());
@@ -74,7 +75,7 @@ class FornecedorController extends Controller
             $this->json(false, 'Erro ao excluir fornecedor.', status: 500);
         }
         if (!$ok) {
-            $this->json(false, 'Erro ao excluir fornecedor.', status: 500);
+            $this->json(false, 'Fornecedor não encontrado.', status: 404);
         }
         Session::flash('success', 'Fornecedor excluído com sucesso.');
         $this->json(true, 'Fornecedor excluído com sucesso.');
@@ -83,18 +84,10 @@ class FornecedorController extends Controller
     public function toggleStatus($id)
     {
         try {
-            $raw = file_get_contents('php://input');
-            $dados = json_decode($raw, true);
-            $novoStatus = null;
-            if (is_array($dados) && array_key_exists('status', $dados)) {
-                $novoStatus = (int)$dados['status'];
-            } elseif (isset($_POST['status'])) {
-                $novoStatus = (int)$_POST['status'];
-            } elseif (isset($_GET['status'])) {
-                $novoStatus = (int)$_GET['status'];
-            }
+            $dados = json_decode(file_get_contents('php://input'), true);
+            $novoStatus = Entrada::inteiro(is_array($dados) ? ($dados['status'] ?? null) : null, 0, 1);
             if ($novoStatus === null) {
-                $novoStatus = 0;
+                $this->json(false, 'Status inválido.', status: 422);
             }
 
             $model = new FornecedorModel();
@@ -112,7 +105,7 @@ class FornecedorController extends Controller
             $this->json(false, 'Erro ao alterar status do fornecedor.', status: 500);
         }
         if (!$ok) {
-            $this->json(false, 'Erro ao alterar status do fornecedor.', status: 500);
+            $this->json(false, 'Fornecedor não encontrado.', status: 404);
         }
         $mensagem = $novoStatus ? 'Fornecedor ativado com sucesso' : 'Fornecedor desativado com sucesso';
         Session::flash('success', $mensagem);
@@ -121,19 +114,25 @@ class FornecedorController extends Controller
 
     private function processarDados(): array
     {
+        $id = null;
+        if (!empty($_POST['id'])) {
+            // Um id inválido viraria 0, e o formulário criaria outro fornecedor em vez de editar.
+            $id = Entrada::inteiro($_POST['id']) ?? throw new ErroDeNegocio('Fornecedor não encontrado.', 404);
+        }
+
         return [
-            'id' => !empty($_POST['id']) ? (int)$_POST['id'] : null,
-            'nome' => trim($_POST['nome'] ?? ''),
-            'cnpj' => preg_replace('/[^0-9]/', '', $_POST['cnpj'] ?? ''),
-            'email' => filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL),
-            'telefone' => preg_replace('/[^0-9]/', '', $_POST['telefone'] ?? ''),
-            'cep' => preg_replace('/[^0-9]/', '', $_POST['cep'] ?? ''),
-            'endereco' => trim($_POST['endereco'] ?? ''),
-            'numero' => trim($_POST['numero'] ?? ''),
-            'complemento' => trim($_POST['complemento'] ?? ''),
-            'bairro' => trim($_POST['bairro'] ?? ''),
-            'cidade' => trim($_POST['cidade'] ?? ''),
-            'estado' => strtoupper(trim($_POST['estado'] ?? ''))
+            'id' => $id,
+            'nome' => Entrada::texto($_POST['nome'] ?? ''),
+            'cnpj' => preg_replace('/[^0-9]/', '', Entrada::texto($_POST['cnpj'] ?? '')),
+            'email' => filter_var(Entrada::texto($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL),
+            'telefone' => preg_replace('/[^0-9]/', '', Entrada::texto($_POST['telefone'] ?? '')),
+            'cep' => preg_replace('/[^0-9]/', '', Entrada::texto($_POST['cep'] ?? '')),
+            'endereco' => Entrada::texto($_POST['endereco'] ?? ''),
+            'numero' => Entrada::texto($_POST['numero'] ?? ''),
+            'complemento' => Entrada::texto($_POST['complemento'] ?? ''),
+            'bairro' => Entrada::texto($_POST['bairro'] ?? ''),
+            'cidade' => Entrada::texto($_POST['cidade'] ?? ''),
+            'estado' => strtoupper(Entrada::texto($_POST['estado'] ?? ''))
         ];
     }
     private function validarDados(array $dados): array

@@ -20,20 +20,18 @@ Detalhes, evidências e testes de cada ID estão na [auditoria](auditoria-segura
 
 **Decisões pendentes, antes de implementar os itens ligados a elas:**
 
-- **S-010:** os dados do seed e do histórico do git são de pessoas ou empresas reais? O repositório é público.
 - **S-008 e I-001:** o que o funcionário pode ver e fazer (financeiro, preços, exclusão de produtos, preço livre na movimentação).
 
 **Obrigatórias antes de produção, nesta ordem:**
 
 | # | Item | IDs |
 |---|---|---|
-| 1 | Regra de último admin, 404 para id inexistente, validação estrita no servidor | I-003, I-002, I-005 |
-| 2 | Relatório respeita o período escolhido, e falha aparece como falha na tela | I-006, R-001 |
-| 3 | Uma só fonte de data entre PHP e banco | R-002 |
-| 4 | Logs sem CPF, RG e e-mail | S-009 |
-| 5 | Implementar as decisões sobre o funcionário | S-008, I-001 |
-| 6 | CSS gerado e bibliotecas servidas localmente | S-004, P-002, S-015 |
-| 7 | Pacote de implantação: `DocumentRoot` em `public/`, HTTPS, cabeçalhos, usuário de banco restrito, retenção e backup | S-005, S-006, S-016, L-001 |
+| 1 | Relatório respeita o período escolhido, e falha aparece como falha na tela | I-006, R-001 |
+| 2 | Uma só fonte de data entre PHP e banco | R-002 |
+| 3 | Logs sem CPF, RG e e-mail | S-009 |
+| 4 | Implementar as decisões sobre o funcionário | S-008, I-001 |
+| 5 | CSS gerado e bibliotecas servidas localmente | S-004, P-002, S-015 |
+| 6 | Pacote de implantação: `DocumentRoot` em `public/`, HTTPS, cabeçalhos, usuário de banco restrito, retenção e backup | S-005, S-006, S-016, L-001 |
 
 **Recomendadas:** CSP em bloqueio, depois de remover os `onclick` (S-004); testes dos cenários sem cobertura (M-001); chave de idempotência nas movimentações (I-007); auditoria de operações administrativas (I-012); ciclo de vida da senha (S-014); logout por POST (S-013); paginar movimentações (P-001); fornecedor inativo (I-009); CPF e RG de excluídos (I-011); ViaCEP (R-003); parâmetros malformados (R-004); busca de usuários (R-005); limite do período do relatório (R-006); restringir o Apache local (S-011), que leva minutos.
 
@@ -60,7 +58,9 @@ Detalhes, evidências e testes de cada ID estão na [auditoria](auditoria-segura
 | Pastas | `config/`, `database/` e `storage/` (antiga `armazenamento/`) dentro de `backend/`; `public/` continua na raiz | `e16b77d` |
 | S-001 | Sessão conferida no banco a cada requisição; troca de senha encerra as outras sessões; expiração absoluta de 12 h | `fe4af37` |
 | S-002, S-012 | Limite de tentativas de login por conta e IP; tempo de resposta igual com ou sem conta | `84a9969` |
-| S-007 | Depois do login, só volta a destino local e pedido por GET | `fix/s007-redirecionamento-login` |
+| S-007 | Depois do login, só volta a destino local e pedido por GET | `382588f` |
+| S-010 | Decisão: os dados do seed e do histórico não são de pessoas ou empresas reais, então não há o que limpar | decisão de 2026-10-31 |
+| I-003, I-002, I-005 | O sistema não fica sem admin ativo; id inexistente não responde sucesso; validação estrita de números, preços, marca, perfil e `{id}` | `fix/i003-i002-i005-regras-e-validacao` |
 
 ## Como cada etapa é entregue
 

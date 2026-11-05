@@ -96,13 +96,15 @@ class ProdutoModel {
                 fornecedor_id = ?
             WHERE id_produto = ?
         ");
-        return $stmt->execute([
+        $stmt->execute([
             $dados['marca'],
             $dados['preco_custo'],
             $dados['preco_venda'],
             $dados['fornecedor_id'],
             $id
         ]);
+        // O MySQL informa zero linhas afetadas também quando os dados não mudaram.
+        return $stmt->rowCount() > 0 || $this->buscarPorId($id) !== false;
     }
 
     public function deletar($id) {
