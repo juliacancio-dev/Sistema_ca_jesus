@@ -4,6 +4,7 @@ namespace App\Features\Produtos;
 
 use App\Core\Controller;
 use App\Core\Session;
+use App\Shared\Entrada;
 use Exception;
 use PDOException;
 
@@ -34,13 +35,7 @@ class ProdutoController extends Controller
 
     public function salvar()
     {
-        $dados = [
-            "marca" => $_POST["marca"] ?? "",
-            "preco_custo" => floatval($_POST["preco_custo"] ?? 0),
-            "preco_venda" => floatval($_POST["preco_venda"] ?? 0),
-            "fornecedor_id" => intval($_POST["fornecedor_id"] ?? 0),
-            "estoque" => 0
-        ];
+        $dados = $this->dadosDoFormulario() + ["estoque" => 0];
 
         $this->exigirDadosValidos($dados);
 
@@ -62,13 +57,7 @@ class ProdutoController extends Controller
 
     public function atualizar($id)
     {
-        $dados = [
-            "id" => $id,
-            "marca" => $_POST["marca"] ?? "",
-            "preco_custo" => floatval($_POST["preco_custo"] ?? 0),
-            "preco_venda" => floatval($_POST["preco_venda"] ?? 0),
-            "fornecedor_id" => intval($_POST["fornecedor_id"] ?? 0)
-        ];
+        $dados = $this->dadosDoFormulario() + ["id" => (int)$id];
 
         $this->exigirDadosValidos($dados);
 
@@ -77,7 +66,7 @@ class ProdutoController extends Controller
             if ($result) {
                 Session::flash('success', "Produto atualizado com sucesso!");
             } else {
-                Session::flash('error', "Erro ao salvar produto no banco de dados");
+                Session::flash('error', "Produto não encontrado.");
             }
         } catch (Exception $e) {
             error_log('[produtos] ' . $e);
@@ -90,7 +79,7 @@ class ProdutoController extends Controller
 
     public function buscar()
     {
-        $id = intval($_GET["id"] ?? 0);
+        $id = Entrada::inteiro($_GET["id"] ?? null) ?? 0;
         try {
             $produto = $this->produtoModel->buscarPorId($id);
         } catch (Exception $e) {
@@ -124,9 +113,19 @@ class ProdutoController extends Controller
         $this->json(true, "Produto excluído com sucesso!");
     }
 
+    private function dadosDoFormulario(): array
+    {
+        return [
+            "marca" => Entrada::texto($_POST["marca"] ?? ""),
+            "preco_custo" => Entrada::preco($_POST["preco_custo"] ?? null),
+            "preco_venda" => Entrada::preco($_POST["preco_venda"] ?? null),
+            "fornecedor_id" => Entrada::inteiro($_POST["fornecedor_id"] ?? null)
+        ];
+    }
+
     private function exigirDadosValidos(array $dados): void
     {
-        if (empty($dados["marca"]) || $dados["preco_custo"] < 0 || $dados["preco_venda"] < 0 || $dados["fornecedor_id"] <= 0) {
+        if ($dados["marca"] === "" || mb_strlen($dados["marca"]) > 100 || $dados["preco_custo"] === null || $dados["preco_venda"] === null || $dados["fornecedor_id"] === null) {
             Session::flash('error', "Todos os campos são obrigatórios e devem ser válidos");
             header('Location: ' . BASE_URL . '/produtos');
             exit;
