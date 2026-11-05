@@ -20,6 +20,7 @@ Detalhes, evidências e testes de cada ID estão na [auditoria](auditoria-segura
 
 **Decisões pendentes, antes de implementar os itens ligados a elas:**
 
+- **S-010:** reescrever o histórico do git para apagar os dados reais antigos dos fornecedores (CNPJ, telefone, endereço, e-mail)? Hoje eles ainda aparecem nos commits anteriores a `d8de87c`.
 - **S-008 e I-001:** o que o funcionário pode ver e fazer (financeiro, preços, exclusão de produtos, preço livre na movimentação).
 
 **Obrigatórias antes de produção, nesta ordem:**
@@ -59,7 +60,7 @@ Detalhes, evidências e testes de cada ID estão na [auditoria](auditoria-segura
 | S-001 | Sessão conferida no banco a cada requisição; troca de senha encerra as outras sessões; expiração absoluta de 12 h | `fe4af37` |
 | S-002, S-012 | Limite de tentativas de login por conta e IP; tempo de resposta igual com ou sem conta | `84a9969` |
 | S-007 | Depois do login, só volta a destino local e pedido por GET | `382588f` |
-| S-010 | Decisão: os dados do seed e do histórico não são de pessoas ou empresas reais, então não há o que limpar | decisão de 2026-10-31 |
+| S-010 | Usuários do seed sempre foram fictícios; os fornecedores eram reais e passaram a ser fictícios, com CNPJs que passam na validação | `fix/s010-fornecedores-ficticios` |
 | I-003, I-002, I-005 | O sistema não fica sem admin ativo; id inexistente não responde sucesso; validação estrita de números, preços, marca, perfil e `{id}` | `fix/i003-i002-i005-regras-e-validacao` |
 
 ## Como cada etapa é entregue
