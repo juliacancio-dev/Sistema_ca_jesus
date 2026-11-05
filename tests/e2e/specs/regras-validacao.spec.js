@@ -14,7 +14,7 @@ async function idDoProduto(page, marca) {
 }
 
 async function saldoDoProduto(page, id) {
-    const resposta = await page.request.get(`produtos/buscar?id=${id}`, { headers: JSON_ACEITO });
+    const resposta = await page.request.get(`api/produtos/buscar?id=${id}`, { headers: JSON_ACEITO });
     return Number((await resposta.json()).dados.estoque);
 }
 
@@ -71,6 +71,7 @@ test.describe('Regras de acesso e validação no servidor', () => {
         await page.request.post('produtos/atualizar/999999', {
             headers: { 'X-CSRF-Token': headers['X-CSRF-Token'] },
             form: { marca: unico('Fantasma'), preco_custo: '1', preco_venda: '2', fornecedor_id: '1' },
+            maxRedirects: 0,
         });
         await page.goto('produtos');
         await expect(toast(page)).toContainText('Produto não encontrado');
@@ -114,7 +115,7 @@ test.describe('Regras de acesso e validação no servidor', () => {
             { marca: semPreco, fornecedor_id: '1' },
             { marca: semPreco, preco_custo: '12,50', preco_venda: '20', fornecedor_id: '1' },
         ]) {
-            await page.request.post('produtos/salvar', { headers: { 'X-CSRF-Token': headers['X-CSRF-Token'] }, form });
+            await page.request.post('produtos/salvar', { headers: { 'X-CSRF-Token': headers['X-CSRF-Token'] }, form, maxRedirects: 0 });
             await page.goto('produtos');
             await expect(toast(page)).toContainText('devem ser válidos');
         }
@@ -127,6 +128,7 @@ test.describe('Regras de acesso e validação no servidor', () => {
         await page.request.post('produtos/salvar', {
             headers: { 'X-CSRF-Token': headers['X-CSRF-Token'] },
             form: { marca: `  ${marca}  `, preco_custo: '1.50', preco_venda: '2', fornecedor_id: '1' },
+            maxRedirects: 0,
         });
         await page.goto('produtos');
         await expect(toast(page)).toContainText('cadastrado com sucesso');
@@ -142,12 +144,13 @@ test.describe('Regras de acesso e validação no servidor', () => {
         await page.request.post('usuarios/atualizarEndereco', {
             headers: token,
             form: { endereco: '', cidade: '', estado: '', cep: '', numero: '', complemento: '', bairro: '' },
+            maxRedirects: 0,
         });
         await page.goto('usuarios/perfil');
         await expect(toast(page)).toContainText('CEP inválido');
         await expect(page.locator('#cep')).toHaveValue(cep);
 
-        await page.request.post('usuarios/atualizarDados', { headers: token, form: { nome: 'Pessoa Valida', telefone: '123' } });
+        await page.request.post('usuarios/atualizarDados', { headers: token, form: { nome: 'Pessoa Valida', telefone: '123' }, maxRedirects: 0 });
         await page.goto('usuarios/perfil');
         await expect(toast(page)).toContainText('Telefone inválido');
     });
