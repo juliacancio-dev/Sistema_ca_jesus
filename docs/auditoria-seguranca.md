@@ -1,6 +1,6 @@
 # Auditoria de segurança, robustez e confiabilidade — Sistema CA Jesus
 
-Situação em 2026-10-31, no commit `55e135c` da `main`. Este documento registra uma análise pontual e não é atualizado conforme os itens são resolvidos. O que falta fazer está em [`plano.md`](plano.md). Ele complementa o [diagnóstico](diagnostico-desempenho-seguranca.md) e a [avaliação técnica](avaliacao-tecnica.md); a comparação com os dois está na seção 7.
+Situação em 2026-10-31, no commit `73791f8` da `main`. Este documento registra uma análise pontual e não é atualizado conforme os itens são resolvidos. O que falta fazer está em [`plano.md`](plano.md). Ele complementa o [diagnóstico](diagnostico-desempenho-seguranca.md) e a [avaliação técnica](avaliacao-tecnica.md); a comparação com os dois está na seção 7.
 
 ## Como ler as evidências
 

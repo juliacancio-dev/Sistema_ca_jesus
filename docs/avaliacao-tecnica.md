@@ -1,6 +1,6 @@
 # Avaliação técnica: performance e boas práticas
 
-Situação em 2026-10-31, no commit `7db37b0` da `main`. Este documento registra uma avaliação pontual e não é atualizado conforme os itens são resolvidos. Ele complementa o [Diagnóstico de desempenho e segurança](diagnostico-desempenho-seguranca.md): aqui estão as métricas, as notas e as medições em execução; lá está a lista completa de problemas, com os IDs `S` e `D` citados abaixo.
+Situação em 2026-10-31, no commit `830563f` da `main`. Este documento registra uma avaliação pontual e não é atualizado conforme os itens são resolvidos. Ele complementa o [Diagnóstico de desempenho e segurança](diagnostico-desempenho-seguranca.md): aqui estão as métricas, as notas e as medições em execução; lá está a lista completa de problemas, com os IDs `S` e `D` citados abaixo.
 
 > A [auditoria de segurança](auditoria-seguranca.md), mais recente, traz novos achados que não entraram nesta nota.
 
@@ -41,7 +41,7 @@ A nota mede a distância até um deploy seguro. Ela não compara o projeto com o
 - **Ambiente:** as medições rodaram em uma máquina de desenvolvimento em uso, com XAMPP, PHP 8.2.12 e MariaDB 10.4.32. O OPcache, o `mod_deflate` e o `mod_expires` estão desligados. Os números valem como ordem de grandeza e comparação, não como previsão de um servidor.
 - **Dados sintéticos:** o HTML gerado é muito repetitivo, então a compressão medida tende a ser otimista.
 - **Telas:** `bd_sistema` tinha 14 produtos e nenhuma movimentação. A medição mostra o custo de carregar a tela, não o de muitos dados. Não houve limitação de rede nem de CPU.
-- **Momento da medição:** as medições de banco, telas e login foram feitas pouco antes do merge `7db37b0`, que moveu `config`, `database` e `storage` para `backend/`. As linhas citadas e os testes foram conferidos nesse commit.
+- **Momento da medição:** as medições de banco, telas e login foram feitas pouco antes do merge `830563f`, que moveu `config`, `database` e `storage` para `backend/`. As linhas citadas e os testes foram conferidos nesse commit.
 - **O que não foi feito:** análise estática (o download do PHPStan foi bloqueado no ambiente), cobertura de testes (não há Xdebug nem PCOV), Lighthouse, teste de carga e teste de invasão.
 - **Julgamento:** pesos e limites são escolhas desta avaliação, adaptadas a um sistema interno de estoque que guarda dados pessoais. Quando há referência externa, ela aparece na tabela.
 
