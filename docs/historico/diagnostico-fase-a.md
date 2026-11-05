@@ -1,6 +1,6 @@
 # Diagnóstico — Fase A (Sistema CA Jesus)
 
-Data: 2026-10-23 · Base: `main` @ `fff3403`.
+Data: 2026-10-23 · Base: `main` @ `ca5cd59`.
 
 > **Este documento é um registro histórico e não é atualizado.** Ele descreve o projeto como estava em 2026-10-23 e cita caminhos que já não existem (`app/`, `bancoInteiro.sql`...). O estado atual está em [`arquitetura.md`](../arquitetura.md), e o que falta fazer, em [`plano.md`](../plano.md). As decisões que mudaram depois do diagnóstico estão em [Revisão de arquitetura](#revisão-de-arquitetura-2026-10-24), no fim deste documento.
 
@@ -477,7 +477,7 @@ Consequências:
 
 ## Revisão de arquitetura (2026-10-24)
 
-Feita depois das etapas 1–4 (`main` @ `61ba78c`). A divisão entre `backend/` e `frontend/` continua valendo; a árvore detalhada em vigor é a de [`arquitetura.md`](../arquitetura.md#estrutura). O que mudou foram as premissas: **o sistema ainda não tem produção**, ou seja, não há servidor de deploy nem dados reais a preservar. A arquitetura completa, com as regras, o contrato JSON e a estratégia de testes, está em [`arquitetura.md`](../arquitetura.md).
+Feita depois das etapas 1–4 (`main` @ `0b8ccf1`). A divisão entre `backend/` e `frontend/` continua valendo; a árvore detalhada em vigor é a de [`arquitetura.md`](../arquitetura.md#estrutura). O que mudou foram as premissas: **o sistema ainda não tem produção**, ou seja, não há servidor de deploy nem dados reais a preservar. A arquitetura completa, com as regras, o contrato JSON e a estratégia de testes, está em [`arquitetura.md`](../arquitetura.md).
 
 ### Decisões revisadas
 
