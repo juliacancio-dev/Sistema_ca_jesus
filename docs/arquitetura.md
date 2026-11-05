@@ -118,6 +118,9 @@ O caso de uso não conhece HTTP. Por isso ele pode ser testado chamando a classe
 8. **Uma branch por mudança**, com um slice por commit. O merge na `main` só acontece depois de os testes passarem e o [roteiro manual](roteiro-de-testes.md) ser validado. O merge é feito com `--no-ff`.
 9. **O banco guarda o dado como foi digitado; o escape é só na saída.** No PHP, `htmlspecialchars()`. No JS, `escapeHtml()` ao montar HTML, ou `textContent`. Texto do usuário nunca entra direto no código de um atributo como `onclick`: vai num `data-*`, e o handler lê `this.dataset`.
 
+10. **Entrada do navegador passa por `Shared/Entrada`, nunca por `(int)` ou `(float)`.** O cast transforma `2abc` em 2 e `12,50` em 12. Valor inválido é recusado. `{id}` nas rotas só aceita dígitos, e todo parâmetro de rota é um id.
+11. **O sistema nunca fica sem administrador ativo.** `UsuarioModel` confere isso na mesma transação da gravação, com as linhas travadas, e ninguém altera o próprio tipo ou status. Gravação em id inexistente ou excluído não responde sucesso: 404 nas rotas JSON, e aviso de erro nos formulários.
+
 ## Contrato das respostas JSON
 
 Toda resposta JSON, de qualquer slice e também do tratamento de erro em `public/index.php`, tem o mesmo formato:

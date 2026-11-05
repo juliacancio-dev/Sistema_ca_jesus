@@ -63,7 +63,6 @@ Os usuários e a senha estão no [README](../README.md#usuários-de-desenvolvime
 
 Estes itens falham hoje. Passe a exigi-los quando o achado correspondente da [auditoria](auditoria-seguranca.md) for corrigido.
 
-- [ ] Editar o próprio usuário sem marcar "ativo" ou mudando o tipo: recusado (I-003).
 - [ ] No relatório, escolher "Anual" e aplicar: vêm as movimentações do ano todo (I-006).
 - [ ] Com a API fora do ar, o sino e o relatório mostram erro, não "Tudo ok" nem "R$ 0,00" (R-001).
 - [ ] Buscar na tela um usuário que está na página 2: ele aparece (R-005).
