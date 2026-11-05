@@ -157,7 +157,7 @@ class FornecedorModel
                 WHERE id_fornecedor = ?
             ");
 
-            $resultado = $stmt->execute([
+            $stmt->execute([
                 $dados['nome'],
                 $dados['cnpj'],
                 $dados['email'],
@@ -172,8 +172,10 @@ class FornecedorModel
                 $id
             ]);
 
+            // O MySQL informa zero linhas afetadas também quando os dados não mudaram.
+            $encontrado = $stmt->rowCount() > 0 || $this->buscarPorId($id) !== null;
             $this->db->commit();
-            return $resultado;
+            return $encontrado;
         } catch (PDOException $e) {
             $this->db->rollBack();
             error_log("Erro ao atualizar fornecedor: " . $e->getMessage());
@@ -193,7 +195,8 @@ class FornecedorModel
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM {$this->tableName} WHERE id_fornecedor = ?");
-            return $stmt->execute([$id]);
+            $stmt->execute([$id]);
+            return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
             error_log("Erro ao deletar fornecedor: " . $e->getMessage());
             throw new DatabaseException("Erro ao excluir fornecedor");
