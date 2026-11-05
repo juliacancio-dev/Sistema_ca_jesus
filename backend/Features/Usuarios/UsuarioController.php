@@ -4,7 +4,9 @@ namespace App\Features\Usuarios;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Core\ErroDeNegocio;
 use App\Core\Session;
+use App\Shared\Entrada;
 use Exception;
 use InvalidArgumentException;
 
@@ -49,6 +51,7 @@ class UsuarioController extends Controller
                 Session::flash('error', implode("\n", $erros));
                 $this->redirect('/usuarios');
             }
+            $this->exigirMesmoAcessoSeForOProprio($dados);
             if ($this->usuarioModel->verificarEmailExistente($dados['email'], $dados['id'])) {
                 Session::flash('error', 'Este email já está cadastrado.');
                 $this->redirect('/usuarios');
@@ -80,8 +83,10 @@ class UsuarioController extends Controller
                 Session::flash('success', $mensagem);
                 $this->registrarAcao($dados['id'] ? 'usuario_editado' : 'usuario_criado', ['id' => $dados['id'], 'email' => $dados['email']]);
             } else {
-                Session::flash('error', 'Erro ao salvar usuário.');
+                Session::flash('error', 'Usuário não encontrado.');
             }
+        } catch (ErroDeNegocio $e) {
+            Session::flash('error', $e->getMessage());
         } catch (Exception $e) {
             Session::flash('error', 'Erro ao salvar usuário.');
             error_log('[usuarios] ' . $e);
@@ -105,12 +110,14 @@ class UsuarioController extends Controller
             }
 
             $resultado = $this->usuarioModel->deletar($id);
+        } catch (ErroDeNegocio $e) {
+            throw $e;
         } catch (Exception $e) {
             error_log('[usuarios] ' . $e);
             $this->json(false, 'Erro ao excluir usuário.', status: 500);
         }
         if (!$resultado) {
-            $this->json(false, 'Erro ao excluir usuário.', status: 500);
+            $this->json(false, 'Usuário não encontrado.', status: 404);
         }
         $this->registrarAcao('usuario_excluido', ['id' => $id, 'email' => $usuario['email']]);
         Session::flash('success', 'Usuário excluído com sucesso.');
@@ -138,7 +145,10 @@ class UsuarioController extends Controller
         try {
             $id = $this->validarId($id);
             $dados = json_decode(file_get_contents('php://input'), true);
-            $novoStatus = isset($dados['status']) ? (int)$dados['status'] : 0;
+            $novoStatus = Entrada::inteiro(is_array($dados) ? ($dados['status'] ?? null) : null, 0, 1);
+            if ($novoStatus === null) {
+                $this->json(false, 'Status inválido.', status: 422);
+            }
 
             if ($_SESSION['user']['id'] == $id) {
                 $this->json(false, 'Você não pode alterar o status do seu próprio usuário.', status: 422);
@@ -149,12 +159,14 @@ class UsuarioController extends Controller
             }
 
             $ok = $this->usuarioModel->alternarStatus($id, $novoStatus);
+        } catch (ErroDeNegocio $e) {
+            throw $e;
         } catch (Exception $e) {
             error_log('[usuarios] ' . $e);
             $this->json(false, 'Erro ao alterar status do usuário.', status: 500);
         }
         if (!$ok) {
-            $this->json(false, 'Erro ao alterar status do usuário.', status: 500);
+            $this->json(false, 'Usuário não encontrado.', status: 404);
         }
         $mensagem = $novoStatus ? 'Usuário ativado com sucesso' : 'Usuário desativado com sucesso';
         Session::flash('success', $mensagem);
@@ -166,31 +178,28 @@ class UsuarioController extends Controller
     {
         return [
             'id' => !empty($_POST['id']) ? $this->validarId($_POST['id']) : null,
-            'tipo' => (int)($_POST['tipo'] ?? 0),
-            'nome' => trim($_POST['nome'] ?? ''),
-            'email' => filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL),
-            'senha' => $_POST['senha'] ?? '',
-            'cpf' => preg_replace('/[^0-9]/', '', $_POST['cpf'] ?? ''),
-            'rg' => trim($_POST['rg'] ?? ''),
-            'telefone' => preg_replace('/[^0-9\s\-\(\)]/', '', $_POST['telefone'] ?? ''),
-            'sexo' => trim($_POST['sexo'] ?? ''),
-            'cep' => preg_replace('/[^0-9]/', '', $_POST['cep'] ?? ''),
-            'endereco' => trim($_POST['endereco'] ?? ''),
-            'cidade' => trim($_POST['cidade'] ?? ''),
-            'estado' => strtoupper(trim($_POST['estado'] ?? '')),
-            'numero' => trim($_POST['numero'] ?? ''),
-            'complemento' => trim($_POST['complemento'] ?? ''),
-            'bairro' => trim($_POST['bairro'] ?? ''),
+            'tipo' => Entrada::inteiro($_POST['tipo'] ?? null) ?? 0,
+            'nome' => Entrada::texto($_POST['nome'] ?? ''),
+            'email' => filter_var(Entrada::texto($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL),
+            'senha' => Entrada::senha($_POST['senha'] ?? ''),
+            'cpf' => preg_replace('/[^0-9]/', '', Entrada::texto($_POST['cpf'] ?? '')),
+            'rg' => Entrada::texto($_POST['rg'] ?? ''),
+            'telefone' => preg_replace('/[^0-9\s\-\(\)]/', '', Entrada::texto($_POST['telefone'] ?? '')),
+            'sexo' => Entrada::texto($_POST['sexo'] ?? ''),
+            'cep' => preg_replace('/[^0-9]/', '', Entrada::texto($_POST['cep'] ?? '')),
+            'endereco' => Entrada::texto($_POST['endereco'] ?? ''),
+            'cidade' => Entrada::texto($_POST['cidade'] ?? ''),
+            'estado' => strtoupper(Entrada::texto($_POST['estado'] ?? '')),
+            'numero' => Entrada::texto($_POST['numero'] ?? ''),
+            'complemento' => Entrada::texto($_POST['complemento'] ?? ''),
+            'bairro' => Entrada::texto($_POST['bairro'] ?? ''),
             'ativo' => isset($_POST['ativo']) ? 1 : 0
         ];
     }
 
     private function validarDados(array $dados): array
     {
-        $erros = [];
-        if (empty($dados['nome']) || mb_strlen($dados['nome']) < 3 || mb_strlen($dados['nome']) > 100) {
-            $erros[] = 'Nome é obrigatório e deve ter entre 3 e 100 caracteres.';
-        }
+        $erros = ValidacaoDeUsuario::dadosPessoais($dados['nome'], $dados['telefone']);
         if (empty($dados['email']) || !filter_var($dados['email'], FILTER_VALIDATE_EMAIL)) {
             $erros[] = 'Email inválido.';
         }
@@ -203,33 +212,23 @@ class UsuarioController extends Controller
         if (!empty($dados['rg']) && (mb_strlen($dados['rg']) < 3 || mb_strlen($dados['rg']) > 20)) {
             $erros[] = 'RG deve ter entre 3 e 20 caracteres quando informado.';
         }
-        $telefone = preg_replace('/[^0-9]/', '', $dados['telefone']);
-        if (empty($telefone) || strlen($telefone) < 10 || strlen($telefone) > 11) {
-            $erros[] = 'Telefone inválido. Deve ter 10 ou 11 dígitos.';
-        }
         if (!in_array($dados['sexo'], self::SEXOS_VALIDOS)) {
             $erros[] = 'Sexo inválido.';
         }
-        if (!$this->validarCep($dados['cep'])) {
-            $erros[] = 'CEP inválido. Deve conter 8 dígitos.';
-        }
-        if (empty($dados['endereco']) || mb_strlen($dados['endereco']) > 200) {
-            $erros[] = 'Endereço é obrigatório e deve ter no máximo 200 caracteres.';
-        }
 
-        if (empty($dados['cidade']) || mb_strlen($dados['cidade']) > 100) {
-            $erros[] = 'Cidade é obrigatória e deve ter no máximo 100 caracteres.';
-        }
+        return array_merge($erros, ValidacaoDeUsuario::endereco($dados));
+    }
 
-        if (empty($dados['estado']) || strlen($dados['estado']) !== 2) {
-            $erros[] = 'Estado é obrigatório e deve ter 2 caracteres.';
+    // Quem se rebaixa ou se desativa perde o acesso na hora, sem como voltar pela aplicação.
+    private function exigirMesmoAcessoSeForOProprio(array $dados): void
+    {
+        if ((int)$dados['id'] !== (int)$_SESSION['user']['id']) {
+            return;
         }
-
-        if (empty($dados['bairro']) || mb_strlen($dados['bairro']) > 100) {
-            $erros[] = 'Bairro é obrigatório e deve ter no máximo 100 caracteres.';
+        $atual = $this->usuarioModel->buscarPorId($dados['id']);
+        if ($atual && ((int)$atual['tipo'] !== $dados['tipo'] || (int)$atual['ativo'] !== $dados['ativo'])) {
+            throw new ErroDeNegocio('Você não pode alterar o tipo nem o status do seu próprio usuário.');
         }
-
-        return $erros;
     }
 
     private function validarCpf(string $cpf): bool
@@ -252,12 +251,6 @@ class UsuarioController extends Controller
         }
 
         return true;
-    }
-
-    private function validarCep(string $cep): bool
-    {
-        $cep = preg_replace('/[^0-9]/', '', $cep);
-        return strlen($cep) === 8 && preg_match('/^\d{8}$/', $cep);
     }
 
     private function validarId($id): int

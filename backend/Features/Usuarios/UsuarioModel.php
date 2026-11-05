@@ -4,6 +4,7 @@ namespace App\Features\Usuarios;
 
 use App\Core\Database;
 use App\Core\DatabaseException;
+use App\Core\ErroDeNegocio;
 use PDO;
 use PDOException;
 
@@ -12,9 +13,9 @@ class UsuarioModel
     private $db;
     private $tableName = 'tbusuarios';
     
-    public function __construct() 
+    public function __construct($db = null)
     {
-        $this->db = Database::getInstance();
+        $this->db = $db ?? Database::getInstance();
     }
 
     public static function gerarHashDeSenha(string $senha): string
@@ -257,7 +258,11 @@ class UsuarioModel
     {
         try {
             $this->db->beginTransaction();
-            
+
+            if ((int)$dados['tipo'] !== 1 || (int)($dados['ativo'] ?? 1) !== 1) {
+                $this->impedirPerdaDoUltimoAdmin($id);
+            }
+
             $campos = [
                 'tipo_usuario = ?',
                 'nome_usuario = ?',
@@ -302,12 +307,16 @@ class UsuarioModel
             
             $params[] = $id;
             
-            $sql = "UPDATE {$this->tableName} SET " . implode(', ', $campos) . " WHERE id_usuario = ?";
+            $sql = "UPDATE {$this->tableName} SET " . implode(', ', $campos) . " WHERE id_usuario = ? AND deletado_em IS NULL";
             $stmt = $this->db->prepare($sql);
-            
-            $resultado = $stmt->execute($params);
+
+            $stmt->execute($params);
+            $encontrado = $this->gravouOuExiste($stmt, $id);
             $this->db->commit();
-            return $resultado;
+            return $encontrado;
+        } catch (ErroDeNegocio $e) {
+            $this->db->rollBack();
+            throw $e;
         } catch (PDOException $e) {
             $this->db->rollBack();
             error_log("Erro ao atualizar usuário: " . $e->getMessage());
@@ -380,34 +389,82 @@ class UsuarioModel
         }
     }
 
-    public function deletar(int $id): bool 
+    public function deletar(int $id): bool
     {
         try {
+            $this->db->beginTransaction();
+            $this->impedirPerdaDoUltimoAdmin($id);
+
             $stmt = $this->db->prepare("
-                UPDATE {$this->tableName} 
-                SET deletado_em = NOW(), ativo_usuario = 0 
-                WHERE id_usuario = ?
+                UPDATE {$this->tableName}
+                SET deletado_em = NOW(), ativo_usuario = 0
+                WHERE id_usuario = ? AND deletado_em IS NULL
             ");
-            return $stmt->execute([$id]);
+            $stmt->execute([$id]);
+            $encontrado = $stmt->rowCount() > 0;
+            $this->db->commit();
+            return $encontrado;
+        } catch (ErroDeNegocio $e) {
+            $this->db->rollBack();
+            throw $e;
         } catch (PDOException $e) {
+            $this->db->rollBack();
             error_log("Erro ao deletar usuário: " . $e->getMessage());
             throw new DatabaseException("Erro ao excluir usuário");
         }
     }
 
-    public function alternarStatus(int $id, int $status): bool 
+    public function alternarStatus(int $id, int $status): bool
     {
         try {
+            $this->db->beginTransaction();
+
+            if ($status !== 1) {
+                $this->impedirPerdaDoUltimoAdmin($id);
+            }
+
             $stmt = $this->db->prepare("
-                UPDATE {$this->tableName} 
-                SET ativo_usuario = ?, data_atualizacao = NOW() 
-                WHERE id_usuario = ?
+                UPDATE {$this->tableName}
+                SET ativo_usuario = ?, data_atualizacao = NOW()
+                WHERE id_usuario = ? AND deletado_em IS NULL
             ");
-            return $stmt->execute([$status, $id]);
+            $stmt->execute([$status, $id]);
+            $encontrado = $this->gravouOuExiste($stmt, $id);
+            $this->db->commit();
+            return $encontrado;
+        } catch (ErroDeNegocio $e) {
+            $this->db->rollBack();
+            throw $e;
         } catch (PDOException $e) {
+            $this->db->rollBack();
             error_log("Erro ao alterar status: " . $e->getMessage());
             throw new DatabaseException("Erro ao alterar status do usuário");
         }
+    }
+
+    // FOR UPDATE: dois admins rebaixando um ao outro ao mesmo tempo esperam um pelo outro,
+    // e o segundo já enxerga o resultado do primeiro. Vem antes de qualquer outra gravação,
+    // para as transações pegarem as travas sempre na mesma ordem.
+    private function impedirPerdaDoUltimoAdmin(int $id): void
+    {
+        $stmt = $this->db->prepare("
+            SELECT id_usuario FROM {$this->tableName}
+            WHERE tipo_usuario = 1 AND COALESCE(ativo_usuario, 1) = 1 AND deletado_em IS NULL
+            ORDER BY id_usuario
+            FOR UPDATE
+        ");
+        $stmt->execute();
+        $admins = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+
+        if ($admins === [$id]) {
+            throw new ErroDeNegocio('O sistema precisa de pelo menos um administrador ativo.', 409);
+        }
+    }
+
+    // O MySQL informa zero linhas afetadas também quando os dados não mudaram.
+    private function gravouOuExiste($stmt, int $id): bool
+    {
+        return $stmt->rowCount() > 0 || $this->buscarPorId($id) !== null;
     }
 
     public function verificarEmailExistente(string $email, ?int $id = null): bool 

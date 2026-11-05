@@ -5,6 +5,7 @@ namespace App\Features\Usuarios;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Session;
+use App\Shared\Entrada;
 use Exception;
 
 // O próprio usuário logado, seja qual for o tipo: só exige login, e o id vem sempre da sessão.
@@ -34,11 +35,12 @@ class PerfilController extends Controller
     public function atualizarDados()
     {
         try {
-            $nome = trim($_POST['nome'] ?? '');
-            $telefone = preg_replace('/[^0-9\s\-\(\)]/', '', $_POST['telefone'] ?? '');
+            $nome = Entrada::texto($_POST['nome'] ?? '');
+            $telefone = preg_replace('/[^0-9\s\-\(\)]/', '', Entrada::texto($_POST['telefone'] ?? ''));
 
-            if (empty($nome) || mb_strlen($nome) < 3 || mb_strlen($nome) > 100) {
-                Session::flash('error', 'Nome é obrigatório e deve ter entre 3 e 100 caracteres.');
+            $erros = ValidacaoDeUsuario::dadosPessoais($nome, $telefone);
+            if (!empty($erros)) {
+                Session::flash('error', implode("\n", $erros));
                 $this->redirect('/usuarios/perfil');
             }
 
@@ -62,14 +64,20 @@ class PerfilController extends Controller
     {
         try {
             $endereco = [
-                'endereco' => trim($_POST['endereco'] ?? ''),
-                'cidade' => trim($_POST['cidade'] ?? ''),
-                'estado' => strtoupper(trim($_POST['estado'] ?? '')),
-                'cep' => preg_replace('/[^0-9]/', '', $_POST['cep'] ?? ''),
-                'numero' => trim($_POST['numero'] ?? ''),
-                'complemento' => trim($_POST['complemento'] ?? ''),
-                'bairro' => trim($_POST['bairro'] ?? '')
+                'endereco' => Entrada::texto($_POST['endereco'] ?? ''),
+                'cidade' => Entrada::texto($_POST['cidade'] ?? ''),
+                'estado' => strtoupper(Entrada::texto($_POST['estado'] ?? '')),
+                'cep' => preg_replace('/[^0-9]/', '', Entrada::texto($_POST['cep'] ?? '')),
+                'numero' => Entrada::texto($_POST['numero'] ?? ''),
+                'complemento' => Entrada::texto($_POST['complemento'] ?? ''),
+                'bairro' => Entrada::texto($_POST['bairro'] ?? '')
             ];
+
+            $erros = ValidacaoDeUsuario::endereco($endereco);
+            if (!empty($erros)) {
+                Session::flash('error', implode("\n", $erros));
+                $this->redirect('/usuarios/perfil');
+            }
 
             if ($this->usuarioModel->atualizarEndereco($_SESSION['user']['id'], $endereco)) {
                 Session::flash('success', 'Perfil atualizado com sucesso.');
@@ -88,9 +96,9 @@ class PerfilController extends Controller
     public function alterarSenha()
     {
         try {
-            $senhaAtual = $_POST['senha_atual'] ?? '';
-            $novaSenha = $_POST['nova_senha'] ?? '';
-            $confirmarSenha = $_POST['confirmar_senha'] ?? '';
+            $senhaAtual = Entrada::senha($_POST['senha_atual'] ?? '');
+            $novaSenha = Entrada::senha($_POST['nova_senha'] ?? '');
+            $confirmarSenha = Entrada::senha($_POST['confirmar_senha'] ?? '');
 
             if (empty($senhaAtual) || empty($novaSenha) || empty($confirmarSenha)) {
                 Session::flash('error', 'Todos os campos são obrigatórios.');
