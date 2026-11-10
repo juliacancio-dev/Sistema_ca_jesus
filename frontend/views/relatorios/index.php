@@ -123,6 +123,7 @@
                     <option value="semanal">Semanal</option>
                     <option value="mensal" selected>Mensal</option>
                     <option value="anual">Anual</option>
+                    <option value="personalizado">Personalizado</option>
                 </select>
             </div>
             <div>
@@ -137,7 +138,7 @@
                 <button id="btn-aplicar" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Aplicar</button>
             </div>
         </div>
-        <p class="text-xs text-gray-500 mt-2">Escolha um período predefinido ou defina datas específicas. Se datas forem preenchidas, elas prevalecem.</p>
+        <p class="text-xs text-gray-500 mt-2">Escolha um período e clique em Aplicar: as datas dele aparecem nos campos. Para outro intervalo, mude as datas, e o período passa a Personalizado.</p>
     </div>
 
     <div id="grid-relatorios" class="grid grid-cols-1 md:grid-cols-2 gap-6">
