@@ -118,8 +118,13 @@ if (bellBtn && bellMenu) {
         bellMenu.classList.toggle('hidden');
         if (!bellLoaded) {
             try {
-                                const data = (await requisicaoJson(APP_BASE_URL + '/api/estoque/atual')).dados;
-                const low = (data || []).filter(p => (parseInt(p.estoque || p.estoque_produto || 0, 10)) < 5);
+                const resposta = await requisicaoJson(APP_BASE_URL + '/api/estoque/atual');
+                // Sem os dados, "Tudo ok" seria uma afirmação falsa. Tenta de novo no próximo clique.
+                if (!resposta.sucesso) {
+                    bellList.innerHTML = '<div class="px-4 py-3 text-sm text-red-600">Não foi possível carregar os alertas.</div>';
+                    return;
+                }
+                const low = (resposta.dados || []).filter(p => (parseInt(p.estoque || p.estoque_produto || 0, 10)) < 5);
                 bellList.innerHTML = '';
                 if (low.length === 0) {
                     bellList.innerHTML = '<div class="px-4 py-3 text-sm text-gray-600">Tudo ok no estoque.</div>';
@@ -145,8 +150,9 @@ if (bellBtn && bellMenu) {
 
     (async () => {
         try {
-                        const data = (await requisicaoJson(APP_BASE_URL + '/api/estoque/atual')).dados;
-            const low = (data || []).filter(p => (parseInt(p.estoque || p.estoque_produto || 0, 10)) < 5);
+            const resposta = await requisicaoJson(APP_BASE_URL + '/api/estoque/atual');
+            if (!resposta.sucesso) return;
+            const low = (resposta.dados || []).filter(p => (parseInt(p.estoque || p.estoque_produto || 0, 10)) < 5);
             if (low.length > 0 && bellBadge) {
                 bellBadge.style.display = '';
             } else if (bellBadge) {

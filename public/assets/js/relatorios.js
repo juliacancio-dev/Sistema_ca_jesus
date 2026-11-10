@@ -16,28 +16,82 @@ function formatDateTime(iso) {
     }
 }
 
+// O servidor calcula o intervalo de cada período; as datas só vão no personalizado.
 function filtrosAtuais() {
     const periodo = document.getElementById('select-periodo').value;
-    const dataInicio = document.getElementById('data-inicio').value;
-    const dataFim = document.getElementById('data-fim').value;
     const params = new URLSearchParams({
         periodo
     });
-    if (dataInicio && dataFim) {
-        params.set('data_inicio', dataInicio);
-        params.set('data_fim', dataFim);
+    if (periodo === 'personalizado') {
+        params.set('data_inicio', document.getElementById('data-inicio').value);
+        params.set('data_fim', document.getElementById('data-fim').value);
     }
     return params;
 }
 
-function periodoTexto() {
-    const periodo = document.getElementById('select-periodo').value;
-    const di = document.getElementById('data-inicio').value;
-    const df = document.getElementById('data-fim').value;
-    const b = s => s ? s.split('-').reverse().join('/') : '-';
-    const base = di && df ? `${b(di)} a ${b(df)}` : periodo.charAt(0).toUpperCase() + periodo.slice(1);
-    return `${base} (${periodo})`;
+const NOMES_DOS_PERIODOS = {
+    diario: 'Diário',
+    semanal: 'Semanal',
+    mensal: 'Mensal',
+    anual: 'Anual',
+    personalizado: 'Personalizado'
+};
+
+// O rótulo da tela e do PDF vem do intervalo que o servidor devolveu, não dos campos.
+let intervaloCarregado = null;
+
+function registrarIntervalo(dados) {
+    intervaloCarregado = {
+        periodo: dados.periodo,
+        inicio: dados.data_inicio,
+        fim: dados.data_fim
+    };
+    document.getElementById('data-inicio').value = dados.data_inicio;
+    document.getElementById('data-fim').value = dados.data_fim;
 }
+
+function periodoTexto() {
+    if (!intervaloCarregado) return '-';
+    const b = s => s.split('-').reverse().join('/');
+    const nome = NOMES_DOS_PERIODOS[intervaloCarregado.periodo] || intervaloCarregado.periodo;
+    return `${b(intervaloCarregado.inicio)} a ${b(intervaloCarregado.fim)} (${nome})`;
+}
+
+const PARTES_DO_RELATORIO = {
+    financeiro: {
+        valor: 'fin-saldo',
+        tabelas: ['fin-entradas-tbody', 'fin-saidas-tbody']
+    },
+    estoque: {
+        valor: 'est-qtde-total',
+        tabelas: ['est-produtos-tbody', 'est-entradas-tbody', 'est-saidas-tbody', 'est-historico-tbody', 'est-top-tbody']
+    }
+};
+
+// Uma falha não pode parecer resultado: tira da tela o valor antigo (ou o "R$ 0,00"
+// inicial) e impede exportar dados que não são do período pedido.
+function mostrarFalha(tipo, mensagem) {
+    const partes = PARTES_DO_RELATORIO[tipo];
+    window['__dados_' + tipo] = null;
+    intervaloCarregado = null;
+    atualizarPeriodoLabels();
+    document.getElementById(partes.valor).textContent = 'Não foi possível carregar';
+    partes.tabelas.forEach(id => {
+        const tbody = document.getElementById(id);
+        const colunas = tbody.closest('table').querySelectorAll('thead th').length || 1;
+        tbody.innerHTML = `<tr><td colspan="${colunas}" class="px-2 py-2 text-red-600">Não foi possível carregar.</td></tr>`;
+    });
+    if (tipo === 'financeiro') {
+        if (chartEntradas) chartEntradas.destroy();
+        if (chartSaidas) chartSaidas.destroy();
+        chartEntradas = null;
+        chartSaidas = null;
+    }
+    showToast(mensagem || 'Não foi possível carregar o relatório.', 'error');
+}
+
+// Só a resposta do último Aplicar vale: uma resposta antiga que chegue depois não sobrescreve a nova.
+let ultimoPedido = 0;
 
 function atualizarPeriodoLabels() {
     const label = periodoTexto();
@@ -65,31 +119,32 @@ function carregarRelatorios() {
     }
 
     const params = filtrosAtuais();
+    const pedido = ++ultimoPedido;
+    const preencher = {
+        financeiro: preencherFinanceiro,
+        estoque: preencherEstoque
+    };
 
-    if (mostrarFin) {
-        const pFin = new URLSearchParams(params);
-        pFin.set('tipo', 'financeiro');
-        requisicaoJson(APP_BASE_URL + '/api/relatorios/dados?' + pFin.toString())
+    for (const [tipo, mostrar] of [['financeiro', mostrarFin], ['estoque', mostrarEst]]) {
+        if (!mostrar) continue;
+        const p = new URLSearchParams(params);
+        p.set('tipo', tipo);
+        requisicaoJson(APP_BASE_URL + '/api/relatorios/dados?' + p.toString())
             .then(json => {
-                if (!json || !json.dados) return;
-                window.__dados_financeiro = json.dados;
-                preencherFinanceiro(json.dados);
+                if (pedido !== ultimoPedido) return;
+                if (!json.sucesso || !json.dados) {
+                    mostrarFalha(tipo, json.mensagem);
+                    return;
+                }
+                window['__dados_' + tipo] = json.dados;
+                registrarIntervalo(json.dados);
+                preencher[tipo](json.dados);
                 atualizarPeriodoLabels();
             })
-            .catch(err => console.error('Erro ao carregar relatório financeiro:', err));
-    }
-
-    if (mostrarEst) {
-        const pEst = new URLSearchParams(params);
-        pEst.set('tipo', 'estoque');
-        requisicaoJson(APP_BASE_URL + '/api/relatorios/dados?' + pEst.toString())
-            .then(json => {
-                if (!json || !json.dados) return;
-                window.__dados_estoque = json.dados;
-                preencherEstoque(json.dados);
-                atualizarPeriodoLabels();
-            })
-            .catch(err => console.error('Erro ao carregar relatório de estoque:', err));
+            .catch(err => {
+                console.error(`Erro ao montar o relatório ${tipo}:`, err);
+                mostrarFalha(tipo);
+            });
     }
 }
 
@@ -474,6 +529,20 @@ function exportExcel(tipo) {
 
 document.getElementById('btn-aplicar').addEventListener('click', carregarRelatorios);
 
+// Período predefinido: as datas vêm do servidor no próximo Aplicar.
+document.getElementById('select-periodo').addEventListener('change', (e) => {
+    if (e.target.value === 'personalizado') return;
+    document.getElementById('data-inicio').value = '';
+    document.getElementById('data-fim').value = '';
+});
+
+// Mexer nas datas é escolher um intervalo próprio.
+for (const id of ['data-inicio', 'data-fim']) {
+    document.getElementById(id).addEventListener('input', () => {
+        document.getElementById('select-periodo').value = 'personalizado';
+    });
+}
+
 document.getElementById('cb-financeiro').addEventListener('change', carregarRelatorios);
 
 document.getElementById('cb-estoque').addEventListener('change', carregarRelatorios);
@@ -489,11 +558,4 @@ if (btnPdfEst) btnPdfEst.addEventListener('click', () => exportPDF('estoque'));
 if (btnXlsEst) btnXlsEst.addEventListener('click', () => exportExcel('estoque'));
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    const hoje = new Date();
-    const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().slice(0, 10);
-    const fim = hoje.toISOString().slice(0, 10);
-    document.getElementById('data-inicio').value = inicio;
-    document.getElementById('data-fim').value = fim;
-    carregarRelatorios();
-});
+document.addEventListener('DOMContentLoaded', carregarRelatorios);

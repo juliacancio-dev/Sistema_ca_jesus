@@ -99,6 +99,48 @@ test.describe('Relatórios', () => {
         await expect(page.locator('#est-historico-tbody')).not.toContainText('Galão');
     });
 
+    test('o período escolhido define o intervalo, e as datas mostram qual foi', async ({ page }) => {
+        await abrir(page);
+        const ano = await page.inputValue('#data-fim').then((d) => d.slice(0, 4));
+
+        await page.selectOption('#select-periodo', 'anual');
+        const resposta = page.waitForResponse((r) => r.url().includes('periodo=anual') && r.url().includes('tipo=financeiro'));
+        await page.click('#btn-aplicar');
+        const pedido = await resposta;
+
+        expect(pedido.url()).not.toContain('data_inicio');
+        expect((await pedido.json()).dados.data_inicio).toBe(`${ano}-01-01`);
+        await expect(page.locator('#data-inicio')).toHaveValue(`${ano}-01-01`);
+        // O mesmo texto que vai no cabeçalho do PDF.
+        const texto = await page.evaluate(() => periodoTexto());
+        expect(texto.startsWith(`01/01/${ano} a `)).toBe(true);
+        expect(texto.endsWith('(Anual)')).toBe(true);
+    });
+
+    test('mudar uma data passa o período a personalizado', async ({ page }) => {
+        await abrir(page);
+        await page.fill('#data-inicio', '2020-01-01');
+        await expect(page.locator('#select-periodo')).toHaveValue('personalizado');
+        await page.selectOption('#select-periodo', 'mensal');
+        await expect(page.locator('#data-inicio')).toHaveValue('');
+    });
+
+    test('o servidor recusa período e datas inválidos', async ({ page }) => {
+        for (const busca of [
+            'periodo=trimestral',
+            'periodo=personalizado',
+            'periodo=personalizado&data_inicio=abc&data_fim=2026-01-01',
+            'periodo=personalizado&data_inicio=2026-10-31&data_fim=2026-10-01',
+            'periodo=personalizado&data_inicio=0001-01-01&data_fim=9999-12-31',
+            'periodo[]=x',
+            'tipo=outro',
+            'tipo[]=x',
+        ]) {
+            const resposta = await page.request.get(`api/relatorios/dados?tipo=financeiro&${busca}`, { headers: { Accept: 'application/json' } });
+            expect(resposta.status(), busca).toBe(422);
+        }
+    });
+
     test('trocar o período recarrega os dados', async ({ page }) => {
         await abrir(page);
         for (const periodo of ['diario', 'semanal', 'mensal', 'anual']) {
@@ -124,4 +166,44 @@ test.describe('Relatórios', () => {
             expect(fs.statSync(await arquivo.path()).size).toBeGreaterThan(1000);
         });
     }
+});
+
+// A API fora do ar tem de aparecer como falha, e não como "Tudo ok" ou "R$ 0,00".
+test.describe('Falha da API', () => {
+    test.use({ errosPermitidos: ['HTTP 500', 'Falha na requisição'] });
+    test.beforeEach(async ({ page }) => entrarNoDashboard(page));
+
+    const falhar = (page, rota) => page.route(rota, (r) => r.fulfill({ status: 500, contentType: 'text/html', body: 'erro' }));
+
+    test('o sino avisa que não carregou', async ({ page }) => {
+        await falhar(page, '**/api/estoque/atual');
+        await page.goto('dashboard');
+        await page.click('#btn-bell');
+        await expect(page.locator('#bell-list')).toContainText('Não foi possível carregar os alertas');
+        await expect(page.locator('#bell-list')).not.toContainText('Tudo ok');
+    });
+
+    test('a primeira carga do relatório não mostra R$ 0,00', async ({ page }) => {
+        await falhar(page, '**/api/relatorios/dados**');
+        await page.goto('relatorios');
+        await expect(page.locator('#fin-saldo')).toHaveText('Não foi possível carregar');
+        await expect(page.locator('#est-qtde-total')).toHaveText('Não foi possível carregar');
+        await expect(page.locator('#est-produtos-tbody')).toContainText('Não foi possível carregar');
+    });
+
+    test('reaplicar com a API fora do ar apaga os valores antigos e bloqueia a exportação', async ({ page }) => {
+        const carregou = page.waitForResponse((r) => r.url().includes('tipo=estoque'));
+        await page.goto('relatorios');
+        await carregou;
+        await expect(page.locator('#fin-saldo')).toContainText('R$');
+
+        await falhar(page, '**/api/relatorios/dados**');
+        await page.click('#btn-aplicar');
+
+        await expect(page.locator('#fin-saldo')).toHaveText('Não foi possível carregar');
+        await expect(page.locator('#fin-entradas-tbody')).toHaveText('Não foi possível carregar.');
+        expect(await page.evaluate(() => periodoTexto())).toBe('-');
+        await page.click('#btn-export-excel-fin');
+        await expect(page.locator('#toast-container')).toContainText('Carregue o relatório antes de exportar');
+    });
 });

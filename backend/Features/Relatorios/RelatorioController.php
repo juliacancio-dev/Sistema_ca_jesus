@@ -3,6 +3,7 @@
 namespace App\Features\Relatorios;
 
 use App\Core\Controller;
+use App\Shared\Entrada;
 
 class RelatorioController extends Controller
 {
@@ -19,45 +20,27 @@ class RelatorioController extends Controller
 
     public function getDados()
     {
-        $tipo = $_GET['tipo'] ?? 'financeiro';
-        $periodo = $_GET['periodo'] ?? 'mensal';
-        $dataInicio = $_GET['data_inicio'] ?? null;
-        $dataFim = $_GET['data_fim'] ?? null;
+        $tipo = Entrada::texto($_GET['tipo'] ?? 'financeiro');
+        $periodo = Entrada::texto($_GET['periodo'] ?? 'mensal');
+
+        if ($tipo !== 'financeiro' && $tipo !== 'estoque') {
+            $this->json(false, 'Tipo de relatório inválido.', status: 422);
+        }
+
+        // ErroDeNegocio de período inválido é respondida com 422 por public/index.php.
+        [$inicio, $fim] = PeriodoDoRelatorio::intervalo(
+            $periodo,
+            Entrada::texto($_GET['data_inicio'] ?? ''),
+            Entrada::texto($_GET['data_fim'] ?? ''),
+            date('Y-m-d')
+        );
 
         $consultas = new RelatorioConsultas();
-
-        [$inicio, $fim] = $this->determinarIntervaloDatas($periodo, $dataInicio, $dataFim);
-
         $movimentacoes = $consultas->movimentacoesDoPeriodo($inicio, $fim);
 
         if ($tipo === 'financeiro') {
             $this->json(true, dados: RelatorioFinanceiro::montar($movimentacoes, $periodo, $inicio, $fim));
         }
-
-        if ($tipo === 'estoque') {
-            $this->json(true, dados: RelatorioEstoque::montar($movimentacoes, $consultas->produtos(), $periodo, $inicio, $fim));
-        }
-
-        $this->json(false, 'Tipo de relatório inválido.', status: 422);
-    }
-
-    private function determinarIntervaloDatas(string $periodo, ?string $dataInicio, ?string $dataFim): array
-    {
-        if ($dataInicio && $dataFim) {
-            return [$dataInicio, $dataFim];
-        }
-
-        $hoje = date('Y-m-d');
-        switch (strtolower($periodo)) {
-            case 'diario':
-                return [$hoje, $hoje];
-            case 'semanal':
-                return [date('Y-m-d', strtotime('-6 days')), $hoje];
-            case 'anual':
-                return [date('Y-01-01'), $hoje];
-            case 'mensal':
-            default:
-                return [date('Y-m-01'), $hoje];
-        }
+        $this->json(true, dados: RelatorioEstoque::montar($movimentacoes, $consultas->produtos(), $periodo, $inicio, $fim));
     }
 }

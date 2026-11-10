@@ -26,14 +26,13 @@ Detalhes, evidências e testes de cada ID estão na [auditoria](auditoria-segura
 
 | # | Item | IDs |
 |---|---|---|
-| 1 | Relatório respeita o período escolhido, e falha aparece como falha na tela | I-006, R-001 |
-| 2 | Uma só fonte de data entre PHP e banco | R-002 |
-| 3 | Logs sem CPF, RG e e-mail | S-009 |
-| 4 | Implementar as decisões sobre o funcionário | S-008, I-001 |
-| 5 | CSS gerado e bibliotecas servidas localmente | S-004, P-002, S-015 |
-| 6 | Pacote de implantação: `DocumentRoot` em `public/`, HTTPS, cabeçalhos, usuário de banco restrito, retenção e backup | S-005, S-006, S-016, L-001 |
+| 1 | Uma só fonte de data entre PHP e banco | R-002 |
+| 2 | Logs sem CPF, RG e e-mail | S-009 |
+| 3 | Implementar as decisões sobre o funcionário | S-008, I-001 |
+| 4 | CSS gerado e bibliotecas servidas localmente | S-004, P-002, S-015 |
+| 5 | Pacote de implantação: `DocumentRoot` em `public/`, HTTPS, cabeçalhos, usuário de banco restrito, retenção e backup | S-005, S-006, S-016, L-001 |
 
-**Recomendadas:** CSP em bloqueio, depois de remover os `onclick` (S-004); testes dos cenários sem cobertura (M-001); chave de idempotência nas movimentações (I-007); auditoria de operações administrativas (I-012); ciclo de vida da senha (S-014); logout por POST (S-013); paginar movimentações (P-001); fornecedor inativo (I-009); CPF e RG de excluídos (I-011); ViaCEP (R-003); parâmetros malformados (R-004); busca de usuários (R-005); limite do período do relatório (R-006); restringir o Apache local (S-011), que leva minutos.
+**Recomendadas:** CSP em bloqueio, depois de remover os `onclick` (S-004); testes dos cenários sem cobertura (M-001); chave de idempotência nas movimentações (I-007); auditoria de operações administrativas (I-012); ciclo de vida da senha (S-014); logout por POST (S-013); paginar movimentações (P-001); fornecedor inativo (I-009); CPF e RG de excluídos (I-011); ViaCEP (R-003); parâmetros malformados (R-004); busca de usuários (R-005); restringir o Apache local (S-011), que leva minutos.
 
 **Futuras:** CI e PHPStan (M-002), `strict_types` gradual, coluna de lucro (I-010), custos menores de desempenho (P-003), divergências da documentação (M-003).
 
@@ -61,6 +60,7 @@ Detalhes, evidências e testes de cada ID estão na [auditoria](auditoria-segura
 | S-007 | Depois do login, só volta a destino local e pedido por GET | `b288f4c` |
 | S-010 | Usuários do seed sempre foram fictícios; os fornecedores eram reais e passaram a ser fictícios, com CNPJs que passam na validação. O histórico do git foi reescrito para apagar os dados antigos, e todos os hashes mudaram | `9889d45` |
 | I-003, I-002, I-005 | O sistema não fica sem admin ativo; id inexistente não responde sucesso; validação estrita de números, preços, marca, perfil e `{id}` | `28d2531` |
+| I-006, R-001, R-006 | O período escolhido define o intervalo, calculado no servidor; datas só no personalizado, validadas e até 10 anos; falha da API aparece como falha no relatório e no sino | `fix/i006-r001-relatorio-periodo` |
 
 ## Como cada etapa é entregue
 
